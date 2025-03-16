@@ -117,7 +117,6 @@ export const columns: ColumnDef<ProjectRecord>[] = [
 
 type ProjectRecord = {
   projectToken: string;
-  desc;
   projectChainId: number;
   tvl: number;
   earnings: number;
