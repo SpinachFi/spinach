@@ -1,0 +1,31 @@
+datasource db {
+  url      = env("POSTGRES_URL")
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Project {
+  name         String
+  token        String
+  chainId      Int
+  website      String?
+  addLiquidity String?
+  records      ProjectRecord[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@unique([token, chainId])
+}
+
+model ProjectRecord {
+  id             Int      @id @default(autoincrement())
+  project        Project  @relation(fields: [projectToken, projectChainId], references: [token, chainId])
+  projectToken   String
+  projectChainId Int
+  tvl            Int
+  earnings       Int
+  date           DateTime
+}

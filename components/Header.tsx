@@ -14,6 +14,8 @@ export function Header() {
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">Spinach</span>
             <Image
+              height={32}
+              width={32}
               src={
                 "https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
               }

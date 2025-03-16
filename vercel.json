@@ -1,0 +1,17 @@
+{
+  "functions": {
+    "pages/api/*.ts": {
+      "maxDuration": 280
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/collect/celo",
+      "schedule": "00 00 * * *"
+    },
+    {
+      "path": "/api/collect/optimism",
+      "schedule": "00 05 * * *"
+    }
+  ]
+}

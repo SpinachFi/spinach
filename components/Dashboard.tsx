@@ -33,36 +33,39 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const data: Project[] = [
+export const columns: ColumnDef<ProjectRecord>[] = [
   {
-    name: "Ubeswap",
-    liquidity: 316,
-    payouts: 100,
+    accessorFn: (row) => row.project.name,
+    header: "Project",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.original.project.name}</div>
+    ),
   },
   {
-    name: "Gooddollar",
-    liquidity: 242,
-    payouts: 200,
-  },
-];
-
-export type Project = {
-  name: string;
-  liquidity: number;
-  payouts: number;
-};
-
-export const columns: ColumnDef<Project>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+    accessorKey: "projectToken",
+    header: "Token",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("projectToken")}</div>
+    ),
   },
   {
-    accessorKey: "liquidity",
+    accessorKey: "tvl",
     header: () => <div className="text-right">Current liquidity</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("liquidity"));
+      const amount = parseFloat(row.getValue("tvl"));
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(amount);
+
+      return <div className="text-right font-medium">{formatted}</div>;
+    },
+  },
+  {
+    accessorKey: "earnings",
+    header: () => <div className="text-right">Earnings</div>,
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("earnings"));
 
       // Format the amount as a dollar amount
       const formatted = new Intl.NumberFormat("en-US", {
@@ -74,25 +77,18 @@ export const columns: ColumnDef<Project>[] = [
     },
   },
   {
-    accessorKey: "payouts",
-    header: () => <div className="text-right">Payouts</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("payouts"));
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
+    accessorKey: "website",
+    header: "Learn more",
+  },
+  {
+    accessorKey: "addLiquidity",
+    header: "Add liquidity",
   },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const record = row.original;
 
       return (
         <DropdownMenu>
@@ -105,7 +101,7 @@ export const columns: ColumnDef<Project>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.name)}
+              onClick={() => navigator.clipboard.writeText(record.project.name)}
             >
               Copy payment ID
             </DropdownMenuItem>
@@ -119,7 +115,20 @@ export const columns: ColumnDef<Project>[] = [
   },
 ];
 
-export function Dashboard() {
+type ProjectRecord = {
+  projectToken: string;
+  desc;
+  projectChainId: number;
+  tvl: number;
+  earnings: number;
+  project: {
+    name: string;
+    website: string | null;
+    addLiquidity: string | null;
+  };
+};
+
+export function Dashboard({ records }: { records: ProjectRecord[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -129,7 +138,7 @@ export function Dashboard() {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data,
+    data: records,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
