@@ -104,13 +104,16 @@ export const getUniswapGraphData = async (url: string, chain: Chain) => {
       }
     `;
 
-  const { data } = await client.query<ResType>(query, {}).toPromise();
+  const { data, error } = await client.query<ResType>(query, {}).toPromise();
   const pools = data?.pools;
 
   const details: { [symbol: string]: number } = {};
 
   if (!pools) {
-    console.error("Could not fetch data from Uniswap subgraph for Celo");
+    console.error(
+      `Could not fetch data from Uniswap subgraph for ${chain.name}`
+    );
+    console.log(error);
     return { total: 0, details };
   }
 
