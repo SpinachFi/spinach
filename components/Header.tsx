@@ -20,10 +20,21 @@ export function Header() {
               alt={"Spinach"}
             />
           </a>
-          <a className="flex items-center justify-center text-xl">Spinach</a>
+          <div className="flex flex-col justify-center font-bold">
+            <a className="text-xl">Spinach</a>
+            <a className="text-sm">Liquid RetroFunding</a>
+          </div>
         </div>
 
-        <Button>CTA</Button>
+        <div>
+          <Button variant={"ghost"} className="mr-5">
+            How it works
+          </Button>
+          <Button variant={"ghost"} className="mr-5">
+            Case studies
+          </Button>
+          <Button variant={"secondary"}>Create Competition</Button>
+        </div>
       </nav>
     </header>
   );
