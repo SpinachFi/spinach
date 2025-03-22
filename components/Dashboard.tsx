@@ -4,6 +4,7 @@ import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
+  RowSelectionState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -13,7 +14,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
+import { PlusIcon } from "@radix-ui/react-icons";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +34,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Image from "next/image";
+import { celo, optimism } from "viem/chains";
 
 export const columns: ColumnDef<ProjectRecord>[] = [
   {
@@ -85,6 +90,10 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     header: "Add liquidity",
   },
   {
+    accessorFn: (row) => row.projectChainId.toString(),
+    header: "projectChainId",
+  },
+  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
@@ -127,14 +136,37 @@ type ProjectRecord = {
   };
 };
 
+const chainMap: { [name: string]: number } = {
+  celo: celo.id,
+  superchain: optimism.id,
+};
+const chains = Object.keys(chainMap);
+const defaultChain = chains[0];
+
 export function Dashboard({ records }: { records: ProjectRecord[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
+    {
+      id: "projectChainId",
+      value: chainMap[defaultChain],
+    },
+  ]);
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+    React.useState<VisibilityState>({
+      projectChainId: false,
+    });
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+
+  const [selectedChain, setChain] = React.useState(defaultChain);
+
+  React.useEffect(() => {
+    setColumnFilters([
+      {
+        id: "projectChainId",
+        value: chainMap[selectedChain],
+      },
+    ]);
+  }, [selectedChain]);
 
   const table = useReactTable({
     data: records,
@@ -155,33 +187,49 @@ export function Dashboard({ records }: { records: ProjectRecord[] }) {
     },
   });
 
-  const chains = ["celo", "superchain"];
-  const [chain, setChain] = React.useState(chains[0]);
-
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              {chain} <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+        <Tabs defaultValue={defaultChain} className="w-[400px]">
+          <TabsList className="h-auto">
             {chains.map((chain) => (
-              <DropdownMenuItem key={chain} onClick={() => setChain(chain)}>
-                {chain}
-              </DropdownMenuItem>
+              <TabsTrigger
+                onClick={() => setChain(chain)}
+                className="cursor-pointer mr-5"
+                key={chain}
+                value={chain}
+              >
+                <div className="flex flex-col justify-between w-[32px]">
+                  <Image
+                    className="mb-3"
+                    height={24}
+                    width={24}
+                    src="/usdglo.svg"
+                    alt="USDGLO"
+                  />
+                  <Image
+                    height={24}
+                    width={24}
+                    src={`/${chain}.svg`}
+                    alt={chain}
+                  />
+                </div>
+                <div className="flex flex-col justify-center">
+                  <div>USDGLO</div>
+                  <div>on</div>
+                  <div className="first-letter:uppercase">{chain}</div>
+                </div>
+              </TabsTrigger>
             ))}
-            <Button
-              className="cursor-pointer"
-              variant="outline"
-              onClick={() => window.open("http://glodollar.org")}
+            <TabsTrigger
+              className="flex flex-col justify-center cursor-pointer"
+              value="create"
             >
-              Add your own program
-            </Button>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <PlusIcon className="size-10" />
+              <span>create Spinach competition</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
       <div className="rounded-md border">
         <Table>
