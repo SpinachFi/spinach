@@ -37,6 +37,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { celo, optimism } from "viem/chains";
+import Summary from "./Summary";
 
 export const columns: ColumnDef<ProjectRecord>[] = [
   {
@@ -187,6 +188,15 @@ export function Dashboard({ records }: { records: ProjectRecord[] }) {
     },
   });
 
+  const projects = table.getRowCount();
+  const { daily, liquidity } = table.getRowModel().flatRows.reduce(
+    (acc, cur) => ({
+      daily: acc.daily + cur.original.earnings,
+      liquidity: acc.liquidity + cur.original.tvl,
+    }),
+    { daily: 0, liquidity: 0 }
+  );
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -231,6 +241,12 @@ export function Dashboard({ records }: { records: ProjectRecord[] }) {
           </TabsList>
         </Tabs>
       </div>
+      <Summary
+        daily={daily}
+        liquidity={liquidity}
+        apr={50}
+        projects={projects}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>

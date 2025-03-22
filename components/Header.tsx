@@ -27,13 +27,15 @@ export function Header() {
         </div>
 
         <div>
-          <Button variant={"ghost"} className="mr-5">
+          <Button variant={"ghost"} className="mr-5 cursor-pointer">
             How it works
           </Button>
-          <Button variant={"ghost"} className="mr-5">
+          <Button variant={"ghost"} className="mr-5 cursor-pointer">
             Case studies
           </Button>
-          <Button variant={"secondary"}>Create Competition</Button>
+          <Button variant={"secondary"} className="cursor-pointer">
+            Create Competition
+          </Button>
         </div>
       </nav>
     </header>
