@@ -10,19 +10,17 @@ export function Header() {
         aria-label="Global"
         className="flex items-center justify-between p-6 lg:px-8"
       >
-        <div className="flex lg:flex-1">
+        <div className="flex lg:flex-1 align-middle">
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">Spinach</span>
             <Image
-              height={32}
-              width={32}
-              src={
-                "https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-              }
-              alt={""}
+              height={64}
+              width={64}
+              src="/spinach-logo.png"
+              alt={"Spinach"}
             />
           </a>
-          Spinach
+          <a className="flex items-center justify-center text-xl">Spinach</a>
         </div>
 
         <Button>CTA</Button>
