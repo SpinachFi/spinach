@@ -21,8 +21,8 @@ export default function Summary({ daily, liquidity, apr, projects }: Props) {
     <div className="flex">
       <Image
         className="m-2"
-        height={84}
-        width={84}
+        height={64}
+        width={64}
         src={`/${icon}`}
         alt={title}
       />
@@ -34,7 +34,7 @@ export default function Summary({ daily, liquidity, apr, projects }: Props) {
     </div>
   );
   return (
-    <div className="flex">
+    <div className="flex my-3">
       <Card
         title="Daily rewards"
         numbers={`$${daily} USDGLO`}

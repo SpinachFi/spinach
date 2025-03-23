@@ -44,14 +44,14 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     accessorFn: (row) => row.project.name,
     header: "Project",
     cell: ({ row }) => (
-      <div className="capitalize">{row.original.project.name}</div>
+      <div className="capitalize text-lg">{row.original.project.name}</div>
     ),
   },
   {
     accessorKey: "projectToken",
     header: "Token",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("projectToken")}</div>
+      <div className="capitalize">${row.getValue("projectToken")}</div>
     ),
   },
   {
@@ -254,7 +254,7 @@ export function Dashboard({ records }: { records: ProjectRecord[] }) {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="text-spi-dark-green">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
