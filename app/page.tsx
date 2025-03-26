@@ -18,6 +18,7 @@ export default async function Home() {
           name: true,
           addLiquidity: true,
           website: true,
+          message: true,
         },
       },
       projectChainId: true,

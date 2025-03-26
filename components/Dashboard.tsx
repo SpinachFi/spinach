@@ -14,18 +14,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
 import { PlusIcon } from "@radix-ui/react-icons";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -44,7 +34,21 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     accessorFn: (row) => row.project.name,
     header: "Project",
     cell: ({ row }) => (
-      <div className="capitalize text-lg">{row.original.project.name}</div>
+      <div className="flex flex-col mb-3">
+        <span className="capitalize text-lg">{row.original.project.name}</span>
+        <span className="flex">
+          <Image
+            className="mx-2"
+            height={15}
+            width={18}
+            src="/enter.svg"
+            alt="enter"
+          />
+          <span className="text-xs mt-1 text-spi-gray">
+            {row.original.project.message}
+          </span>
+        </span>
+      </div>
     ),
   },
   {
@@ -83,45 +87,46 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     },
   },
   {
-    accessorKey: "website",
+    accessorFn: (row) => row.project.website,
     header: "Learn more",
+    cell: ({ getValue }) => {
+      const raw = getValue() as string;
+      if (!raw) {
+        return "";
+      }
+      // Removes leading https+www and trailing /
+      const nice = raw.replace(/^https?:\/\/www./, "").replace(/\/$/, "");
+
+      return (
+        <a href={raw} target="_blank" className="underline font-medium">
+          {nice}
+        </a>
+      );
+    },
   },
   {
-    accessorKey: "addLiquidity",
+    accessorFn: (row) => row.project.addLiquidity,
     header: "Add liquidity",
+    cell: ({ getValue }) => {
+      const url = getValue() as string;
+      if (!url) {
+        return "";
+      }
+
+      return (
+        <a
+          href={url}
+          target="_blank bg-spi-green "
+          className="px-2 py-1 text-xs font-medium text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2"
+        >
+          Add liquidity
+        </a>
+      );
+    },
   },
   {
     accessorFn: (row) => row.projectChainId.toString(),
     header: "projectChainId",
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const record = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(record.project.name)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
   },
 ];
 
@@ -134,6 +139,7 @@ type ProjectRecord = {
     name: string;
     website: string | null;
     addLiquidity: string | null;
+    message: string | null;
   };
 };
 

@@ -8,11 +8,13 @@ generator client {
 }
 
 model Project {
+  id           Int             @id @default(autoincrement())
   name         String
   token        String
   chainId      Int
   website      String?
   addLiquidity String?
+  message      String?
   records      ProjectRecord[]
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt

@@ -128,7 +128,10 @@
   --color-spi-green: #00AC4F;
   --color-spi-dark-green: #008767;
   --color-spi-lblue: #24E5DF;
+  --color-spi-lgreen: #16C09861;
 
   --color-spi-green-gradient-1: #5DD9BC; 
   --color-spi-green-gradient-2: #00B087; 
+
+  --color-spi-gray: #54575C;
 }
