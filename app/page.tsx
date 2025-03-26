@@ -5,7 +5,11 @@ import { Header } from "@/components/Header";
 import prisma from "@/lib/prisma";
 import { getTodayMidnight } from "@/lib/utils";
 
+import { get } from "@vercel/edge-config";
+
 export default async function Home() {
+  const whiteListedProjects = (await get("whitelistedProjects")) || [];
+
   const records = await prisma.projectRecord.findMany({
     select: {
       projectToken: true,
@@ -22,6 +26,10 @@ export default async function Home() {
     },
     where: {
       date: getTodayMidnight(),
+      projectToken: {
+        in: whiteListedProjects as [],
+        mode: "insensitive",
+      },
     },
     orderBy: {
       tvl: "desc",
