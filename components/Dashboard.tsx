@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { PlusIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,7 +14,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { PlusIcon } from "@radix-ui/react-icons";
+import * as React from "react";
 
 import {
   Table,
@@ -25,10 +25,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSpiStore } from "@/store";
+import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN } from "@/utils";
 import Image from "next/image";
 import Summary from "./Summary";
-import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN } from "@/utils";
-import { useSpiStore } from "@/store";
 
 export const columns: ColumnDef<ProjectRecord>[] = [
   {
@@ -232,11 +232,12 @@ export function Dashboard({ records }: { records: ProjectRecord[] }) {
               </TabsTrigger>
             ))}
             <TabsTrigger
-              className="flex flex-col justify-center cursor-pointer"
+              className="flex flex-col justify-center cursor-pointer border-1 border-spi-gray"
+              onClick={() => window.open("https://tally.so/r/w7EbWa", "_blank")}
               value="create"
             >
               <PlusIcon className="size-10" />
-              <span>create Spinach competition</span>
+              <span>Create Competition</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
