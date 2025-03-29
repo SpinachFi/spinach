@@ -33,7 +33,11 @@ export function Header() {
           <Button variant={"ghost"} className="mr-1 cursor-pointer">
             Case studies
           </Button>
-          <Button variant={"secondary"} className="ml-2 cursor-pointer">
+          <Button
+            onClick={() => window.open("https://tally.so/r/w7EbWa", "_blank")}
+            variant={"secondary"}
+            className="ml-2 cursor-pointer"
+          >
             Create Competition
           </Button>
         </div>

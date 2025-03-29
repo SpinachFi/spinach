@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
-import { Button } from "./ui/button";
 import { useSpiStore } from "@/store";
+import Image from "next/image";
 import { celo } from "viem/chains";
+import { Button } from "./ui/button";
 
 export default function Apply() {
   const { selectedChain } = useSpiStore();
