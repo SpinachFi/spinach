@@ -144,7 +144,6 @@ type ProjectRecord = {
   };
 };
 
-
 export function Dashboard({ records }: { records: ProjectRecord[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
@@ -159,7 +158,7 @@ export function Dashboard({ records }: { records: ProjectRecord[] }) {
     });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
-  const {selectedChain, setSelectedChain}= useSpiStore();
+  const { selectedChain, setSelectedChain } = useSpiStore();
 
   React.useEffect(() => {
     setColumnFilters([

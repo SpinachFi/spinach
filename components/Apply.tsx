@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 import { Button } from "./ui/button";
@@ -6,8 +6,8 @@ import { useSpiStore } from "@/store";
 import { celo } from "viem/chains";
 
 export default function Apply() {
-  const {selectedChain} = useSpiStore();
-  
+  const { selectedChain } = useSpiStore();
+
   if (selectedChain !== celo.name.toLowerCase()) {
     return null;
   }
