@@ -1,7 +1,9 @@
+'use client';
+
 import Image from "next/image";
 import { Button } from "./ui/button";
 
-export default async function Apply() {
+export default function Apply() {
   return (
     <div className="relative rounded-xl p-5 flex flex-col justify-center items-center bg-linear-to-r from-spi-green-gradient-1 to-spi-green-gradient-2 text-center">
       <div>
@@ -21,6 +23,7 @@ export default async function Apply() {
       <Button
         className="mt-3 text-spi-dark-green w-[120px] cursor-pointer"
         variant={"outline"}
+        onClick={() => window.open("https://tally.so/r/w4OBx5", "_blank")}
       >
         Apply now!
       </Button>
