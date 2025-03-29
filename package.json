@@ -31,7 +31,8 @@
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "urql": "^4.2.2",
-    "viem": "^2.23.8"
+    "viem": "^2.23.8",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

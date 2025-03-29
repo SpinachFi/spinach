@@ -26,8 +26,9 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import { celo, optimism } from "viem/chains";
 import Summary from "./Summary";
+import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN } from "@/utils";
+import { useSpiStore } from "@/store";
 
 export const columns: ColumnDef<ProjectRecord>[] = [
   {
@@ -143,19 +144,13 @@ type ProjectRecord = {
   };
 };
 
-const chainMap: { [name: string]: number } = {
-  celo: celo.id,
-  superchain: optimism.id,
-};
-const chains = Object.keys(chainMap);
-const defaultChain = chains[0];
 
 export function Dashboard({ records }: { records: ProjectRecord[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
     {
       id: "projectChainId",
-      value: chainMap[defaultChain],
+      value: CHAIN_MAP[DEFAULT_CHAIN],
     },
   ]);
   const [columnVisibility, setColumnVisibility] =
@@ -164,13 +159,13 @@ export function Dashboard({ records }: { records: ProjectRecord[] }) {
     });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
-  const [selectedChain, setChain] = React.useState(defaultChain);
+  const {selectedChain, setSelectedChain}= useSpiStore();
 
   React.useEffect(() => {
     setColumnFilters([
       {
         id: "projectChainId",
-        value: chainMap[selectedChain],
+        value: CHAIN_MAP[selectedChain],
       },
     ]);
   }, [selectedChain]);
@@ -206,11 +201,11 @@ export function Dashboard({ records }: { records: ProjectRecord[] }) {
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <Tabs defaultValue={defaultChain} className="w-[400px]">
+        <Tabs defaultValue={DEFAULT_CHAIN} className="w-[400px]">
           <TabsList className="h-auto">
-            {chains.map((chain) => (
+            {AVAILABLE_CHAINS.map((chain) => (
               <TabsTrigger
-                onClick={() => setChain(chain)}
+                onClick={() => setSelectedChain(chain)}
                 className="cursor-pointer mr-5"
                 key={chain}
                 value={chain}

@@ -2,8 +2,16 @@
 
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { useSpiStore } from "@/store";
+import { celo } from "viem/chains";
 
 export default function Apply() {
+  const {selectedChain} = useSpiStore();
+  
+  if (selectedChain !== celo.name.toLowerCase()) {
+    return null;
+  }
+
   return (
     <div className="relative rounded-xl p-5 flex flex-col justify-center items-center bg-linear-to-r from-spi-green-gradient-1 to-spi-green-gradient-2 text-center">
       <div>
