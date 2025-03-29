@@ -1,6 +1,5 @@
 import Apply from "@/components/Apply";
 import { Dashboard } from "@/components/Dashboard";
-import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import prisma from "@/lib/prisma";
 import { getTodayMidnight } from "@/lib/utils";
@@ -43,7 +42,6 @@ export default async function Home() {
         <Header />
         <Dashboard records={records} />
         <Apply />
-        <Footer />
       </main>
     </div>
   );
