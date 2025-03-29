@@ -28,9 +28,9 @@ export default async function handler(
 
   const { details: uniswapLps } = await getCeloUniswapLpTVL();
 
-  const ubeswap = await getUbeswap();
+  const ube = await getUbeswap();
   const refi = await getRefi();
-  const aggregated = { ...uniswapLps, ubeswap, refi };
+  const aggregated = { ...uniswapLps, ube, refi };
 
   await createNewProjectDefs(Object.keys(aggregated), chainId);
 
