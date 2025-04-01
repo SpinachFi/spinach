@@ -1,5 +1,7 @@
 "use client";
 
+import { TwitterLogoIcon } from "@radix-ui/react-icons";
+import { MailIcon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./ui/button";
 
@@ -27,6 +29,18 @@ export function Header() {
         </div>
 
         <div>
+          <Button
+            className="mr-1 cursor-pointer"
+            variant={"ghost"}
+            onClick={() => window.open("https://x.com/spinachfi", "_blank")}
+          >
+            <TwitterLogoIcon className="size-5" />
+          </Button>
+          <a href="mailto:hello@spinach.fi">
+            <Button className="mr-1 cursor-pointer" variant={"ghost"}>
+              <MailIcon className="size-5" />
+            </Button>
+          </a>
           <Button variant={"ghost"} className="mr-1 cursor-pointer">
             How it works
           </Button>
