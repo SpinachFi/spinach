@@ -62,7 +62,7 @@ type ResType = {
         id: string;
         symbol: string;
       };
-    }
+    },
   ];
 };
 
@@ -133,4 +133,48 @@ export const getUniswapGraphData = async (url: string, chain: Chain) => {
   });
 
   return { total, details };
+};
+
+type DexType = {
+  chainId: string;
+  dexId: string;
+  url: string;
+  pairAddress: string;
+  baseToken: {
+    address: string;
+    name: string;
+    symbol: string;
+  };
+  quoteToken: {
+    address: string;
+    name: string;
+    symbol: string;
+  };
+  liquidity: {
+    usd: number;
+    base: number;
+    quote: number;
+  };
+};
+
+type ChainName = "celo" | "optimism";
+
+export const getDexData = async (chain: ChainName, dexId = "uniswap") => {
+  const {
+    data: { pairs },
+  } = await axios.get<{ pairs: DexType[] }>(
+    "https://api.dexscreener.com/latest/dex/search?q=usdglo"
+  );
+
+  return pairs
+    .filter((pair) => pair.chainId === chain && pair.dexId === dexId)
+    .reduce(
+      (acc, cur) => ({
+        ...acc,
+        [cur.baseToken.symbol === "USDGLO"
+          ? cur.quoteToken.symbol
+          : cur.baseToken.symbol]: cur.liquidity?.usd,
+      }),
+      {}
+    );
 };

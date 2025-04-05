@@ -11,6 +11,7 @@ model Project {
   id           Int             @id @default(autoincrement())
   name         String
   token        String
+  displayToken String          @default("TOKEN")
   chainId      Int
   website      String?
   addLiquidity String?

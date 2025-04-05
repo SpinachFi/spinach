@@ -43,6 +43,7 @@ export const createNewProjectDefs = async (
   const data = tokens.map((token) => ({
     name: token,
     token,
+    displayToken: token,
     chainId,
   }));
   const projects = await prisma.project.createMany({

@@ -1,4 +1,4 @@
-import { getOptimismUniswapLpTVL } from "@/lib/optimism";
+import { getCoingeckoData } from "@/lib/optimism";
 import {
   createNewProjectDefs,
   createProjectRecords,
@@ -25,12 +25,11 @@ export default async function handler(
   if (alreadyRun) {
     return res.status(200).json({ message: "Already collected for today." });
   }
+  const cgData = await getCoingeckoData();
 
-  const { details: uniswapLps } = await getOptimismUniswapLpTVL();
+  await createNewProjectDefs(Object.keys(cgData), chainId);
 
-  await createNewProjectDefs(Object.keys(uniswapLps), chainId);
-
-  await createProjectRecords(uniswapLps, chainId);
+  await createProjectRecords(cgData, chainId);
 
   return res.status(200).json({ message: "Data collection completed." });
 }

@@ -1,4 +1,4 @@
-import { getCeloUniswapLpTVL, getRefi, getUbeswap } from "@/lib/celo";
+import { getDexData, getRefi, getUbeswap } from "@/lib/celo";
 import {
   createNewProjectDefs,
   createProjectRecords,
@@ -26,11 +26,11 @@ export default async function handler(
     return res.status(200).json({ message: "Already collected for today." });
   }
 
-  const { details: uniswapLps } = await getCeloUniswapLpTVL();
+  const dex = await getDexData("celo");
 
   const ube = await getUbeswap();
   const refi = await getRefi();
-  const aggregated = { ...uniswapLps, ube, refi };
+  const aggregated = { ...dex, ube, refi };
 
   await createNewProjectDefs(Object.keys(aggregated), chainId);
 
