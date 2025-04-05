@@ -69,7 +69,19 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         currency: "USD",
       }).format(amount);
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      const url = row.original.project.liquiditySource;
+
+      return url ? (
+        <a
+          href={url}
+          target="_blank"
+          className="float-right underline font-medium cursor-help"
+        >
+          {formatted}
+        </a>
+      ) : (
+        <div className="text-right font-medium">{formatted}</div>
+      );
     },
   },
   {
@@ -95,8 +107,8 @@ export const columns: ColumnDef<ProjectRecord>[] = [
       if (!raw) {
         return "";
       }
-      // Removes leading https+www and trailing /
-      const nice = raw.replace(/^https?:\/\/www./, "").replace(/\/$/, "");
+      // Removes leading https|www and trailing /
+      const nice = raw.replace(/^(https:\/\/)?(www.)?/, "").replace(/\/$/, "");
 
       return (
         <a href={raw} target="_blank" className="underline font-medium">
@@ -142,6 +154,7 @@ type ProjectRecord = {
     website: string | null;
     addLiquidity: string | null;
     message: string | null;
+    liquiditySource: string | null;
   };
 };
 

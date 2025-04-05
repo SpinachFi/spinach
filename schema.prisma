@@ -8,17 +8,18 @@ generator client {
 }
 
 model Project {
-  id           Int             @id @default(autoincrement())
-  name         String
-  token        String
-  displayToken String          @default("TOKEN")
-  chainId      Int
-  website      String?
-  addLiquidity String?
-  message      String?
-  records      ProjectRecord[]
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id              Int             @id @default(autoincrement())
+  name            String
+  token           String
+  displayToken    String          @default("TOKEN")
+  chainId         Int
+  website         String?
+  addLiquidity    String?
+  message         String?
+  liquiditySource String?
+  records         ProjectRecord[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   @@unique([token, chainId])
 }

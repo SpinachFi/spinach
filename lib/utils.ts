@@ -46,6 +46,7 @@ export const createNewProjectDefs = async (
     displayToken: token,
     chainId,
   }));
+
   const projects = await prisma.project.createMany({
     data,
     skipDuplicates: true,
