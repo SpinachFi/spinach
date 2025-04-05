@@ -53,10 +53,10 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     ),
   },
   {
-    accessorKey: "projectToken",
+    accessorFn: (row) => row.project.displayToken,
     header: "Token",
-    cell: ({ row }) => (
-      <div className="capitalize">${row.getValue("projectToken")}</div>
+    cell: ({ getValue }) => (
+      <div className="capitalize">{getValue() as string}</div>
     ),
   },
   {
@@ -138,6 +138,7 @@ type ProjectRecord = {
   earnings: number;
   project: {
     name: string;
+    displayToken: string;
     website: string | null;
     addLiquidity: string | null;
     message: string | null;

@@ -15,6 +15,7 @@ export default async function Home() {
       project: {
         select: {
           name: true,
+          displayToken: true,
           addLiquidity: true,
           website: true,
           message: true,
