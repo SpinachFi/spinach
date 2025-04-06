@@ -55,9 +55,16 @@ export const columns: ColumnDef<ProjectRecord>[] = [
   {
     accessorFn: (row) => row.project.displayToken,
     header: "Token",
-    cell: ({ getValue }) => (
-      <div className="capitalize">{getValue() as string}</div>
-    ),
+    cell: ({ getValue }) => {
+      const token = getValue() as string;
+      const prefix = token.includes("$") || token.includes("/") ? "" : "$";
+      return (
+        <div className="capitalize">
+          {prefix}
+          {token}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "tvl",
@@ -158,7 +165,13 @@ type ProjectRecord = {
   };
 };
 
-export function Dashboard({ records }: { records: ProjectRecord[] }) {
+export function Dashboard({
+  records,
+  date,
+}: {
+  records: ProjectRecord[];
+  date: Date;
+}) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
     {
@@ -311,7 +324,11 @@ export function Dashboard({ records }: { records: ProjectRecord[] }) {
             )}
           </TableBody>
         </Table>
+        <div></div>
       </div>
+      <span className="float-right text-xs mt-1 text-spi-gray">
+        As of {date.toUTCString()}
+      </span>
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { get } from "@vercel/edge-config";
 
 export default async function Home() {
   const whiteListedProjects = (await get("whitelistedProjects")) || [];
-
+  const date = getTodayMidnight();
   const records = await prisma.projectRecord.findMany({
     select: {
       projectToken: true,
@@ -27,7 +27,7 @@ export default async function Home() {
       tvl: true,
     },
     where: {
-      date: getTodayMidnight(),
+      date,
       projectToken: {
         in: whiteListedProjects as [],
         mode: "insensitive",
@@ -42,7 +42,7 @@ export default async function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-poppins)]">
       <main className="flex flex-col gap-8 row-start-2 items-center">
         <Header />
-        <Dashboard records={records} />
+        <Dashboard records={records} date={new Date(date)} />
         <Apply />
       </main>
     </div>
