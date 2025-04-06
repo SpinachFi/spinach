@@ -217,13 +217,9 @@ export function Dashboard({
   });
 
   const projects = table.getRowCount();
-  const { daily, liquidity } = table.getRowModel().flatRows.reduce(
-    (acc, cur) => ({
-      daily: acc.daily + cur.original.earnings,
-      liquidity: acc.liquidity + cur.original.tvl,
-    }),
-    { daily: 0, liquidity: 0 }
-  );
+  const liquidity = table
+    .getRowModel()
+    .flatRows.reduce((acc, cur) => acc + cur.original.tvl, 0);
 
   return (
     <div className="w-full">

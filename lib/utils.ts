@@ -146,6 +146,21 @@ export const calcDailyRewards = (chain: ChainName) => {
   return { celo: 3000, optimism: 1000 }[chain];
 };
 
+/*
+  At its core, Spinach is a product to help chains distribute liquidity incentives to builders based on how much DEX liquidity there is against their project's token.
+
+  How this works:
+
+  1. Through the spinach protocol a chain foundation commits a certain amount of funding for a month. E.g. $3000 USDGLO for the month May.
+  2. The spinach platform then calculates what $3000 is on a daily basis. May has 31 days, so it's $96.77 / day for May.
+  3. Then on a daily basis, the spinach protocol is going to divide the $96.77 among participating projects based on how much liquidity they have.
+  - If there's a total of $400 in liquidity provided
+  - Project A has $200, Project B has $150, Project C has $50
+  - Then project A gets 96.77 / 400 * 200 = $48.385, Project B gets 96.77 / 400 * 150 = $36.29, Project C gets 96.77 / 400 * 50 = $12.10
+  4. Once the calculations are complete, the spinach protocol sends out these rewards to every project
+  5. Upon successful sending of the rewards, it adds those rewards to that project's monthly earnings so far
+  6. At the start of a new month, the project's monthly earnings reset and a new tally begins (after the first month, we'll add a feature to show historical performance)
+*/
 export const calcRewards = async (data: Dict, monthlyRewards: number) => {
   const whiteListedProjects: string[] =
     (await get("whitelistedProjects")) || [];
