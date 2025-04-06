@@ -25,8 +25,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN } from "@/consts";
+import { calcDailyRewards } from "@/lib/utils";
 import { useSpiStore } from "@/store";
-import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN } from "@/utils";
 import Image from "next/image";
 import Summary from "./Summary";
 
@@ -270,7 +271,7 @@ export function Dashboard({
         </Tabs>
       </div>
       <Summary
-        daily={daily}
+        daily={calcDailyRewards(selectedChain)}
         liquidity={liquidity}
         apr={50}
         projects={projects}

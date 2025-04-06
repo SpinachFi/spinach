@@ -1,5 +1,7 @@
 import { getDexData, getRefi, getUbeswap } from "@/lib/celo";
 import {
+  calcDailyRewards,
+  calcRewards,
   createNewProjectDefs,
   createProjectRecords,
   hasRunToday,
@@ -32,9 +34,10 @@ export default async function handler(
   const refi = await getRefi();
   const aggregated = { ...dex, ube, refi };
 
-  await createNewProjectDefs(Object.keys(aggregated), chainId);
+  const result = await calcRewards(aggregated, calcDailyRewards("celo"));
+  await createNewProjectDefs(Object.keys(result), chainId);
 
-  await createProjectRecords(aggregated, chainId);
+  await createProjectRecords(result, chainId);
 
   return res.status(200).json({ message: "Data collection completed." });
 }

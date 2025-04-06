@@ -157,9 +157,10 @@ type DexType = {
   };
 };
 
-type ChainName = "celo" | "optimism";
-
-export const getDexData = async (chain: ChainName, dexId = "uniswap") => {
+export const getDexData = async (
+  chain: ChainName,
+  dexId = "uniswap"
+): Promise<Dict> => {
   const {
     data: { pairs },
   } = await axios.get<{ pairs: DexType[] }>(

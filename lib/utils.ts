@@ -1,8 +1,9 @@
+import { get } from "@vercel/edge-config";
 import { clsx, type ClassValue } from "clsx";
 import { ethers } from "ethers";
 import { twMerge } from "tailwind-merge";
-import { getChainRPCUrl, getGloContractAddress } from "./config";
 import { Chain } from "viem";
+import { getChainRPCUrl, getGloContractAddress } from "./config";
 import prisma from "./prisma";
 
 export function cn(...inputs: ClassValue[]) {
@@ -52,7 +53,7 @@ export const createNewProjectDefs = async (
     skipDuplicates: true,
   });
 
-  console.log(`${projects.count} new projects created.`);
+  console.log(`${projects.count} new projects (${chainId}) created.`);
 };
 
 export const getTodayMidnight = () => {
@@ -62,20 +63,42 @@ export const getTodayMidnight = () => {
 };
 
 export const createProjectRecords = async (
-  pools: { [token: string]: number },
+  pools: { [token: string]: { tvl: number; reward: number } },
   chainId: number
 ) => {
+  const currentMonthData = await prisma.projectRecord.groupBy({
+    by: ["projectToken", "projectChainId"],
+    _sum: {
+      earnings: true,
+    },
+
+    where: {
+      projectChainId: chainId,
+      date: {
+        gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      },
+    },
+  });
+
+  const currentEarnings: Dict = currentMonthData.reduce(
+    (acc, cur) => ({
+      ...acc,
+      [cur.projectToken]: cur._sum.earnings,
+    }),
+    {}
+  );
+
   const records = await prisma.projectRecord.createMany({
-    data: Object.entries(pools).map(([token, tvl]) => ({
+    data: Object.entries(pools).map(([token, { tvl, reward }]) => ({
       projectToken: token,
       projectChainId: chainId,
       tvl,
-      earnings: 35,
+      earnings: (currentEarnings[token] || 0) + reward,
       date: getTodayMidnight(),
     })),
   });
 
-  console.log(`${records.count} Optimism records created.`);
+  console.log(`${records.count} ${chainId} records created.`);
 };
 
 export const hasRunToday = async (chainId: number) => {
@@ -91,4 +114,56 @@ export const hasRunToday = async (chainId: number) => {
     },
   });
   return latest?.date.toDateString() === new Date().toDateString();
+};
+
+const addRewards = (
+  data: Dict,
+  totalLiquidity: number,
+  dailyRewards: number
+) => {
+  const result: { [token: string]: { tvl: number; reward: number } } = {};
+
+  Object.entries(data).forEach(([token, tvl]) => {
+    result[token] = {
+      tvl,
+      reward: (tvl / totalLiquidity) * dailyRewards,
+    };
+  });
+
+  return result;
+};
+
+export const calcDailyRewards = (chain: ChainName) => {
+  return { celo: 3000, optimism: 1000 }[chain];
+};
+
+export const calcRewards = async (data: Dict, monthlyRewards: number) => {
+  const whiteListedProjects: string[] =
+    (await get("whitelistedProjects")) || [];
+  const lowerCaseWhiteList = whiteListedProjects.map((x) => x.toLowerCase());
+
+  const whitelisted: Dict = Object.entries(data).reduce(
+    (acc, [token, tvl]) => ({
+      ...acc,
+      ...(lowerCaseWhiteList.includes(token.toLowerCase())
+        ? { [token]: tvl }
+        : {}),
+    }),
+    {}
+  );
+
+  const daysInMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1,
+    0
+  ).getDate();
+  const dailyRewards = monthlyRewards / daysInMonth;
+  const totalLiquidity = Object.values(whitelisted).reduce(
+    (acc, cur) => acc + cur,
+    0
+  );
+
+  const enriched = addRewards(whitelisted, totalLiquidity, dailyRewards);
+
+  return enriched;
 };

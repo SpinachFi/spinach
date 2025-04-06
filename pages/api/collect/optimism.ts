@@ -1,5 +1,7 @@
 import { getCoingeckoData } from "@/lib/optimism";
 import {
+  calcDailyRewards,
+  calcRewards,
   createNewProjectDefs,
   createProjectRecords,
   hasRunToday,
@@ -26,10 +28,13 @@ export default async function handler(
     return res.status(200).json({ message: "Already collected for today." });
   }
   const cgData = await getCoingeckoData();
+  const aggregated = { ...cgData };
 
-  await createNewProjectDefs(Object.keys(cgData), chainId);
+  const result = await calcRewards(aggregated, calcDailyRewards("optimism"));
 
-  await createProjectRecords(cgData, chainId);
+  await createNewProjectDefs(Object.keys(result), chainId);
+
+  await createProjectRecords(result, chainId);
 
   return res.status(200).json({ message: "Data collection completed." });
 }

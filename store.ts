@@ -1,12 +1,13 @@
 import { create } from "zustand";
-import { DEFAULT_CHAIN } from "./utils";
+import { DEFAULT_CHAIN } from "./consts";
 
 interface SpiState {
-  selectedChain: string;
-  setSelectedChain: (chain: string) => void;
+  selectedChain: ChainName;
+  setSelectedChain: (chain: ChainName) => void;
 }
 
 export const useSpiStore = create<SpiState>((set) => ({
   selectedChain: DEFAULT_CHAIN,
-  setSelectedChain: (selectedChain: string) => set(() => ({ selectedChain })),
+  setSelectedChain: (selectedChain: ChainName) =>
+    set(() => ({ selectedChain })),
 }));
