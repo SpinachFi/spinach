@@ -53,13 +53,22 @@ export const createNewProjectDefs = async (
     skipDuplicates: true,
   });
 
-  console.log(`${projects.count} new projects (${chainId}) created.`);
+  console.log(`${projects.count} new projects created (chain: ${chainId}).`);
 };
 
+// Data is being collected as of EOD.
+// On 6th when job runs it saves data as of
+// Sun Apr 05 2025 23:59:59 GMT+0000
 export const getTodayMidnight = () => {
   const now = new Date();
 
-  return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const midnight = new Date(
+    Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+  );
+
+  midnight.setMilliseconds(-1);
+
+  return midnight;
 };
 
 export const createProjectRecords = async (
@@ -98,7 +107,7 @@ export const createProjectRecords = async (
     })),
   });
 
-  console.log(`${records.count} ${chainId} records created.`);
+  console.log(`${records.count} records created (chain: ${chainId}).`);
 };
 
 export const hasRunToday = async (chainId: number) => {
