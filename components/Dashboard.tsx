@@ -270,7 +270,6 @@ export function Dashboard({
       <Summary
         daily={calcDailyRewards(selectedChain)}
         liquidity={liquidity}
-        apr={50}
         projects={projects}
       />
       <div className="rounded-md border">
