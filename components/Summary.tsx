@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { Separator } from "./ui/separator";
 import { ReactNode } from "react";
+import { Separator } from "./ui/separator";
 
 type Props = {
   daily: number;
@@ -37,7 +37,7 @@ export default function Summary({ daily, liquidity, apr, projects }: Props) {
     <div className="flex my-3">
       <Card
         title="Daily rewards"
-        numbers={`$${daily} USDGLO`}
+        numbers={`$${daily.toFixed(0)} USDGLO`}
         icon="rewards.svg"
       />
       <Separator orientation="vertical" />
@@ -48,7 +48,7 @@ export default function Summary({ daily, liquidity, apr, projects }: Props) {
             <b className="text-spi-dark-green">{apr}%</b> APR
           </>
         }
-        numbers={`$${liquidity.toLocaleString()}`}
+        numbers={`$${Math.round(liquidity).toLocaleString()}`}
         icon="liquidity.svg"
       />
       <Separator orientation="vertical" />

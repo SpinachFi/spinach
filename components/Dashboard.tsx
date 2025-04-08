@@ -75,6 +75,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
+        maximumFractionDigits: 0,
       }).format(amount);
 
       const url = row.original.project.liquiditySource;

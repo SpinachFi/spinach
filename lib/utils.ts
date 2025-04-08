@@ -143,7 +143,14 @@ const addRewards = (
 };
 
 export const calcDailyRewards = (chain: ChainName) => {
-  return { celo: 3000, optimism: 1000 }[chain];
+  const monthly = { celo: 3000, optimism: 1000 }[chain];
+
+  const daysInMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1,
+    0
+  ).getDate();
+  return monthly / daysInMonth;
 };
 
 /*
@@ -161,7 +168,7 @@ export const calcDailyRewards = (chain: ChainName) => {
   5. Upon successful sending of the rewards, it adds those rewards to that project's monthly earnings so far
   6. At the start of a new month, the project's monthly earnings reset and a new tally begins (after the first month, we'll add a feature to show historical performance)
 */
-export const calcRewards = async (data: Dict, monthlyRewards: number) => {
+export const calcRewards = async (data: Dict, dailyRewards: number) => {
   const whiteListedProjects: string[] =
     (await get("whitelistedProjects")) || [];
   const lowerCaseWhiteList = whiteListedProjects.map((x) => x.toLowerCase());
@@ -176,12 +183,6 @@ export const calcRewards = async (data: Dict, monthlyRewards: number) => {
     {}
   );
 
-  const daysInMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() + 1,
-    0
-  ).getDate();
-  const dailyRewards = monthlyRewards / daysInMonth;
   const totalLiquidity = Object.values(whitelisted).reduce(
     (acc, cur) => acc + cur,
     0
