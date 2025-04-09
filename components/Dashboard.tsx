@@ -84,7 +84,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         <a
           href={url}
           target="_blank"
-          className="float-right underline font-medium cursor-help"
+          className="float-right underline font-medium cursor-pointer"
         >
           {formatted}
         </a>

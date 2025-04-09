@@ -42,8 +42,7 @@ export const getUbeswap = async () => {
     `https://api.celoscan.io/api?module=stats&action=ethprice&apikey=${process.env.CELOSCAN_API_KEY}`
   );
 
-  const total =
-    (Number(totalShares / BigInt(10 ** 18)) * parseFloat(celoPrice)) / 2;
+  const total = Number(totalShares / BigInt(10 ** 18)) * parseFloat(celoPrice);
 
   return Math.round(total);
 };
