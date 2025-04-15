@@ -23,7 +23,7 @@ export default async function Home() {
         },
       },
       projectChainId: true,
-      earnings: true,
+      currentMonthEarnings: true,
       tvl: true,
     },
     where: {

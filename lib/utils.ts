@@ -75,10 +75,10 @@ export const createProjectRecords = async (
   pools: { [token: string]: { tvl: number; reward: number } },
   chainId: number
 ) => {
-  const currentMonthData = await prisma.projectRecord.groupBy({
-    by: ["projectToken", "projectChainId"],
-    _sum: {
-      earnings: true,
+  const currentMonthData = await prisma.projectRecord.findMany({
+    select: {
+      projectToken: true,
+      currentMonthEarnings: true,
     },
 
     where: {
@@ -92,7 +92,7 @@ export const createProjectRecords = async (
   const currentEarnings: Dict = currentMonthData.reduce(
     (acc, cur) => ({
       ...acc,
-      [cur.projectToken]: cur._sum.earnings,
+      [cur.projectToken]: cur.currentMonthEarnings,
     }),
     {}
   );
@@ -102,7 +102,8 @@ export const createProjectRecords = async (
       projectToken: token,
       projectChainId: chainId,
       tvl,
-      earnings: (currentEarnings[token] || 0) + reward,
+      earnings: reward,
+      currentMonthEarnings: (currentEarnings[token] || 0) + reward,
       date: getTodayMidnight(),
     })),
   });

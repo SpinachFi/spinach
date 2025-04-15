@@ -94,10 +94,10 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     },
   },
   {
-    accessorKey: "earnings",
+    accessorKey: "currentMonthEarnings",
     header: () => <div className="text-right">Earnings</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("earnings"));
+      const amount = parseFloat(row.getValue("currentMonthEarnings"));
 
       // Format the amount as a dollar amount
       const formatted = new Intl.NumberFormat("en-US", {
@@ -156,7 +156,7 @@ type ProjectRecord = {
   projectToken: string;
   projectChainId: number;
   tvl: number;
-  earnings: number;
+  currentMonthEarnings: number;
   project: {
     name: string;
     displayToken: string;
