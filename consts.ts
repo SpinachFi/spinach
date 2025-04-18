@@ -12,4 +12,5 @@ export const DEFAULT_CHAIN = AVAILABLE_CHAINS[0];
 export const TALLY = {
   CELO: "w4OBx5",
   CREATE_COMPETITION: "w7EbWa",
+  CASE_STUDIES: "3jEVqR",
 };

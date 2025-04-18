@@ -40,7 +40,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         <span className="capitalize text-lg">{row.original.project.name}</span>
         <span className="flex">
           <Image
-            className="mx-2"
+            className="w-auto h-auto mx-2"
             height={15}
             width={18}
             src="/enter.svg"

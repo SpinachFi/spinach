@@ -5,7 +5,13 @@ import Script from "next/script";
 import { useState } from "react";
 import { Button } from "./ui/button";
 
-export default function Tally({ formId }: { formId: string }) {
+export default function Tally({
+  formId,
+  onClose,
+}: {
+  formId: string;
+  onClose?: () => void;
+}) {
   const { setTallyFormId } = useSpiStore();
 
   const closeForm = () => setTallyFormId(undefined);
@@ -28,6 +34,7 @@ export default function Tally({ formId }: { formId: string }) {
         id="tally-js"
         src="https://tally.so/widgets/embed.js"
         onReady={() => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (window as any).Tally?.loadEmbeds();
           setIsReady(true);
         }}
@@ -35,7 +42,7 @@ export default function Tally({ formId }: { formId: string }) {
       <Button
         className="mt-3 text-spi-dark-green w-[120px] cursor-pointer"
         variant={"outline"}
-        onClick={() => closeForm()}
+        onClick={() => (onClose ? onClose() : closeForm())}
       >
         Close form
       </Button>

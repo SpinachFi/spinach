@@ -49,9 +49,15 @@ export function Header({ actionsDisabled = false }) {
             <Button variant={"ghost"} className="mr-1 cursor-pointer">
               How it works
             </Button>
-            <Button variant={"ghost"} className="mr-1 cursor-pointer">
-              Case studies
-            </Button>
+            <a href="/case-studies">
+              <Button
+                variant={"ghost"}
+                className="mr-1 cursor-pointer"
+                onClick={() => setTallyFormId(TALLY.CASE_STUDIES)}
+              >
+                Case studies
+              </Button>
+            </a>
             <Button
               onClick={() => setTallyFormId(TALLY.CREATE_COMPETITION)}
               variant={"secondary"}
