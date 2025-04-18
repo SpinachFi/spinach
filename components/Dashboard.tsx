@@ -1,6 +1,6 @@
 "use client";
 
-import { PlusIcon } from "@radix-ui/react-icons";
+import { GlobeIcon, PlusIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -28,6 +28,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN, TALLY } from "@/consts";
 import { calcDailyRewards } from "@/lib/utils";
 import { useSpiStore } from "@/store";
+import { Sprout } from "lucide-react";
 import Image from "next/image";
 import Summary from "./Summary";
 
@@ -36,19 +37,12 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     accessorFn: (row) => row.project.name,
     header: "Project",
     cell: ({ row }) => (
-      <div className="flex flex-col mb-3">
-        <span className="capitalize text-lg">{row.original.project.name}</span>
-        <span className="flex">
-          <Image
-            className="w-auto h-auto mx-2"
-            height={15}
-            width={18}
-            src="/enter.svg"
-            alt="enter"
-          />
-          <span className="text-xs mt-1 text-spi-gray">
-            {row.original.project.message}
-          </span>
+      <div className="flex items-center">
+        <span className="font-semibold capitalize text-lg mr-3">
+          {row.original.project.name}
+        </span>
+        <span className="text-xs text-spi-gray">
+          {row.original.project.message}
         </span>
       </div>
     ),
@@ -117,12 +111,17 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         return "";
       }
       // Removes leading https|www and trailing /
-      const nice = raw.replace(/^(https:\/\/)?(www.)?/, "").replace(/\/$/, "");
+      const nice = raw
+        .replace(/^(https:\/\/)?(www.)?/, "")
+        .replace(/\/.*$/, "");
 
       return (
-        <a href={raw} target="_blank" className="underline font-medium">
-          {nice}
-        </a>
+        <div className="flex items-center text-spi-green">
+          <GlobeIcon className="mr-1" />
+          <a href={raw} target="_blank" className="font-medium">
+            {nice}
+          </a>
+        </div>
       );
     },
   },
@@ -219,18 +218,22 @@ export function Dashboard({ records, date }: DashboardProps) {
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <Tabs defaultValue={DEFAULT_CHAIN} className="w-[400px]">
-          <TabsList className="h-auto">
+        <Tabs defaultValue={DEFAULT_CHAIN} className="w-full">
+          <TabsList className="h-auto w-full">
             {AVAILABLE_CHAINS.map((chain) => (
               <TabsTrigger
                 onClick={() => setSelectedChain(chain)}
-                className="cursor-pointer mr-5"
+                className="flex flex-col cursor-pointer mr-5"
                 key={chain}
                 value={chain}
               >
-                <div className="flex flex-col justify-between w-[32px]">
+                <div className="flex">
+                  <span>USDGLO on&nbsp;</span>
+                  <span className="first-letter:uppercase">{chain}</span>
+                </div>
+                <div className="flex justify-between">
                   <Image
-                    className="mb-3"
+                    className="mr-2"
                     height={24}
                     width={24}
                     src="/usdglo.svg"
@@ -243,11 +246,6 @@ export function Dashboard({ records, date }: DashboardProps) {
                     alt={chain}
                   />
                 </div>
-                <div className="flex flex-col justify-center">
-                  <div>USDGLO</div>
-                  <div>on</div>
-                  <div className="first-letter:uppercase">{chain}</div>
-                </div>
               </TabsTrigger>
             ))}
             <TabsTrigger
@@ -255,8 +253,11 @@ export function Dashboard({ records, date }: DashboardProps) {
               onClick={() => setTallyFormId(TALLY.CREATE_COMPETITION)}
               value="create"
             >
-              <PlusIcon className="size-10" />
-              <span>Create Competition</span>
+              <PlusIcon className="size-6" />
+              <div className="flex items-center">
+                <Sprout size={24} color="green" />
+                <span>Create Competition</span>
+              </div>
             </TabsTrigger>
           </TabsList>
         </Tabs>

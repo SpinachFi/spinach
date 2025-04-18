@@ -35,7 +35,7 @@ const Card = ({ title, numbers, subtitle, icon }: CardProps) => (
 export default function Summary({ daily, liquidity, projects }: Props) {
   const apr = (daily * 365 * 100) / liquidity;
   return (
-    <div className="flex my-3">
+    <div className="flex my-3 justify-between">
       <Card
         title="Daily rewards"
         numbers={`$${daily.toFixed(0)} USDGLO`}

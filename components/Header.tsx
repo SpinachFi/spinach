@@ -20,20 +20,17 @@ export function Header({ actionsDisabled = false }) {
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">Spinach</span>
             <Image
-              height={64}
-              width={64}
+              height={60}
+              width={231}
+              className="w-auto h-auto"
               src="/spinach-logo.png"
               alt={"Spinach"}
             />
           </a>
-          <div className="flex flex-col justify-center font-bold">
-            <a className="text-xl">Spinach</a>
-            <a className="text-sm">Liquid RetroFunding</a>
-          </div>
         </div>
 
         {!actionsDisabled && (
-          <div>
+          <div className="flex">
             <Button
               className="mr-1 cursor-pointer"
               variant={"ghost"}
