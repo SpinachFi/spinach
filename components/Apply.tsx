@@ -1,12 +1,13 @@
 "use client";
 
+import { TALLY } from "@/consts";
 import { useSpiStore } from "@/store";
 import Image from "next/image";
 import { celo } from "viem/chains";
 import { Button } from "./ui/button";
 
 export default function Apply() {
-  const { selectedChain } = useSpiStore();
+  const { selectedChain, setTallyFormId } = useSpiStore();
 
   if (selectedChain !== celo.name.toLowerCase()) {
     return null;
@@ -31,7 +32,7 @@ export default function Apply() {
       <Button
         className="mt-3 text-spi-dark-green w-[120px] cursor-pointer"
         variant={"outline"}
-        onClick={() => window.open("https://tally.so/r/w4OBx5", "_blank")}
+        onClick={() => setTallyFormId(TALLY.CELO)}
       >
         Apply now!
       </Button>

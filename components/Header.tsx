@@ -1,11 +1,15 @@
 "use client";
 
+import { TALLY } from "@/consts";
+import { useSpiStore } from "@/store";
 import { TwitterLogoIcon } from "@radix-ui/react-icons";
 import { MailIcon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./ui/button";
 
 export function Header({ actionsDisabled = false }) {
+  const { setTallyFormId } = useSpiStore();
+
   return (
     <header className="absolute inset-x-0 top-0 z-50">
       <nav
@@ -49,7 +53,7 @@ export function Header({ actionsDisabled = false }) {
               Case studies
             </Button>
             <Button
-              onClick={() => window.open("https://tally.so/r/w7EbWa", "_blank")}
+              onClick={() => setTallyFormId(TALLY.CREATE_COMPETITION)}
               variant={"secondary"}
               className="ml-2 cursor-pointer"
             >

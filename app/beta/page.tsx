@@ -1,5 +1,4 @@
-import Apply from "@/components/Apply";
-import { Dashboard } from "@/components/Dashboard";
+import DashboardContainer from "@/components/DashboardContainer";
 import { Header } from "@/components/Header";
 import prisma from "@/lib/prisma";
 import { getTodayMidnight } from "@/lib/utils";
@@ -40,10 +39,9 @@ export default async function Home() {
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-poppins)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center">
+      <main className="flex flex-col gap-8 row-start-2 items-center w-4xl ">
         <Header />
-        <Dashboard records={records} date={new Date(date)} />
-        <Apply />
+        <DashboardContainer records={records} date={new Date(date)} />
       </main>
     </div>
   );

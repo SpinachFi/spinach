@@ -25,7 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN } from "@/consts";
+import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN, TALLY } from "@/consts";
 import { calcDailyRewards } from "@/lib/utils";
 import { useSpiStore } from "@/store";
 import Image from "next/image";
@@ -167,13 +167,7 @@ type ProjectRecord = {
   };
 };
 
-export function Dashboard({
-  records,
-  date,
-}: {
-  records: ProjectRecord[];
-  date: Date;
-}) {
+export function Dashboard({ records, date }: DashboardProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
     {
@@ -187,7 +181,7 @@ export function Dashboard({
     });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
-  const { selectedChain, setSelectedChain } = useSpiStore();
+  const { selectedChain, setSelectedChain, setTallyFormId } = useSpiStore();
 
   React.useEffect(() => {
     setColumnFilters([
@@ -258,7 +252,7 @@ export function Dashboard({
             ))}
             <TabsTrigger
               className="flex flex-col justify-center cursor-pointer border-1 border-spi-gray"
-              onClick={() => window.open("https://tally.so/r/w7EbWa", "_blank")}
+              onClick={() => setTallyFormId(TALLY.CREATE_COMPETITION)}
               value="create"
             >
               <PlusIcon className="size-10" />
