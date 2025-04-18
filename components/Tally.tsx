@@ -28,8 +28,7 @@ export default function Tally({ formId }: { formId: string }) {
         id="tally-js"
         src="https://tally.so/widgets/embed.js"
         onReady={() => {
-          // @ts-ignore
-          window.Tally.loadEmbeds();
+          (window as any).Tally?.loadEmbeds();
           setIsReady(true);
         }}
       />
