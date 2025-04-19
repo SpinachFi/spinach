@@ -44,15 +44,13 @@ export function Header({ actionsDisabled = false }) {
                 <MailIcon className="size-5" />
               </Button>
             </a>
-            <Button variant={"ghost"} className="mr-1 cursor-pointer">
-              How it works
-            </Button>
+            <a href="/how-it-works">
+              <Button variant={"ghost"} className="mr-1 cursor-pointer">
+                How it works
+              </Button>
+            </a>
             <a href="/case-studies">
-              <Button
-                variant={"ghost"}
-                className="mr-1 cursor-pointer"
-                onClick={() => setTallyFormId(TALLY.CASE_STUDIES)}
-              >
+              <Button variant={"ghost"} className="mr-1 cursor-pointer">
                 Case studies
               </Button>
             </a>

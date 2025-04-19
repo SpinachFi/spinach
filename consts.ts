@@ -13,4 +13,5 @@ export const TALLY = {
   CELO: "w4OBx5",
   CREATE_COMPETITION: "w7EbWa",
   CASE_STUDIES: "3jEVqR",
+  HOW_IT_WORKS: "woxNMe",
 };
