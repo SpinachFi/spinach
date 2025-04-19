@@ -26,15 +26,16 @@ export default function Apply() {
         <div className="-z-10 absolute -top-2 left-3 size-[64px] rounded-xl bg-spi-lblue"></div>
       </div>
       <div className="text-white">
-        Submit your project to join <br />
-        Celo’s Spinach program
+        Apply with your project to
+        <br />
+        claim your part of the rewards
       </div>
       <Button
-        className="mt-3 text-spi-dark-green w-[120px] cursor-pointer"
+        className="mt-3 text-spi-dark-green w-[145px] cursor-pointer"
         variant={"outline"}
         onClick={() => setTallyFormId(TALLY.CELO)}
       >
-        Apply now!
+        + join competition
       </Button>
     </div>
   );

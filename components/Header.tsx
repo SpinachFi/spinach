@@ -22,6 +22,7 @@ export function Header({ actionsDisabled = false }) {
             <Image
               height={60}
               width={231}
+              priority
               className="w-auto h-auto"
               src="/spinach-logo.png"
               alt={"Spinach"}

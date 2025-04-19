@@ -30,7 +30,9 @@ import { calcDailyRewards } from "@/lib/utils";
 import { useSpiStore } from "@/store";
 import { Sprout } from "lucide-react";
 import Image from "next/image";
+import { celo } from "viem/chains";
 import Summary from "./Summary";
+import { Button } from "./ui/button";
 
 export const columns: ColumnDef<ProjectRecord>[] = [
   {
@@ -137,7 +139,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
       return (
         <a
           href={url}
-          target="_blank bg-spi-green "
+          target="_blank"
           className="px-2 py-1 text-xs font-medium text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2"
         >
           Add liquidity
@@ -181,6 +183,7 @@ export function Dashboard({ records, date }: DashboardProps) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const { selectedChain, setSelectedChain, setTallyFormId } = useSpiStore();
+  const isCelo = selectedChain === celo.name.toLowerCase();
 
   React.useEffect(() => {
     setColumnFilters([
@@ -190,6 +193,10 @@ export function Dashboard({ records, date }: DashboardProps) {
       },
     ]);
   }, [selectedChain]);
+
+  React.useEffect(() => {
+    setSelectedChain(DEFAULT_CHAIN);
+  }, [setTallyFormId, setSelectedChain]);
 
   const table = useReactTable({
     data: records,
@@ -267,7 +274,23 @@ export function Dashboard({ records, date }: DashboardProps) {
         liquidity={liquidity}
         projects={projects}
       />
-      <div className="rounded-md border">
+      <div>
+        <div>
+          <span className="font-semibold mr-2">Projects competing</span>
+          <Button
+            className="text-xs h-[24px] text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 w-[145px] cursor-pointer"
+            hidden={!isCelo}
+            variant={"ghost"}
+            onClick={() => setTallyFormId(TALLY.CELO)}
+          >
+            + join competition
+          </Button>
+        </div>
+        <span className="text-xs text-spi-green-gradient-2">
+          for funding by rallying their community to add $TOKEN$ liquidity
+        </span>
+      </div>
+      <div className="rounded-md border mt-2">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
