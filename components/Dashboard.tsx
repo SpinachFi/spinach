@@ -24,10 +24,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN, TALLY } from "@/consts";
 import { calcDailyRewards } from "@/lib/utils";
 import { useSpiStore } from "@/store";
+import clsx from "clsx";
 import { Sprout } from "lucide-react";
 import Image from "next/image";
 import { celo } from "viem/chains";
@@ -224,49 +224,45 @@ export function Dashboard({ records, date }: DashboardProps) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
-        <Tabs defaultValue={DEFAULT_CHAIN} className="w-full">
-          <TabsList className="h-auto w-full">
-            {AVAILABLE_CHAINS.map((chain) => (
-              <TabsTrigger
-                onClick={() => setSelectedChain(chain)}
-                className="flex flex-col cursor-pointer mr-5"
-                key={chain}
-                value={chain}
-              >
-                <div className="flex">
-                  <span>USDGLO on&nbsp;</span>
-                  <span className="first-letter:uppercase">{chain}</span>
-                </div>
-                <div className="flex justify-between">
-                  <Image
-                    className="mr-2"
-                    height={24}
-                    width={24}
-                    src="/usdglo.svg"
-                    alt="USDGLO"
-                  />
-                  <Image
-                    height={24}
-                    width={24}
-                    src={`/${chain}.svg`}
-                    alt={chain}
-                  />
-                </div>
-              </TabsTrigger>
-            ))}
-            <TabsTrigger
-              className="flex flex-col justify-center cursor-pointer border-1 border-spi-gray"
-              value="create"
-            >
-              <PlusIcon className="size-6" />
-              <div className="flex items-center">
-                <Sprout size={24} color="green" />
-                <a href="/new-competition">Create Competition</a>
-              </div>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+      <div className="w-full flex justify-between">
+        {AVAILABLE_CHAINS.map((chain) => (
+          <Button
+            key={chain}
+            className={clsx(
+              "flex flex-col h-[70px] cursor-pointer border-1 flex-1 mr-3",
+              chain === selectedChain ? "border-spi-green" : "shadow-sm"
+            )}
+            variant={"ghost"}
+            onClick={() => setSelectedChain(chain)}
+          >
+            <div className="flex">
+              <span>USDGLO on&nbsp;</span>
+              <span className="first-letter:uppercase">{chain}</span>
+            </div>
+            <div className="flex justify-between">
+              <Image
+                className="mr-2"
+                height={24}
+                width={24}
+                src="/usdglo.svg"
+                alt="USDGLO"
+              />
+              <Image height={24} width={24} src={`/${chain}.svg`} alt={chain} />
+            </div>
+          </Button>
+        ))}
+        <a href="/new-competition" className="flex-1">
+          <Button
+            className="flex flex-col h-[70px] cursor-pointer border-1 border-spi-gray w-full"
+            variant={"ghost"}
+          >
+            <PlusIcon className="size-6" />
+            <div className="flex items-center">
+              <Sprout size={24} color="green" />
+              <span>Create Competition</span>
+            </div>
+          </Button>
+        </a>
       </div>
       <Summary
         daily={calcDailyRewards(selectedChain)}
