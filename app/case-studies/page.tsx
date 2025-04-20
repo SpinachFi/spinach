@@ -1,17 +1,19 @@
 "use client";
 
-import { Header } from "@/components/Header";
 import Layout from "@/components/Layout";
-import Tally from "@/components/Tally";
 import { TALLY } from "@/consts";
+import { useSpiStore } from "@/store";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function CaseStudies() {
   const { push } = useRouter();
-  return (
-    <Layout>
-      <Header />
-      <Tally formId={TALLY.CASE_STUDIES} onClose={() => push("/beta")} />
-    </Layout>
-  );
+
+  const { setTallyFormId } = useSpiStore();
+
+  useEffect(() => {
+    setTallyFormId(TALLY.CASE_STUDIES);
+  }, [setTallyFormId]);
+
+  return <Layout onTallyClose={() => push("/beta")}></Layout>;
 }

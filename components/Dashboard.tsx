@@ -257,13 +257,12 @@ export function Dashboard({ records, date }: DashboardProps) {
             ))}
             <TabsTrigger
               className="flex flex-col justify-center cursor-pointer border-1 border-spi-gray"
-              onClick={() => setTallyFormId(TALLY.CREATE_COMPETITION)}
               value="create"
             >
               <PlusIcon className="size-6" />
               <div className="flex items-center">
                 <Sprout size={24} color="green" />
-                <span>Create Competition</span>
+                <a href="/new-competition">Create Competition</a>
               </div>
             </TabsTrigger>
           </TabsList>

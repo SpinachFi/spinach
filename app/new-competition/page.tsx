@@ -12,7 +12,7 @@ export default function HowItWorks() {
   const { setTallyFormId } = useSpiStore();
 
   useEffect(() => {
-    setTallyFormId(TALLY.HOW_IT_WORKS);
+    setTallyFormId(TALLY.CREATE_COMPETITION);
   }, [setTallyFormId]);
 
   return <Layout onTallyClose={() => push("/beta")}></Layout>;

@@ -54,13 +54,15 @@ export function Header({ actionsDisabled = false }) {
                 Case studies
               </Button>
             </a>
-            <Button
-              onClick={() => setTallyFormId(TALLY.CREATE_COMPETITION)}
-              variant={"secondary"}
-              className="ml-2 cursor-pointer"
-            >
-              Create Competition
-            </Button>
+            <a href="/new-competition">
+              <Button
+                onClick={() => setTallyFormId(TALLY.CREATE_COMPETITION)}
+                variant={"secondary"}
+                className="ml-2 cursor-pointer"
+              >
+                Create Competition
+              </Button>
+            </a>
           </div>
         )}
       </nav>

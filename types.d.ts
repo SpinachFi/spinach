@@ -8,5 +8,5 @@ type DashboardProps = {
 };
 
 type ChildrenProps = {
-  children: string | JSX.Element | JSX.Element[] | (() => JSX.Element);
+  children?: string | JSX.Element | JSX.Element[] | (() => JSX.Element);
 };

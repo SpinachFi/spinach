@@ -2,27 +2,38 @@
 
 import { useSpiStore } from "@/store";
 import Script from "next/script";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 
-export default function Tally({
-  formId,
-  onClose,
-}: {
-  formId: string;
-  onClose?: () => void;
-}) {
-  const { setTallyFormId } = useSpiStore();
+export default function Tally({ onClose }: { onClose?: () => void }) {
+  const { tallyFormId, setTallyFormId } = useSpiStore();
+  const prevTallyFormId = useRef<string | undefined>(tallyFormId);
+  const [isReady, setIsReady] = useState<boolean>(false);
+
+  const loadScript = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).Tally?.loadEmbeds();
+  };
+
+  useEffect(() => {
+    console.log({ tallyFormId, prevTallyFormId });
+    if (tallyFormId && prevTallyFormId.current) {
+      console.log("loadScript");
+      loadScript();
+    }
+  }, [tallyFormId]);
+
+  if (!tallyFormId) {
+    return null;
+  }
 
   const closeForm = () => setTallyFormId(undefined);
-
-  const [isReady, setIsReady] = useState<boolean>(false);
 
   return (
     <>
       {!isReady && "Loading..."}
       <iframe
-        data-tally-src={`https://tally.so/embed/${formId}?alignLeft=1&transparentBackground=1&dynamicHeight=1`}
+        data-tally-src={`https://tally.so/embed/${tallyFormId}?alignLeft=1&transparentBackground=1&dynamicHeight=1`}
         width="100%"
         height="284"
         frameBorder="0"
@@ -34,18 +45,24 @@ export default function Tally({
         id="tally-js"
         src="https://tally.so/widgets/embed.js"
         onReady={() => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).Tally?.loadEmbeds();
+          loadScript();
           setIsReady(true);
         }}
       />
-      <Button
-        className="mt-3 text-spi-dark-green w-[120px] cursor-pointer"
-        variant={"outline"}
-        onClick={() => (onClose ? onClose() : closeForm())}
-      >
-        Close form
-      </Button>
+      {isReady && (
+        <Button
+          className="mt-3 text-spi-dark-green w-[120px] cursor-pointer"
+          variant={"outline"}
+          onClick={() => {
+            closeForm();
+            if (onClose) {
+              onClose();
+            }
+          }}
+        >
+          Go back
+        </Button>
+      )}
     </>
   );
 }
