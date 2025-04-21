@@ -1,6 +1,23 @@
 "use client";
 
-import { GlobeIcon, PlusIcon } from "@radix-ui/react-icons";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN, TALLY } from "@/consts";
+import { calcDailyRewards } from "@/lib/utils";
+import { useSpiStore } from "@/store";
+import { GlobeIcon, InfoCircledIcon, PlusIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,22 +31,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import * as React from "react";
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN, TALLY } from "@/consts";
-import { calcDailyRewards } from "@/lib/utils";
-import { useSpiStore } from "@/store";
 import clsx from "clsx";
 import { CircleDollarSign, Sprout } from "lucide-react";
 import Image from "next/image";
+import * as React from "react";
 import { celo } from "viem/chains";
 import Summary from "./Summary";
 import { Button } from "./ui/button";
@@ -102,7 +107,27 @@ export const columns: ColumnDef<ProjectRecord>[] = [
   },
   {
     accessorKey: "currentMonthEarnings",
-    header: () => <div className="text-right">Earnings</div>,
+    header: () => (
+      <div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="flex items-center float-right">
+              <span className="mr-1">Earnings</span>
+              <InfoCircledIcon className="cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                Earnings so far since competition start on{" "}
+                {new Date(new Date().setDate(1)).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    ),
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("currentMonthEarnings"));
 
