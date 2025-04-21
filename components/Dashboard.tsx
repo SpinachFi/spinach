@@ -229,7 +229,7 @@ export function Dashboard({ records, date }: DashboardProps) {
           <Button
             key={chain}
             className={clsx(
-              "flex flex-col h-[70px] cursor-pointer border-1 flex-1 mr-3",
+              "flex flex-col h-[96px] cursor-pointer border-1 flex-1 mr-3",
               chain === selectedChain ? "border-spi-green" : "shadow-sm"
             )}
             variant={"ghost"}
@@ -253,7 +253,7 @@ export function Dashboard({ records, date }: DashboardProps) {
         ))}
         <a href="/new-competition" className="flex-1">
           <Button
-            className="flex flex-col h-[70px] cursor-pointer border-1 border-spi-gray w-full"
+            className="flex flex-col h-[96px] cursor-pointer border-1 border-spi-gray w-full"
             variant={"ghost"}
           >
             <PlusIcon className="size-6" />
@@ -269,23 +269,23 @@ export function Dashboard({ records, date }: DashboardProps) {
         liquidity={liquidity}
         projects={projects}
       />
-      <div>
-        <div>
-          <span className="font-semibold mr-2">Projects competing</span>
-          <Button
-            className="text-xs h-[24px] text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 w-[145px] cursor-pointer"
-            hidden={!isCelo}
-            variant={"ghost"}
-            onClick={() => setTallyFormId(TALLY.CELO)}
-          >
-            + join competition
-          </Button>
-        </div>
-        <span className="text-xs text-spi-green-gradient-2">
-          for funding by rallying their community to add $TOKEN$ liquidity
-        </span>
-      </div>
       <div className="rounded-md border mt-2">
+        <div className="ml-2 mt-5 mb-2">
+          <div>
+            <span className="font-semibold mr-2">Projects competing</span>
+            <Button
+              className="text-xs h-[24px] text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 w-[145px] cursor-pointer"
+              hidden={!isCelo}
+              variant={"ghost"}
+              onClick={() => setTallyFormId(TALLY.CELO)}
+            >
+              + join competition
+            </Button>
+          </div>
+          <span className="text-xs text-spi-green-gradient-2">
+            for funding by rallying their community to add $TOKEN$ liquidity
+          </span>
+        </div>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
