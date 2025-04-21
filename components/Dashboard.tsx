@@ -28,7 +28,7 @@ import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN, TALLY } from "@/consts";
 import { calcDailyRewards } from "@/lib/utils";
 import { useSpiStore } from "@/store";
 import clsx from "clsx";
-import { Sprout } from "lucide-react";
+import { CircleDollarSign, Sprout } from "lucide-react";
 import Image from "next/image";
 import { celo } from "viem/chains";
 import Summary from "./Summary";
@@ -40,6 +40,17 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     header: "Project",
     cell: ({ row }) => (
       <div className="flex items-center">
+        {row.original.project.logo ? (
+          <Image
+            src={`/favicons/${row.original.project.logo}`}
+            height={20}
+            width={20}
+            className="mr-1"
+            alt={row.original.project.name}
+          />
+        ) : (
+          <CircleDollarSign height={20} width={20} className="mr-1" />
+        )}
         <span className="font-semibold capitalize text-lg mr-3">
           {row.original.project.name}
         </span>
@@ -152,21 +163,6 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     header: "projectChainId",
   },
 ];
-
-type ProjectRecord = {
-  projectToken: string;
-  projectChainId: number;
-  tvl: number;
-  currentMonthEarnings: number;
-  project: {
-    name: string;
-    displayToken: string;
-    website: string | null;
-    addLiquidity: string | null;
-    message: string | null;
-    liquiditySource: string | null;
-  };
-};
 
 export function Dashboard({ records, date }: DashboardProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
