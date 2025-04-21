@@ -193,3 +193,15 @@ export const calcRewards = async (data: Dict, dailyRewards: number) => {
 
   return enriched;
 };
+
+export const toNiceDate = (date: Date) =>
+  date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+  });
+
+export const firstOfThisMonth = () => new Date(new Date().setDate(1));
+export const lastOfThisMonth = () => {
+  const today = new Date();
+  return new Date(today.getFullYear(), today.getMonth() + 1, 0);
+};

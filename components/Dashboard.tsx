@@ -15,7 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN, TALLY } from "@/consts";
-import { calcDailyRewards } from "@/lib/utils";
+import { calcDailyRewards, firstOfThisMonth, toNiceDate } from "@/lib/utils";
 import { useSpiStore } from "@/store";
 import { GlobeIcon, InfoCircledIcon, PlusIcon } from "@radix-ui/react-icons";
 import {
@@ -118,10 +118,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
             <TooltipContent>
               <p>
                 Earnings so far since competition start on{" "}
-                {new Date(new Date().setDate(1)).toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                })}
+                {toNiceDate(firstOfThisMonth())}
               </p>
             </TooltipContent>
           </Tooltip>

@@ -1,3 +1,4 @@
+import { firstOfThisMonth, lastOfThisMonth, toNiceDate } from "@/lib/utils";
 import { ReactNode } from "react";
 import { Separator } from "./ui/separator";
 
@@ -11,9 +12,10 @@ type CardProps = {
   title: string;
   numbers: string;
   subtitle?: string | ReactNode;
+  footer?: string;
 };
 
-const Card = ({ title, numbers, subtitle }: CardProps) => (
+const Card = ({ title, numbers, subtitle, footer }: CardProps) => (
   <div className="flex items-center justify-center flex-1">
     <div className="flex flex-col justify-center items-center">
       <span className="text-spi-gray text-sm">{title}</span>
@@ -23,6 +25,7 @@ const Card = ({ title, numbers, subtitle }: CardProps) => (
         </span>
         {subtitle}
       </div>
+      <span className="text-xs text-spi-gray">{footer || <wbr />}</span>
     </div>
   </div>
 );
@@ -32,7 +35,11 @@ export default function Summary({ daily, liquidity, projects }: Props) {
 
   return (
     <div className="flex h-[96px] my-3 justify-between border-1 rounded-sm shadow-sm">
-      <Card title="Daily rewards" numbers={`$${daily.toFixed(0)} USDGLO`} />
+      <Card
+        title="Daily rewards"
+        numbers={`$${daily.toFixed(0)} USDGLO`}
+        footer={`From ${toNiceDate(firstOfThisMonth())} - ${toNiceDate(lastOfThisMonth())}`}
+      />
       <Separator orientation="vertical" className="ml-8" />
       <Card
         title="Liquidity provided"
