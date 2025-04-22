@@ -1,4 +1,4 @@
-import { getDexData, getRefi, getUbeswap } from "@/lib/celo";
+import { getDexData, getOkuTradeData, getRefi, getUbeswap } from "@/lib/celo";
 import {
   calcDailyRewards,
   calcRewards,
@@ -16,6 +16,7 @@ export default async function handler(
   if (req.method !== "GET") {
     return res.status(405).json({ message: "Method not allowed" });
   }
+
   const authHeader = req.headers["authorization"];
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -32,7 +33,17 @@ export default async function handler(
 
   const ube = await getUbeswap();
   const refi = await getRefi();
-  const aggregated = { ...dex, ube, refi };
+  const aggregated: Dict = { ...dex, ube, refi };
+
+  const NATURE = "NATURE";
+  if (!Object.keys(aggregated).includes(NATURE)) {
+    const tvl = await getOkuTradeData(
+      "0x4eb0685f69f0b87da744e159576556b709a74c09",
+      "celo"
+    );
+
+    aggregated[NATURE] = tvl;
+  }
 
   const result = await calcRewards(aggregated, calcDailyRewards("celo"));
   await createNewProjectDefs(Object.keys(result), chainId);

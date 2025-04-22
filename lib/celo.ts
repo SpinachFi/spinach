@@ -178,3 +178,18 @@ export const getDexData = async (
       {}
     );
 };
+type OkuPoolData = {
+  result: {
+    t0_tvl_usd: number;
+    t1_tvl_usd: number;
+  };
+};
+export const getOkuTradeData = async (poolId: string, chain: ChainName) => {
+  const res = await axios.post<OkuPoolData>(
+    `https://omni.icarus.tools/${chain}/cush/analyticsPool`,
+    { params: [poolId] }
+  );
+  const data = res.data.result;
+
+  return parseFloat((data.t0_tvl_usd + data.t1_tvl_usd).toFixed(2));
+};

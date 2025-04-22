@@ -161,8 +161,9 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     },
   },
   {
+    id: "addLiquidity",
     accessorFn: (row) => row.project.addLiquidity,
-    header: "Add liquidity",
+    header: () => <div className="text-right">Add liquidity</div>,
     cell: ({ getValue }) => {
       const url = getValue() as string;
       if (!url) {
@@ -173,7 +174,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         <a
           href={url}
           target="_blank"
-          className="px-2 py-1 text-xs font-medium text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2"
+          className="px-2 py-1 text-xs font-medium text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 float-right"
         >
           Add liquidity
         </a>
