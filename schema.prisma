@@ -18,6 +18,7 @@ model Project {
   message         String?
   liquiditySource String?
   logo            String?
+  payoutAddress   String?
   records         ProjectRecord[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -34,4 +35,18 @@ model ProjectRecord {
   earnings             Float
   currentMonthEarnings Float    @default(0)
   date                 DateTime
+  Payout               Payout[]
+}
+
+model Payout {
+  id              Int           @id @default(autoincrement())
+  projectRecord   ProjectRecord @relation(fields: [projectRecordId], references: [id])
+  projectRecordId Int
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  processedAt     DateTime?
+  payoutAddress   String
+  value           Float
+  tokenAddress    String
+  processed       Boolean       @default(false)
 }
