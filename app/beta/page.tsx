@@ -25,6 +25,7 @@ export default async function Home() {
       },
       projectChainId: true,
       currentMonthEarnings: true,
+      earnings: true,
       tvl: true,
     },
     where: {

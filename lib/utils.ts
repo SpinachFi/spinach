@@ -345,7 +345,7 @@ export const transferTo = async (
     parseEther(amount.toString()),
   ]);
 
-  const signer = new ethers.Wallet(process.env.SIGNER_PRIVATE_KEY!, provider);
+  const signer = new ethers.Wallet(process.env.PAYOUT_PRIVATE_KEY!, provider);
 
   try {
     const tx = await signer.sendTransaction({

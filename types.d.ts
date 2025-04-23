@@ -7,6 +7,7 @@ type ProjectRecord = {
   projectChainId: number;
   tvl: number;
   currentMonthEarnings: number;
+  earnings: number;
   project: {
     name: string;
     displayToken: string;

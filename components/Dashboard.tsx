@@ -117,9 +117,11 @@ export const columns: ColumnDef<ProjectRecord>[] = [
               <InfoCircledIcon className="cursor-help" />
             </TooltipTrigger>
             <TooltipContent>
-              <p>
+              <p className="text-center">
                 Earnings so far since competition start on{" "}
                 {toNiceDate(firstOfThisMonth())}
+                <br />
+                (and earnings yesterday)
               </p>
             </TooltipContent>
           </Tooltip>
@@ -127,15 +129,32 @@ export const columns: ColumnDef<ProjectRecord>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("currentMonthEarnings"));
+      const currentMonthEarnings = parseFloat(
+        row.getValue("currentMonthEarnings")
+      );
+      const earnings = row.original.earnings;
 
       // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
+      const format = (num: number) =>
+        new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(num);
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="text-right font-medium cursor-help">
+              {format(currentMonthEarnings)}
+            </TooltipTrigger>
+            <TooltipContent>
+              <span className="text-xs text-spi-white">
+                ({format(earnings)})
+              </span>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
     },
   },
   {
