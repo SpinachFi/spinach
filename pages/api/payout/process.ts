@@ -1,4 +1,6 @@
+import { getChainNameById } from "@/consts";
 import {
+  calcDailyRewards,
   createPayouts,
   findPayouts,
   getTodayRecords,
@@ -8,7 +10,7 @@ import {
 import { Payout } from "@prisma/client";
 import { isAddress } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
-import { celo } from "viem/chains";
+import { celo, Chain } from "viem/chains";
 
 export default async function handler(
   req: NextApiRequest,
@@ -27,7 +29,7 @@ export default async function handler(
   const chain = celo;
 
   try {
-    const payouts = await createOrFetchPayouts(chain.id);
+    const payouts = await createOrFetchPayouts(chain);
     await processPayouts(payouts, chain);
   } catch (error) {
     if (error instanceof BusinessLogicError) {
@@ -40,7 +42,8 @@ export default async function handler(
   return res.status(200).json({ message: "Payouts completed." });
 }
 
-const createOrFetchPayouts = async (chainId: number): Promise<Payout[]> => {
+const createOrFetchPayouts = async (chain: Chain): Promise<Payout[]> => {
+  const chainId = chain.id;
   const todayPayouts = await findPayouts(chainId);
 
   if (todayPayouts.length > 0) {
@@ -53,12 +56,18 @@ const createOrFetchPayouts = async (chainId: number): Promise<Payout[]> => {
   for (const record of projectRecords) {
     const isValid = isAddress(record.project.payoutAddress);
     if (!isValid) {
-      console.error(
-        `Invalid payout address for project ${record.projectToken}/${record.projectChainId}`
-      );
-      throw new BusinessLogicError(
-        "Could not create payout records (Invalid addr)."
-      );
+      const msg = `Invalid payout address for project ${record.projectToken}/${record.projectChainId}`;
+      console.error(msg);
+      throw new BusinessLogicError(`Could not create payout records (${msg}).`);
+    }
+
+    const daily = calcDailyRewards(getChainNameById(celo.id));
+
+    const isAbove = record.earnings > daily;
+    if (isAbove) {
+      const msg = `Invalid reward for project ${record.projectToken}/${record.projectChainId}`;
+      console.error(msg);
+      throw new BusinessLogicError(`Could not create payout records (${msg}).`);
     }
   }
 
