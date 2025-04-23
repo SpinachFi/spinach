@@ -5,6 +5,7 @@ import { useSpiStore } from "@/store";
 import { TwitterLogoIcon } from "@radix-ui/react-icons";
 import { MailIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "./ui/button";
 
 export function Header({ actionsDisabled = false }) {
@@ -17,7 +18,7 @@ export function Header({ actionsDisabled = false }) {
         className="flex items-center justify-between p-6 lg:px-8"
       >
         <div className="flex lg:flex-1 align-middle">
-          <a href="#" className="-m-1.5 p-1.5">
+          <Link href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Spinach</span>
             <Image
               height={60}
@@ -27,7 +28,7 @@ export function Header({ actionsDisabled = false }) {
               src="/spinach-logo.png"
               alt={"Spinach"}
             />
-          </a>
+          </Link>
         </div>
 
         {!actionsDisabled && (
@@ -44,17 +45,17 @@ export function Header({ actionsDisabled = false }) {
                 <MailIcon className="size-5" />
               </Button>
             </a>
-            <a href="/how-it-works">
+            <Link href="/how-it-works">
               <Button variant={"ghost"} className="mr-1 cursor-pointer">
                 How it works
               </Button>
-            </a>
-            <a href="/case-studies">
+            </Link>
+            <Link href="/case-studies">
               <Button variant={"ghost"} className="mr-1 cursor-pointer">
                 Case studies
               </Button>
-            </a>
-            <a href="/new-competition">
+            </Link>
+            <Link href="/new-competition">
               <Button
                 onClick={() => setTallyFormId(TALLY.CREATE_COMPETITION)}
                 variant={"secondary"}
@@ -62,7 +63,7 @@ export function Header({ actionsDisabled = false }) {
               >
                 Create Competition
               </Button>
-            </a>
+            </Link>
           </div>
         )}
       </nav>

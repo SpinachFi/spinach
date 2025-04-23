@@ -34,6 +34,7 @@ import {
 import clsx from "clsx";
 import { CircleDollarSign, Sprout } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import * as React from "react";
 import { celo } from "viem/chains";
 import Summary from "./Summary";
@@ -270,7 +271,7 @@ export function Dashboard({ records, date }: DashboardProps) {
             </div>
           </Button>
         ))}
-        <a href="/new-competition" className="flex-1">
+        <Link href="/new-competition" className="flex-1">
           <Button
             className="flex flex-col h-[96px] cursor-pointer border-1 border-spi-gray w-full"
             variant={"ghost"}
@@ -281,7 +282,7 @@ export function Dashboard({ records, date }: DashboardProps) {
               <span>Create Competition</span>
             </div>
           </Button>
-        </a>
+        </Link>
       </div>
       <Summary
         daily={calcDailyRewards(selectedChain)}
