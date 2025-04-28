@@ -1,4 +1,4 @@
-import { getChainNameById } from "@/consts";
+import { AVAILABLE_CHAINS, CHAIN_MAP, getChainNameById } from "@/consts";
 import {
   calcDailyRewards,
   createPayouts,
@@ -24,9 +24,13 @@ export default async function handler(
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  // TODO: Process multiple chains
-  // TODO: Select token
-  const chain = celo;
+  const chainName = req.query?.chain as ChainName;
+
+  if (!AVAILABLE_CHAINS.includes(chainName)) {
+    return res.status(401).json({ message: `Incorrect chain "${chainName}"` });
+  }
+
+  const chain = CHAIN_MAP[chainName];
 
   try {
     const payouts = await createOrFetchPayouts(chain);

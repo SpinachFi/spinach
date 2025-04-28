@@ -212,7 +212,7 @@ export function Dashboard({ records, date }: DashboardProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
     {
       id: "projectChainId",
-      value: CHAIN_MAP[DEFAULT_CHAIN],
+      value: CHAIN_MAP[DEFAULT_CHAIN].id,
     },
   ]);
   const [columnVisibility, setColumnVisibility] =
@@ -228,7 +228,7 @@ export function Dashboard({ records, date }: DashboardProps) {
     setColumnFilters([
       {
         id: "projectChainId",
-        value: CHAIN_MAP[selectedChain],
+        value: CHAIN_MAP[selectedChain].id,
       },
     ]);
   }, [selectedChain]);

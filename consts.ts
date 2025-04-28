@@ -1,13 +1,13 @@
-import { celo, optimism } from "viem/chains";
+import { celo, Chain, optimism } from "viem/chains";
 
-export const CHAIN_MAP: { [name in ChainName]: number } = {
-  celo: celo.id,
-  optimism: optimism.id,
+export const CHAIN_MAP: { [name in ChainName]: Chain } = {
+  celo: celo,
+  optimism: optimism,
 };
 
 export const getChainNameById = (chainId: number): ChainName => {
-  for (const [name, id] of Object.entries(CHAIN_MAP)) {
-    if (id === chainId) {
+  for (const [name, chain] of Object.entries(CHAIN_MAP)) {
+    if (chain.id === chainId) {
       return name as ChainName;
     }
   }
