@@ -16,10 +16,6 @@
     {
       "path": "/api/payout/process?chain=celo",
       "schedule": "01 00 * * *"
-    },
-    {
-      "path": "/api/payout/process?chain=optimism",
-      "schedule": "01 05 * * *"
     }
   ]
 }
