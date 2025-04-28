@@ -1,6 +1,7 @@
+import { Payout } from "@prisma/client";
 import { get } from "@vercel/edge-config";
 import { clsx, type ClassValue } from "clsx";
-import { ethers } from "ethers";
+import { ethers, parseEther } from "ethers";
 import { twMerge } from "tailwind-merge";
 import { Chain } from "viem";
 import { getChainRPCUrl, getGloContractAddress } from "./config";
@@ -71,31 +72,48 @@ export const getTodayMidnight = () => {
   return midnight;
 };
 
+export const getYesterdayMidnight = () => {
+  const midnight = getTodayMidnight();
+
+  midnight.setDate(midnight.getDate() - 1);
+
+  return midnight;
+};
+
 export const createProjectRecords = async (
   pools: { [token: string]: { tvl: number; reward: number } },
   chainId: number
 ) => {
-  const currentMonthData = await prisma.projectRecord.findMany({
-    select: {
-      projectToken: true,
-      currentMonthEarnings: true,
-    },
+  const isFirstDayOfMonth = new Date().getDate() === 1;
 
-    where: {
-      projectChainId: chainId,
-      date: {
-        gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  const getYesterdayEarnings = async () => {
+    const yesterdayData = await prisma.projectRecord.findMany({
+      select: {
+        projectToken: true,
+        currentMonthEarnings: true,
       },
-    },
-  });
+      where: {
+        projectChainId: chainId,
+        date: {
+          equals: getYesterdayMidnight(),
+        },
+      },
+    });
 
-  const currentEarnings: Dict = currentMonthData.reduce(
-    (acc, cur) => ({
-      ...acc,
-      [cur.projectToken]: cur.currentMonthEarnings,
-    }),
-    {}
-  );
+    const yesterdayEarnings: Dict = yesterdayData.reduce(
+      (acc, cur) => ({
+        ...acc,
+        [cur.projectToken]: cur.currentMonthEarnings,
+      }),
+      {}
+    );
+
+    return yesterdayEarnings;
+  };
+
+  const yesterdayEarnings: Dict = isFirstDayOfMonth
+    ? {}
+    : await getYesterdayEarnings();
 
   const records = await prisma.projectRecord.createMany({
     data: Object.entries(pools).map(([token, { tvl, reward }]) => ({
@@ -103,7 +121,7 @@ export const createProjectRecords = async (
       projectChainId: chainId,
       tvl,
       earnings: reward,
-      currentMonthEarnings: (currentEarnings[token] || 0) + reward,
+      currentMonthEarnings: (yesterdayEarnings[token] || 0) + reward,
       date: getTodayMidnight(),
     })),
   });
@@ -126,6 +144,8 @@ export const hasRunToday = async (chainId: number) => {
   return latest?.date.toDateString() === new Date().toDateString();
 };
 
+export const twoDecimals = (num: number) => Math.floor(num * 100) / 100;
+
 const addRewards = (
   data: Dict,
   totalLiquidity: number,
@@ -136,7 +156,7 @@ const addRewards = (
   Object.entries(data).forEach(([token, tvl]) => {
     result[token] = {
       tvl,
-      reward: (tvl / totalLiquidity) * dailyRewards,
+      reward: twoDecimals((tvl / totalLiquidity) * dailyRewards),
     };
   });
 
@@ -204,4 +224,147 @@ export const firstOfThisMonth = () => new Date(new Date().setDate(1));
 export const lastOfThisMonth = () => {
   const today = new Date();
   return new Date(today.getFullYear(), today.getMonth() + 1, 0);
+};
+
+export const getTodayRecords = async (chainId: number) => {
+  const res = await prisma.projectRecord.findMany({
+    select: {
+      id: true,
+      projectToken: true,
+      projectChainId: true,
+      earnings: true,
+      project: {
+        select: {
+          payoutAddress: true,
+        },
+      },
+    },
+
+    where: {
+      projectChainId: chainId,
+      date: {
+        equals: getTodayMidnight(),
+      },
+    },
+  });
+
+  return res;
+};
+
+export const createPayouts = async ({
+  projectRecords,
+  token,
+}: {
+  projectRecords: {
+    project: {
+      payoutAddress: string | null;
+    };
+    id: number;
+    projectToken: string;
+    projectChainId: number;
+    earnings: number;
+  }[];
+  token: string;
+}) => {
+  return await prisma.payout.createMany({
+    data: projectRecords.map((record) => ({
+      projectRecordId: record.id,
+      payoutAddress: record.project.payoutAddress!,
+      tokenAddress: token,
+      value: record.earnings,
+    })),
+  });
+};
+
+export const findPayouts = async (chainId: number) => {
+  return await prisma.payout.findMany({
+    where: {
+      projectRecord: {
+        projectChainId: chainId,
+        date: getTodayMidnight(),
+      },
+    },
+  });
+};
+
+export const processPayouts = async (payouts: Payout[], chain: Chain) => {
+  for (const payout of payouts) {
+    if (payout.processed) {
+      console.log(`Payout ${payout.id} already processed.`);
+      continue;
+    }
+    console.log(`Processing payout ${payout.id}...`);
+
+    const success = await transferTo(payout.payoutAddress, payout.value, chain);
+    if (!success) {
+      console.log(`Payout ${payout.id} failed.`);
+      continue;
+    }
+
+    await prisma.payout.update({
+      where: {
+        id: payout.id,
+      },
+      data: {
+        processed: true,
+        processedAt: new Date(),
+      },
+    });
+
+    console.log(`Payout ${payout.id} completed.`);
+  }
+};
+
+// TODO: To migrate
+export const GLO_ALFAJORES = "0x6054aC9c220070F8c3093730d64E701ad23077C5";
+const TEST_MODE = true;
+
+export const transferTo = async (
+  toAddress: string,
+  amount: number,
+  chain: Chain
+) => {
+  const [token, provider] = TEST_MODE
+    ? [
+        GLO_ALFAJORES,
+        new ethers.JsonRpcProvider("https://alfajores-forno.celo-testnet.org/"),
+      ]
+    : [
+        getGloContractAddress(chain),
+        new ethers.JsonRpcProvider(getChainRPCUrl(chain)),
+      ];
+
+  const abi = [
+    "function transfer(address _to, uint256 _value) public returns (bool success)",
+  ];
+
+  const usdgloContract = new ethers.Contract(token, abi, provider);
+
+  const data = usdgloContract.interface.encodeFunctionData("transfer", [
+    toAddress,
+    parseEther(amount.toString()),
+  ]);
+
+  const signer = new ethers.Wallet(process.env.PAYOUT_PRIVATE_KEY!, provider);
+
+  try {
+    const tx = await signer.sendTransaction({
+      to: token,
+      from: signer.address,
+      value: parseEther("0.0"),
+      data: data,
+    });
+
+    console.log("Mining transaction...");
+
+    const receipt = await tx.wait();
+
+    console.log(`Mined in block ${receipt?.blockNumber}`);
+
+    return true;
+  } catch (err) {
+    console.log({ err });
+  }
+
+  return false;
 };

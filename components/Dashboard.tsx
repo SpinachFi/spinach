@@ -34,6 +34,7 @@ import {
 import clsx from "clsx";
 import { CircleDollarSign, Sprout } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import * as React from "react";
 import { celo } from "viem/chains";
 import Summary from "./Summary";
@@ -116,9 +117,11 @@ export const columns: ColumnDef<ProjectRecord>[] = [
               <InfoCircledIcon className="cursor-help" />
             </TooltipTrigger>
             <TooltipContent>
-              <p>
+              <p className="text-center">
                 Earnings so far since competition start on{" "}
                 {toNiceDate(firstOfThisMonth())}
+                <br />
+                (and earnings yesterday)
               </p>
             </TooltipContent>
           </Tooltip>
@@ -126,15 +129,32 @@ export const columns: ColumnDef<ProjectRecord>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("currentMonthEarnings"));
+      const currentMonthEarnings = parseFloat(
+        row.getValue("currentMonthEarnings")
+      );
+      const earnings = row.original.earnings;
 
       // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
+      const format = (num: number) =>
+        new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(num);
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="text-right font-medium cursor-help">
+              {format(currentMonthEarnings)}
+            </TooltipTrigger>
+            <TooltipContent>
+              <span className="text-xs text-spi-white">
+                ({format(earnings)})
+              </span>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
     },
   },
   {
@@ -192,7 +212,7 @@ export function Dashboard({ records, date }: DashboardProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
     {
       id: "projectChainId",
-      value: CHAIN_MAP[DEFAULT_CHAIN],
+      value: CHAIN_MAP[DEFAULT_CHAIN].id,
     },
   ]);
   const [columnVisibility, setColumnVisibility] =
@@ -208,7 +228,7 @@ export function Dashboard({ records, date }: DashboardProps) {
     setColumnFilters([
       {
         id: "projectChainId",
-        value: CHAIN_MAP[selectedChain],
+        value: CHAIN_MAP[selectedChain].id,
       },
     ]);
   }, [selectedChain]);
@@ -270,7 +290,7 @@ export function Dashboard({ records, date }: DashboardProps) {
             </div>
           </Button>
         ))}
-        <a href="/new-competition" className="flex-1">
+        <Link href="/new-competition" className="flex-1">
           <Button
             className="flex flex-col h-[96px] cursor-pointer border-1 border-spi-gray w-full"
             variant={"ghost"}
@@ -281,7 +301,7 @@ export function Dashboard({ records, date }: DashboardProps) {
               <span>Create Competition</span>
             </div>
           </Button>
-        </a>
+        </Link>
       </div>
       <Summary
         daily={calcDailyRewards(selectedChain)}

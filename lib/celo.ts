@@ -4,7 +4,7 @@ import { cacheExchange, createClient, fetchExchange, gql } from "urql";
 import { celo, Chain } from "viem/chains";
 
 import { getChainRPCUrl, getGloContractAddress } from "./config";
-import { getBalance } from "./utils";
+import { getBalance, twoDecimals } from "./utils";
 
 export const getRefi = async () => {
   const contractAdr = "0x505E65f7D854d4a564b5486d59c91E1DfE627579";
@@ -191,5 +191,5 @@ export const getOkuTradeData = async (poolId: string, chain: ChainName) => {
   );
   const data = res.data.result;
 
-  return parseFloat((data.t0_tvl_usd + data.t1_tvl_usd).toFixed(2));
+  return twoDecimals(data.t0_tvl_usd + data.t1_tvl_usd);
 };
