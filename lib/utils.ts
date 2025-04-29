@@ -305,7 +305,22 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
       console.log(`Payout ${payout.id} already processed.`);
       continue;
     }
+
+    if (payout.isProcessing) {
+      console.log(`Payout ${payout.id} is being processed.`);
+      continue;
+    }
+
     console.log(`Processing payout ${payout.id}...`);
+
+    await prisma.payout.update({
+      where: {
+        id: payout.id,
+      },
+      data: {
+        isProcessing: true,
+      },
+    });
 
     const success = await transferTo(payout.payoutAddress, payout.value, chain);
     if (!success) {
@@ -319,6 +334,7 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
       },
       data: {
         processed: true,
+        isProcessing: false,
         processedAt: new Date(),
       },
     });

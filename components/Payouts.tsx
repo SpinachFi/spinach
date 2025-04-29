@@ -43,14 +43,18 @@ export const columns: ColumnDef<PayoutRecord>[] = [
     accessorFn: (row) => getChainNameById(row.chainId),
     header: "Chain",
     cell: ({ getValue }) => (
-      <span className="capitalize">{getValue() as string}</span>
+      <span className="capitalize">{getValue<string>()}</span>
     ),
   },
   {
     accessorFn: (row) => row.processed,
     header: "Processed",
     cell: ({ getValue }) =>
-      getValue() ? <CircleCheck className="text-spi-green" /> : <CircleX />,
+      getValue<boolean>() ? (
+        <CircleCheck className="text-spi-green" />
+      ) : (
+        <CircleX />
+      ),
   },
 ];
 

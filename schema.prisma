@@ -49,4 +49,5 @@ model Payout {
   value           Float
   tokenAddress    String
   processed       Boolean       @default(false)
+  isProcessing    Boolean       @default(false)
 }

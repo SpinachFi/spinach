@@ -62,7 +62,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     accessorFn: (row) => row.project.displayToken,
     header: "Token",
     cell: ({ getValue }) => {
-      const token = getValue() as string;
+      const token = getValue<string>();
       const prefix = token.includes("$") || token.includes("/") ? "" : "$";
       return (
         <div className="capitalize">
@@ -142,7 +142,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     accessorFn: (row) => row.project.website,
     header: "Learn more",
     cell: ({ getValue }) => {
-      const raw = getValue() as string;
+      const raw = getValue<string>();
       if (!raw) {
         return "";
       }
@@ -166,7 +166,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     accessorFn: (row) => row.project.addLiquidity,
     header: () => <div className="text-right">Add liquidity</div>,
     cell: ({ getValue }) => {
-      const url = getValue() as string;
+      const url = getValue<string>();
       if (!url) {
         return "";
       }
