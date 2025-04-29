@@ -77,7 +77,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     header: () => <div className="text-right">Current liquidity</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("tvl"));
-      const formatted = toNiceDollar(amount);
+      const formatted = toNiceDollar(amount, 0);
 
       const url = row.original.project.liquiditySource;
 

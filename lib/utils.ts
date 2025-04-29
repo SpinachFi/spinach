@@ -225,6 +225,7 @@ export const toNiceDollar = (num: number, digits = 2) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
+    maximumFractionDigits: digits,
   }).format(num);
 
 export const firstOfThisMonth = () => {
