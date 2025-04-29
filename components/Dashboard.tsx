@@ -15,7 +15,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN, TALLY } from "@/consts";
-import { calcDailyRewards, firstOfThisMonth, toNiceDate } from "@/lib/utils";
+import {
+  calcDailyRewards,
+  firstOfThisMonth,
+  toNiceDate,
+  toNiceDollar,
+} from "@/lib/utils";
 import { useSpiStore } from "@/store";
 import { GlobeIcon, InfoCircledIcon, PlusIcon } from "@radix-ui/react-icons";
 import {
@@ -32,11 +37,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import clsx from "clsx";
-import { CircleDollarSign, Sprout } from "lucide-react";
+import { Sprout } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 import { celo } from "viem/chains";
+import { LogoCell } from "./LogoCell";
 import Summary from "./Summary";
 import { Button } from "./ui/button";
 
@@ -45,25 +51,11 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     accessorFn: (row) => row.project.name,
     header: "Project",
     cell: ({ row }) => (
-      <div className="flex items-center">
-        {row.original.project.logo ? (
-          <Image
-            src={`/favicons/${row.original.project.logo}`}
-            height={20}
-            width={20}
-            className="mr-1"
-            alt={row.original.project.name}
-          />
-        ) : (
-          <CircleDollarSign height={20} width={20} className="mr-1" />
-        )}
-        <span className="font-semibold capitalize text-lg mr-3">
-          {row.original.project.name}
-        </span>
-        <span className="text-xs text-spi-gray">
-          {row.original.project.message}
-        </span>
-      </div>
+      <LogoCell
+        name={row.original.project.name}
+        logo={row.original.project.logo}
+        message={row.original.project.message}
+      />
     ),
   },
   {
@@ -85,11 +77,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     header: () => <div className="text-right">Current liquidity</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("tvl"));
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 0,
-      }).format(amount);
+      const formatted = toNiceDollar(amount);
 
       const url = row.original.project.liquiditySource;
 
@@ -134,22 +122,15 @@ export const columns: ColumnDef<ProjectRecord>[] = [
       );
       const earnings = row.original.earnings;
 
-      // Format the amount as a dollar amount
-      const format = (num: number) =>
-        new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-        }).format(num);
-
       return (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger className="text-right font-medium cursor-help">
-              {format(currentMonthEarnings)}
+              {toNiceDollar(currentMonthEarnings)}
             </TooltipTrigger>
             <TooltipContent>
               <span className="text-xs text-spi-white">
-                ({format(earnings)})
+                ({toNiceDollar(earnings)})
               </span>
             </TooltipContent>
           </Tooltip>

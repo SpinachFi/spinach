@@ -218,12 +218,23 @@ export const toNiceDate = (date: Date) =>
   date.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
+    timeZone: "UTC",
   });
 
-export const firstOfThisMonth = () => new Date(new Date().setDate(1));
+export const toNiceDollar = (num: number, digits = 2) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(num);
+
+export const firstOfThisMonth = () => {
+  const today = new Date();
+  return new Date(Date.UTC(today.getFullYear(), today.getMonth(), 1));
+};
+
 export const lastOfThisMonth = () => {
   const today = new Date();
-  return new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  return new Date(Date.UTC(today.getFullYear(), today.getMonth() + 1, 0));
 };
 
 export const getTodayRecords = async (chainId: number) => {

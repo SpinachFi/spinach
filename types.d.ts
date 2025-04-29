@@ -24,6 +24,21 @@ type DashboardProps = {
   date: Date;
 };
 
+type PayoutTableProps = {
+  payouts: PayoutRecord[];
+  date: Date;
+};
+
 type ChildrenProps = {
   children?: string | JSX.Element | JSX.Element[] | (() => JSX.Element);
+};
+
+type PayoutRecord = {
+  processed: boolean;
+  processedAt: Date | null;
+  value: number;
+  chainId: number;
+  name: string;
+  displayToken: string;
+  logo: string | null;
 };
