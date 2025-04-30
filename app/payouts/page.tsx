@@ -4,8 +4,11 @@ import { Payouts } from "@/components/Payouts";
 import prisma from "@/lib/prisma";
 import { getTodayMidnight } from "@/lib/utils";
 
+export const revalidate = 900; // invalidate every 15m
+
 export default async function PayoutsPage() {
   const date = getTodayMidnight();
+
   const records = await prisma.payout.findMany({
     select: {
       processed: true,
@@ -34,20 +37,18 @@ export default async function PayoutsPage() {
     },
   });
 
+  const payouts = records.map(
+    ({ processed, processedAt, value, projectRecord }) => ({
+      processed,
+      processedAt,
+      value,
+      ...projectRecord.project,
+    })
+  );
   return (
     <Layout>
       <Header />
-      <Payouts
-        payouts={records.map(
-          ({ processed, processedAt, value, projectRecord }) => ({
-            processed,
-            processedAt,
-            value,
-            ...projectRecord.project,
-          })
-        )}
-        date={date}
-      />
+      <Payouts payouts={payouts} date={date} />
     </Layout>
   );
 }

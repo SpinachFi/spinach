@@ -43,7 +43,7 @@ export default async function Home() {
   return (
     <Layout>
       <Header />
-      <DashboardContainer records={records} date={new Date(date)} />
+      <DashboardContainer records={records} date={date} />
     </Layout>
   );
 }
