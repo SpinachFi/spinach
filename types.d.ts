@@ -37,6 +37,7 @@ type PayoutRecord = {
   processed: boolean;
   processedAt: Date | null;
   value: number;
+  hash: string | null;
   chainId: number;
   name: string;
   displayToken: string;

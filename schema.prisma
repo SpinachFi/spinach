@@ -50,4 +50,5 @@ model Payout {
   tokenAddress    String
   processed       Boolean       @default(false)
   isProcessing    Boolean       @default(false)
+  hash            String?
 }

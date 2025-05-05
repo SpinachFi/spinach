@@ -322,8 +322,8 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
       },
     });
 
-    const success = await transferTo(payout.payoutAddress, payout.value, chain);
-    if (!success) {
+    const hash = await transferTo(payout.payoutAddress, payout.value, chain);
+    if (!hash) {
       console.log(`Payout ${payout.id} failed.`);
       continue;
     }
@@ -335,6 +335,7 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
       data: {
         processed: true,
         isProcessing: false,
+        hash,
         processedAt: new Date(),
       },
     });
@@ -389,10 +390,10 @@ export const transferTo = async (
 
     console.log(`Mined in block ${receipt?.blockNumber}`);
 
-    return true;
+    return tx.hash;
   } catch (err) {
     console.log({ err });
   }
 
-  return false;
+  return null;
 };

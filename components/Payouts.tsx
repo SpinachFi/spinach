@@ -47,14 +47,19 @@ export const columns: ColumnDef<PayoutRecord>[] = [
     ),
   },
   {
-    accessorFn: (row) => row.processed,
+    accessorFn: (row) => row.hash,
     header: "Processed",
-    cell: ({ getValue }) =>
-      getValue<boolean>() ? (
-        <CircleCheck className="text-spi-green" />
-      ) : (
-        <CircleX />
-      ),
+    cell: ({ getValue }) => {
+      const hash = getValue<string>();
+      if (!hash) {
+        return <CircleX />;
+      }
+      return (
+        <a href={`https://alfajores.celoscan.io/tx/${hash}`} target="_blank">
+          <CircleCheck className="text-spi-green" />
+        </a>
+      );
+    },
   },
 ];
 

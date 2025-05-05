@@ -14,6 +14,7 @@ export default async function PayoutsPage() {
       processed: true,
       processedAt: true,
       value: true,
+      hash: true,
       projectRecord: {
         select: {
           project: {
@@ -38,10 +39,11 @@ export default async function PayoutsPage() {
   });
 
   const payouts = records.map(
-    ({ processed, processedAt, value, projectRecord }) => ({
+    ({ processed, processedAt, value, hash, projectRecord }) => ({
       processed,
       processedAt,
       value,
+      hash,
       ...projectRecord.project,
     })
   );
