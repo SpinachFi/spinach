@@ -8,12 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN, TALLY } from "@/consts";
 import {
   calcDailyRewards,
@@ -43,6 +37,7 @@ import Link from "next/link";
 import * as React from "react";
 import { celo } from "viem/chains";
 import { LogoCell } from "./LogoCell";
+import SpiTooltip from "./SpiTooltip";
 import Summary from "./Summary";
 import { Button } from "./ui/button";
 
@@ -77,44 +72,61 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     header: () => <div className="text-right">Current liquidity</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("tvl"));
+      const incentiveTokenTvl = row.original.incentiveTokenTvl;
+      const participatingTokenTvl = row.original.participatingTokenTvl;
+      const token = row.original.project.displayToken;
       const formatted = toNiceDollar(amount, 0);
 
       const url = row.original.project.liquiditySource;
 
-      return url ? (
-        <a
-          href={url}
-          target="_blank"
-          className="float-right underline font-medium cursor-pointer"
-        >
-          {formatted}
-        </a>
-      ) : (
-        <div className="text-right font-medium">{formatted}</div>
+      return (
+        <SpiTooltip
+          content={
+            <p className="text-center">
+              {toNiceDollar(incentiveTokenTvl, 1, "compact")} USDGLO
+              {participatingTokenTvl &&
+                ` and ${toNiceDollar(participatingTokenTvl, 1, "compact")} ${token}`}
+            </p>
+          }
+          showContent={!!incentiveTokenTvl}
+          trigger={
+            <div className="flex items-center float-right">
+              {url ? (
+                <a
+                  href={url}
+                  target="_blank"
+                  className="float-right underline font-medium cursor-pointer"
+                >
+                  {formatted}
+                </a>
+              ) : (
+                <div className="text-right font-medium">{formatted}</div>
+              )}
+            </div>
+          }
+        />
       );
     },
   },
   {
     accessorKey: "currentMonthEarnings",
     header: () => (
-      <div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger className="flex items-center float-right">
-              <span className="mr-1">Earnings</span>
-              <InfoCircledIcon className="cursor-help" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="text-center">
-                Earnings so far since competition start on{" "}
-                {toNiceDate(firstOfThisMonth())}
-                <br />
-                (and earnings yesterday)
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
+      <SpiTooltip
+        content={
+          <p className="text-center">
+            Earnings so far since competition start on{" "}
+            {toNiceDate(firstOfThisMonth())}
+            <br />
+            (and earnings yesterday)
+          </p>
+        }
+        trigger={
+          <div className="flex items-center float-right">
+            <span className="mr-1">Earnings</span>
+            <InfoCircledIcon className="cursor-help" />
+          </div>
+        }
+      />
     ),
     cell: ({ row }) => {
       const currentMonthEarnings = parseFloat(
@@ -123,18 +135,14 @@ export const columns: ColumnDef<ProjectRecord>[] = [
       const earnings = row.original.earnings;
 
       return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger className="text-right font-medium cursor-help">
-              {toNiceDollar(currentMonthEarnings)}
-            </TooltipTrigger>
-            <TooltipContent>
-              <span className="text-xs text-spi-white">
-                ({toNiceDollar(earnings)})
-              </span>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <SpiTooltip
+          content={
+            <span className="text-xs text-spi-white">
+              {toNiceDollar(earnings)}
+            </span>
+          }
+          trigger={toNiceDollar(currentMonthEarnings)}
+        />
       );
     },
   },

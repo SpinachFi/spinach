@@ -1,5 +1,6 @@
 import { firstOfThisMonth, lastOfThisMonth, toNiceDate } from "@/lib/utils";
 import { ReactNode } from "react";
+import SpiTooltip from "./SpiTooltip";
 import { Separator } from "./ui/separator";
 
 type Props = {
@@ -13,19 +14,27 @@ type CardProps = {
   numbers: string;
   subtitle?: string | ReactNode;
   footer?: string;
+  tooltip?: string;
 };
 
-const Card = ({ title, numbers, subtitle, footer }: CardProps) => (
+const Card = ({ title, numbers, subtitle, footer, tooltip }: CardProps) => (
   <div className="flex items-center justify-center flex-1">
     <div className="flex flex-col justify-center items-center">
-      <span className="text-spi-gray text-sm">{title}</span>
-      <div>
-        <span className="font-medium text-spi-dark-green text-xl">
-          {numbers}
-        </span>
-        {subtitle}
-      </div>
-      <span className="text-xs text-spi-gray">{footer || <wbr />}</span>
+      <SpiTooltip
+        content={tooltip}
+        trigger={
+          <>
+            <span className="text-spi-gray text-sm">{title}</span>
+            <div>
+              <span className="font-medium text-spi-dark-green text-xl">
+                {numbers}
+              </span>
+              {subtitle}
+            </div>
+            <span className="text-xs text-spi-gray">{footer || <wbr />}</span>
+          </>
+        }
+      />
     </div>
   </div>
 );
@@ -39,7 +48,9 @@ export default function Summary({ daily, liquidity, projects }: Props) {
         title="Daily rewards"
         numbers={`$${daily.toFixed(0)} USDGLO`}
         footer={`From ${toNiceDate(firstOfThisMonth())} - ${toNiceDate(lastOfThisMonth())}`}
+        tooltip={"USDGLO 75% $OTHER 25%"}
       />
+
       <Separator orientation="vertical" className="ml-8" />
       <Card
         title="Liquidity provided"

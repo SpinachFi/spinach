@@ -81,7 +81,7 @@ export const getYesterdayMidnight = () => {
 };
 
 export const createProjectRecords = async (
-  pools: { [token: string]: { tvl: number; reward: number } },
+  pools: DictTvlReward,
   chainId: number
 ) => {
   const isFirstDayOfMonth = new Date().getDate() === 1;
@@ -116,14 +116,18 @@ export const createProjectRecords = async (
     : await getYesterdayEarnings();
 
   const records = await prisma.projectRecord.createMany({
-    data: Object.entries(pools).map(([token, { tvl, reward }]) => ({
-      projectToken: token,
-      projectChainId: chainId,
-      tvl,
-      earnings: reward,
-      currentMonthEarnings: (yesterdayEarnings[token] || 0) + reward,
-      date: getTodayMidnight(),
-    })),
+    data: Object.entries(pools).map(
+      ([token, { tvl, reward, incentiveTokenTvl, participatingTokenTvl }]) => ({
+        projectToken: token,
+        projectChainId: chainId,
+        tvl,
+        incentiveTokenTvl,
+        participatingTokenTvl,
+        earnings: reward,
+        currentMonthEarnings: (yesterdayEarnings[token] || 0) + reward,
+        date: getTodayMidnight(),
+      })
+    ),
   });
 
   console.log(`${records.count} records created (chain: ${chainId}).`);
@@ -146,19 +150,48 @@ export const hasRunToday = async (chainId: number) => {
 
 export const twoDecimals = (num: number) => Math.floor(num * 100) / 100;
 
-const addRewards = (
-  data: Dict,
-  totalLiquidity: number,
-  dailyRewards: number
+const rewardSplit = (
+  token: string,
+  data: {
+    tvl: number;
+    incentiveTokenTvl?: number;
+    participatingTokenTvl?: number;
+  }
 ) => {
-  const result: { [token: string]: { tvl: number; reward: number } } = {};
+  const { tvl, incentiveTokenTvl, participatingTokenTvl } = data;
+  const REWARDS_SPLIT: Dict = {
+    ube: 50,
+    refi: 100,
+  };
+  // Defaults to 75% Glo (incentive token) and 25% other token (participating token)
+  const incentive = (REWARDS_SPLIT[token] || 75) / 100;
+  const participating = 1 - incentive;
+
+  return (
+    incentive * (incentiveTokenTvl || tvl) +
+    participating * (participatingTokenTvl || 0)
+  );
+};
+
+const addRewards = (data: DictTvl, dailyRewards: number) => {
+  const result: DictTvlReward = {};
 
   Object.entries(data).forEach(([token, tvl]) => {
     result[token] = {
-      tvl,
-      reward: twoDecimals((tvl / totalLiquidity) * dailyRewards),
+      ...tvl,
+      reward: rewardSplit(token, tvl),
     };
   });
+
+  const totalLiquidity = Object.values(result).reduce(
+    (acc, cur) => acc + cur.reward,
+    0
+  );
+
+  for (const token in result) {
+    result[token].reward =
+      (result[token].reward / totalLiquidity) * dailyRewards;
+  }
 
   return result;
 };
@@ -189,12 +222,12 @@ export const calcDailyRewards = (chain: ChainName) => {
   5. Upon successful sending of the rewards, it adds those rewards to that project's monthly earnings so far
   6. At the start of a new month, the project's monthly earnings reset and a new tally begins (after the first month, we'll add a feature to show historical performance)
 */
-export const calcRewards = async (data: Dict, dailyRewards: number) => {
+export const calcRewards = async (data: DictTvl, dailyRewards: number) => {
   const whiteListedProjects: string[] =
     (await get("whitelistedProjects")) || [];
   const lowerCaseWhiteList = whiteListedProjects.map((x) => x.toLowerCase());
 
-  const whitelisted: Dict = Object.entries(data).reduce(
+  const whitelisted: DictTvl = Object.entries(data).reduce(
     (acc, [token, tvl]) => ({
       ...acc,
       ...(lowerCaseWhiteList.includes(token.toLowerCase())
@@ -204,12 +237,7 @@ export const calcRewards = async (data: Dict, dailyRewards: number) => {
     {}
   );
 
-  const totalLiquidity = Object.values(whitelisted).reduce(
-    (acc, cur) => acc + cur,
-    0
-  );
-
-  const enriched = addRewards(whitelisted, totalLiquidity, dailyRewards);
+  const enriched = addRewards(whitelisted, dailyRewards);
 
   return enriched;
 };
@@ -221,12 +249,22 @@ export const toNiceDate = (date: Date) =>
     timeZone: "UTC",
   });
 
-export const toNiceDollar = (num: number, digits = 2) =>
+export const toNiceDollar = (
+  num: number | null,
+  digits = 2,
+  notation:
+    | "standard"
+    | "scientific"
+    | "engineering"
+    | "compact"
+    | undefined = "standard"
+) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: digits,
-  }).format(num);
+    notation,
+  }).format(num || 0);
 
 export const firstOfThisMonth = () => {
   const today = new Date();

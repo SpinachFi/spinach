@@ -27,6 +27,8 @@ export default async function Home() {
       currentMonthEarnings: true,
       earnings: true,
       tvl: true,
+      incentiveTokenTvl: true,
+      participatingTokenTvl: true,
     },
     where: {
       date,

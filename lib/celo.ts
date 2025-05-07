@@ -139,6 +139,7 @@ type DexType = {
   dexId: string;
   url: string;
   pairAddress: string;
+  priceUsd: string;
   baseToken: {
     address: string;
     name: string;
@@ -159,31 +160,40 @@ type DexType = {
 export const getDexData = async (
   chain: ChainName,
   dexId = "uniswap"
-): Promise<Dict> => {
-  const {
-    data: { pairs },
-  } = await axios.get<{ pairs: DexType[] }>(
-    "https://api.dexscreener.com/latest/dex/search?q=usdglo"
+): Promise<DictTvl> => {
+  const glo = getGloContractAddress(celo);
+  const { data: pairs } = await axios.get<DexType[]>(
+    `https://api.dexscreener.com/token-pairs/v1/${chain}/${glo}`
   );
 
   return pairs
-    .filter((pair) => pair.chainId === chain && pair.dexId === dexId)
-    .reduce(
-      (acc, cur) => ({
+    .filter((pair) => pair.dexId === dexId)
+    .reduce((acc, cur) => {
+      const isGloBase = cur.baseToken.symbol === "USDGLO";
+      const priceUsd = parseFloat(cur.priceUsd);
+      const [otherToken, baseTvl, quoteTvl] = isGloBase
+        ? [cur.quoteToken.symbol, cur.liquidity.base, cur.liquidity.quote]
+        : [cur.baseToken.symbol, cur.liquidity.quote, cur.liquidity.base];
+      return {
         ...acc,
-        [cur.baseToken.symbol === "USDGLO"
-          ? cur.quoteToken.symbol
-          : cur.baseToken.symbol]: cur.liquidity?.usd,
-      }),
-      {}
-    );
+        [otherToken]: {
+          tvl: Math.round(cur.liquidity?.usd),
+          incentiveTokenTvl: Math.round(baseTvl),
+          participatingTokenTvl: Math.round(quoteTvl * priceUsd),
+        },
+      };
+    }, {});
 };
+
 type OkuPoolData = {
   result: {
+    t0_symbol: string;
     t0_tvl_usd: number;
     t1_tvl_usd: number;
+    tvl_usd: number;
   };
 };
+
 export const getOkuTradeData = async (poolId: string, chain: ChainName) => {
   const res = await axios.post<OkuPoolData>(
     `https://omni.icarus.tools/${chain}/cush/analyticsPool`,
@@ -191,5 +201,13 @@ export const getOkuTradeData = async (poolId: string, chain: ChainName) => {
   );
   const data = res.data.result;
 
-  return twoDecimals(data.t0_tvl_usd + data.t1_tvl_usd);
+  const tvls = [data.t0_tvl_usd, data.t1_tvl_usd];
+  const [incentiveTokenTvl, participatingTokenTvl] =
+    data.t0_symbol === "USDGLO" ? tvls : tvls.reverse();
+
+  return {
+    tvl: twoDecimals(data.tvl_usd),
+    incentiveTokenTvl,
+    participatingTokenTvl,
+  };
 };

@@ -33,19 +33,23 @@ export default async function handler(
 
   const ube = await getUbeswap();
   const refi = await getRefi();
-  const aggregated: Dict = { ...dex, ube, refi };
+  const aggregated: DictTvl = {
+    ...dex,
+    ube: { tvl: ube },
+    refi: { tvl: refi, incentiveTokenTvl: refi },
+  };
 
   const NATURE = "NATURE";
   if (!Object.keys(aggregated).includes(NATURE)) {
-    const tvl = await getOkuTradeData(
+    const oku = await getOkuTradeData(
       "0x4eb0685f69f0b87da744e159576556b709a74c09",
       "celo"
     );
-
-    aggregated[NATURE] = tvl;
+    aggregated[NATURE] = { ...oku };
   }
 
   const result = await calcRewards(aggregated, calcDailyRewards("celo"));
+
   await createNewProjectDefs(Object.keys(result), chainId);
 
   await createProjectRecords(result, chainId);

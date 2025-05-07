@@ -27,15 +27,17 @@ model Project {
 }
 
 model ProjectRecord {
-  id                   Int      @id @default(autoincrement())
-  project              Project  @relation(fields: [projectToken, projectChainId], references: [token, chainId])
-  projectToken         String
-  projectChainId       Int
-  tvl                  Int
-  earnings             Float
-  currentMonthEarnings Float    @default(0)
-  date                 DateTime
-  Payout               Payout[]
+  id                    Int      @id @default(autoincrement())
+  project               Project  @relation(fields: [projectToken, projectChainId], references: [token, chainId])
+  projectToken          String
+  projectChainId        Int
+  tvl                   Int
+  incentiveTokenTvl     Int?
+  participatingTokenTvl Int?
+  earnings              Float
+  currentMonthEarnings  Float    @default(0)
+  date                  DateTime
+  Payout                Payout[]
 }
 
 model Payout {

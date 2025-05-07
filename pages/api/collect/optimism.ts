@@ -1,4 +1,4 @@
-import { getCoingeckoData } from "@/lib/optimism";
+import { getDexData } from "@/lib/celo";
 import {
   calcDailyRewards,
   calcRewards,
@@ -23,12 +23,12 @@ export default async function handler(
 
   const chainId = optimism.id;
   const alreadyRun = await hasRunToday(chainId);
+  const dex = await getDexData("optimism");
 
   if (alreadyRun) {
     return res.status(200).json({ message: "Already collected for today." });
   }
-  const cgData = await getCoingeckoData();
-  const aggregated = { ...cgData };
+  const aggregated = { ...dex };
 
   const result = await calcRewards(aggregated, calcDailyRewards("optimism"));
 

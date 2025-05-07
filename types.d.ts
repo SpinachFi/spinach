@@ -1,11 +1,27 @@
 type Dict = { [token: string]: number };
 
+type DictTvl = {
+  [token: string]: {
+    tvl: number;
+    incentiveTokenTvl?: number;
+    participatingTokenTvl?: number;
+  };
+};
+
+type DictTvlReward = DictTvl & {
+  [token: string]: {
+    reward: number;
+  };
+};
+
 type ChainName = "celo" | "optimism";
 
 type ProjectRecord = {
   projectToken: string;
   projectChainId: number;
   tvl: number;
+  incentiveTokenTvl: number | null;
+  participatingTokenTvl: number | null;
   currentMonthEarnings: number;
   earnings: number;
   project: {

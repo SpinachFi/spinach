@@ -16,9 +16,7 @@ export default function Tally({ onClose }: { onClose?: () => void }) {
   };
 
   useEffect(() => {
-    console.log({ tallyFormId, prevTallyFormId });
     if (tallyFormId && prevTallyFormId.current) {
-      console.log("loadScript");
       loadScript();
     }
   }, [tallyFormId]);
