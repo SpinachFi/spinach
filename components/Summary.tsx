@@ -17,27 +17,27 @@ type CardProps = {
   tooltip?: string;
 };
 
-const Card = ({ title, numbers, subtitle, footer, tooltip }: CardProps) => (
-  <div className="flex items-center justify-center flex-1">
-    <div className="flex flex-col justify-center items-center">
-      <SpiTooltip
-        content={tooltip}
-        trigger={
-          <>
-            <span className="text-spi-gray text-sm">{title}</span>
-            <div>
-              <span className="font-medium text-spi-dark-green text-xl">
-                {numbers}
-              </span>
-              {subtitle}
-            </div>
-            <span className="text-xs text-spi-gray">{footer || <wbr />}</span>
-          </>
-        }
-      />
+const Card = ({ title, numbers, subtitle, footer, tooltip }: CardProps) => {
+  const element = (
+    <>
+      <span className="text-spi-gray text-sm">{title}</span>
+      <div>
+        <span className="font-medium text-spi-dark-green text-xl">
+          {numbers}
+        </span>
+        {subtitle}
+      </div>
+      <span className="text-xs text-spi-gray">{footer || <wbr />}</span>
+    </>
+  );
+  return (
+    <div className="flex items-center justify-center flex-1">
+      <div className="flex flex-col justify-center items-center">
+        {tooltip ? <SpiTooltip content={tooltip} trigger={element} /> : element}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function Summary({ daily, liquidity, projects }: Props) {
   const apr = (daily * 365 * 100) / liquidity;
