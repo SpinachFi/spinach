@@ -21,18 +21,21 @@ export default async function handler(
     return res.status(401).json({ message: "Unauthorized" });
   }
 
+  const dex = "uniswap";
   const chainId = optimism.id;
+
   const alreadyRun = await hasRunToday(chainId);
-  const dex = await getDexData("optimism");
 
   if (alreadyRun) {
     return res.status(200).json({ message: "Already collected for today." });
   }
-  const aggregated = { ...dex };
+
+  const dexData = await getDexData("optimism", dex);
+  const aggregated = [...dexData];
 
   const result = await calcRewards(aggregated, calcDailyRewards("optimism"));
 
-  await createNewProjectDefs(Object.keys(result), chainId);
+  await createNewProjectDefs(result, chainId);
 
   await createProjectRecords(result, chainId);
 

@@ -39,14 +39,15 @@ export const getBalance = async (
 };
 
 export const createNewProjectDefs = async (
-  tokens: string[],
+  pools: PoolRewardRecord[],
   chainId: number
 ) => {
-  const data = tokens.map((token) => ({
-    name: token,
-    token,
-    displayToken: token,
+  const data = pools.map((r) => ({
+    name: r.token,
+    token: r.token,
+    displayToken: r.token,
     chainId,
+    dex: r.dex,
   }));
 
   const projects = await prisma.project.createMany({
@@ -81,7 +82,7 @@ export const getYesterdayMidnight = () => {
 };
 
 export const createProjectRecords = async (
-  pools: DictTvlReward,
+  pools: PoolRewardRecord[],
   chainId: number
 ) => {
   const isFirstDayOfMonth = new Date().getDate() === 1;
@@ -116,10 +117,18 @@ export const createProjectRecords = async (
     : await getYesterdayEarnings();
 
   const records = await prisma.projectRecord.createMany({
-    data: Object.entries(pools).map(
-      ([token, { tvl, reward, incentiveTokenTvl, participatingTokenTvl }]) => ({
+    data: pools.map(
+      ({
+        token,
+        dex,
+        tvl,
+        incentiveTokenTvl,
+        participatingTokenTvl,
+        reward,
+      }) => ({
         projectToken: token,
         projectChainId: chainId,
+        projectDex: dex,
         tvl,
         incentiveTokenTvl,
         participatingTokenTvl,
@@ -152,13 +161,10 @@ export const twoDecimals = (num: number) => Math.floor(num * 100) / 100;
 
 const rewardSplit = (
   token: string,
-  data: {
-    tvl: number;
-    incentiveTokenTvl?: number;
-    participatingTokenTvl?: number;
-  }
+  tvl: number,
+  incentiveTokenTvl?: number,
+  participatingTokenTvl?: number
 ) => {
-  const { tvl, incentiveTokenTvl, participatingTokenTvl } = data;
   const REWARDS_SPLIT: Dict = {
     ube: 50,
     refi: 100,
@@ -173,27 +179,21 @@ const rewardSplit = (
   );
 };
 
-const addRewards = (data: DictTvl, dailyRewards: number) => {
-  const result: DictTvlReward = {};
+const addRewards = (
+  pools: PoolRecord[],
+  dailyRewards: number
+): PoolRewardRecord[] => {
+  const result = pools.map((pool) => ({
+    ...pool,
+    reward: rewardSplit(pool.token, pool.tvl),
+  }));
 
-  Object.entries(data).forEach(([token, tvl]) => {
-    result[token] = {
-      ...tvl,
-      reward: rewardSplit(token, tvl),
-    };
-  });
+  const totalLiquidity = result.reduce((acc, cur) => acc + cur.reward, 0);
 
-  const totalLiquidity = Object.values(result).reduce(
-    (acc, cur) => acc + cur.reward,
-    0
-  );
-
-  for (const token in result) {
-    result[token].reward =
-      (result[token].reward / totalLiquidity) * dailyRewards;
-  }
-
-  return result;
+  return result.map((pool) => ({
+    ...pool,
+    reward: (pool.reward / totalLiquidity) * dailyRewards,
+  }));
 };
 
 export const calcDailyRewards = (chain: ChainName) => {
@@ -222,19 +222,16 @@ export const calcDailyRewards = (chain: ChainName) => {
   5. Upon successful sending of the rewards, it adds those rewards to that project's monthly earnings so far
   6. At the start of a new month, the project's monthly earnings reset and a new tally begins (after the first month, we'll add a feature to show historical performance)
 */
-export const calcRewards = async (data: DictTvl, dailyRewards: number) => {
+export const calcRewards = async (
+  pools: PoolRecord[],
+  dailyRewards: number
+) => {
   const whiteListedProjects: string[] =
     (await get("whitelistedProjects")) || [];
   const lowerCaseWhiteList = whiteListedProjects.map((x) => x.toLowerCase());
 
-  const whitelisted: DictTvl = Object.entries(data).reduce(
-    (acc, [token, tvl]) => ({
-      ...acc,
-      ...(lowerCaseWhiteList.includes(token.toLowerCase())
-        ? { [token]: tvl }
-        : {}),
-    }),
-    {}
+  const whitelisted = pools.filter(({ token }) =>
+    lowerCaseWhiteList.includes(token.toLowerCase())
   );
 
   const enriched = addRewards(whitelisted, dailyRewards);

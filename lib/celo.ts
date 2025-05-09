@@ -6,7 +6,7 @@ import { celo, Chain } from "viem/chains";
 import { getChainRPCUrl, getGloContractAddress } from "./config";
 import { getBalance, twoDecimals } from "./utils";
 
-export const getRefi = async () => {
+export const getRefi = async (): Promise<PoolRecord> => {
   const contractAdr = "0x505E65f7D854d4a564b5486d59c91E1DfE627579";
   const balance = await getBalance(contractAdr, celo);
 
@@ -23,10 +23,14 @@ export const getRefi = async () => {
   // Checks the lending contract, review total deposited amount, and subtract current amount in the contract.
   const total = totalFunds / scalar - balance / BigInt(10 ** 18);
 
-  return Number(total);
+  return {
+    token: "refi",
+    tvl: twoDecimals(Number(total)),
+    dex: "uniswap",
+  };
 };
 
-export const getUbeswap = async () => {
+export const getUbeswap = async (): Promise<PoolRecord> => {
   const { data: ipfsData } = await axios.get(
     "https://api.ubeswap.org/api/ubeswap/farmv3/0x82774b5b1443759f20679a61497abf11115a4d0e2076caedf9d700a8c53f286f/ipfs-url"
   );
@@ -44,7 +48,11 @@ export const getUbeswap = async () => {
 
   const total = Number(totalShares / BigInt(10 ** 18)) * parseFloat(celoPrice);
 
-  return Math.round(total);
+  return {
+    token: "ube",
+    tvl: twoDecimals(total),
+    dex: "ubeswap",
+  };
 };
 
 type ResType = {
@@ -159,30 +167,29 @@ type DexType = {
 
 export const getDexData = async (
   chain: ChainName,
-  dexId = "uniswap"
-): Promise<DictTvl> => {
+  dex: DexName = "uniswap"
+): Promise<PoolRecord[]> => {
   const glo = getGloContractAddress(celo);
   const { data: pairs } = await axios.get<DexType[]>(
     `https://api.dexscreener.com/token-pairs/v1/${chain}/${glo}`
   );
 
   return pairs
-    .filter((pair) => pair.dexId === dexId)
-    .reduce((acc, cur) => {
-      const isGloBase = cur.baseToken.symbol === "USDGLO";
-      const priceUsd = parseFloat(cur.priceUsd);
+    .filter((pair) => pair.dexId === dex)
+    .map((pair) => {
+      const isGloBase = pair.baseToken.symbol === "USDGLO";
+      const priceUsd = parseFloat(pair.priceUsd);
       const [otherToken, baseTvl, quoteTvl] = isGloBase
-        ? [cur.quoteToken.symbol, cur.liquidity.base, cur.liquidity.quote]
-        : [cur.baseToken.symbol, cur.liquidity.quote, cur.liquidity.base];
+        ? [pair.quoteToken.symbol, pair.liquidity.base, pair.liquidity.quote]
+        : [pair.baseToken.symbol, pair.liquidity.quote, pair.liquidity.base];
       return {
-        ...acc,
-        [otherToken]: {
-          tvl: Math.round(cur.liquidity?.usd),
-          incentiveTokenTvl: Math.round(baseTvl),
-          participatingTokenTvl: Math.round(quoteTvl * priceUsd),
-        },
+        token: otherToken,
+        tvl: Math.round(pair.liquidity?.usd),
+        incentiveTokenTvl: Math.round(baseTvl),
+        participatingTokenTvl: Math.round(quoteTvl * priceUsd),
+        dex,
       };
-    }, {});
+    });
 };
 
 type OkuPoolData = {
@@ -194,7 +201,10 @@ type OkuPoolData = {
   };
 };
 
-export const getOkuTradeData = async (poolId: string, chain: ChainName) => {
+export const getOkuTradeData = async (
+  poolId: string,
+  chain: ChainName
+): Promise<PoolRecord> => {
   const res = await axios.post<OkuPoolData>(
     `https://omni.icarus.tools/${chain}/cush/analyticsPool`,
     { params: [poolId] }
@@ -206,8 +216,10 @@ export const getOkuTradeData = async (poolId: string, chain: ChainName) => {
     data.t0_symbol === "USDGLO" ? tvls : tvls.reverse();
 
   return {
+    token: "NATURE",
     tvl: twoDecimals(data.tvl_usd),
     incentiveTokenTvl,
     participatingTokenTvl,
+    dex: "uniswap",
   };
 };

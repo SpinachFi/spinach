@@ -11,6 +11,7 @@ model Project {
   id              Int             @id @default(autoincrement())
   name            String
   token           String
+  dex             String
   displayToken    String          @default("TOKEN")
   chainId         Int
   website         String?
@@ -23,14 +24,15 @@ model Project {
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
-  @@unique([token, chainId])
+  @@unique([token, chainId, dex])
 }
 
 model ProjectRecord {
   id                    Int      @id @default(autoincrement())
-  project               Project  @relation(fields: [projectToken, projectChainId], references: [token, chainId])
+  project               Project  @relation(fields: [projectToken, projectChainId, projectDex], references: [token, chainId, dex])
   projectToken          String
   projectChainId        Int
+  projectDex            String
   tvl                   Int
   incentiveTokenTvl     Int?
   participatingTokenTvl Int?

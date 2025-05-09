@@ -14,7 +14,21 @@ type DictTvlReward = DictTvl & {
   };
 };
 
+type PoolRecord = {
+  token: string;
+  tvl: number;
+  incentiveTokenTvl?: number;
+  participatingTokenTvl?: number;
+  dex: DexName;
+  reward?: number;
+};
+
+type PoolRewardRecord = PoolRecord & {
+  reward: number;
+};
+
 type ChainName = "celo" | "optimism";
+type DexName = "uniswap" | "ubeswap";
 
 type ProjectRecord = {
   projectToken: string;
@@ -33,6 +47,7 @@ type ProjectRecord = {
     liquiditySource: string | null;
     logo: string | null;
   };
+  subrecords?: ProjectRecord[];
 };
 
 type DashboardProps = {

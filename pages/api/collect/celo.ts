@@ -30,27 +30,24 @@ export default async function handler(
   }
 
   const dex = await getDexData("celo");
+  const dexUbe = await getDexData("celo", "ubeswap");
 
   const ube = await getUbeswap();
   const refi = await getRefi();
-  const aggregated: DictTvl = {
-    ...dex,
-    ube: { tvl: ube },
-    refi: { tvl: refi, incentiveTokenTvl: refi },
-  };
+  const aggregated: PoolRecord[] = [...dex, ...dexUbe, ube, refi];
 
   const NATURE = "NATURE";
-  if (!Object.keys(aggregated).includes(NATURE)) {
+  if (!aggregated.find((item) => item.token === NATURE)) {
     const oku = await getOkuTradeData(
       "0x4eb0685f69f0b87da744e159576556b709a74c09",
       "celo"
     );
-    aggregated[NATURE] = { ...oku };
+    aggregated.push(oku);
   }
 
   const result = await calcRewards(aggregated, calcDailyRewards("celo"));
 
-  await createNewProjectDefs(Object.keys(result), chainId);
+  await createNewProjectDefs(result, chainId);
 
   await createProjectRecords(result, chainId);
 
