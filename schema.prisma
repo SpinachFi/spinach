@@ -37,13 +37,13 @@ model ProjectRecord {
   earnings              Float
   currentMonthEarnings  Float    @default(0)
   date                  DateTime
-  Payout                Payout[]
+  Payout                Payout?
 }
 
 model Payout {
   id              Int           @id @default(autoincrement())
   projectRecord   ProjectRecord @relation(fields: [projectRecordId], references: [id])
-  projectRecordId Int
+  projectRecordId Int           @unique
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   processedAt     DateTime?
