@@ -11,11 +11,11 @@
     },
     {
       "path": "/api/collect/optimism",
-      "schedule": "00 05 * * *"
+      "schedule": "05 00 * * *"
     },
     {
       "path": "/api/payout/process?chain=celo",
-      "schedule": "01 00 * * *"
+      "schedule": "0 01 * * *"
     }
   ]
 }
