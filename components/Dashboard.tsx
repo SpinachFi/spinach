@@ -16,7 +16,13 @@ import {
   toNiceDollar,
 } from "@/lib/utils";
 import { useSpiStore } from "@/store";
-import { GlobeIcon, InfoCircledIcon, PlusIcon } from "@radix-ui/react-icons";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  GlobeIcon,
+  InfoCircledIcon,
+  PlusIcon,
+} from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -56,30 +62,38 @@ export const columns: ColumnDef<ProjectRecord>[] = [
   {
     accessorFn: (row) => row.project.displayToken,
     header: "Token",
-    cell: ({ getValue }) => {
+    cell: ({ row, getValue }) => {
       const token = getValue<string>();
       const prefix = token.includes("$") || token.includes("/") ? "" : "$";
       return (
-        <div className="capitalize">
+        <div className="capitalize" onClick={() => row.toggleExpanded()}>
           {prefix}
           {token}
+          {row.getIsExpanded() &&
+            row.original.subrecords?.map((x) => (
+              <div key={x.projectDex}>- {x.projectDex}</div>
+            ))}
         </div>
       );
     },
   },
   {
     accessorKey: "tvl",
-    header: () => <div className="text-right">Current liquidity</div>,
+    header: "Current liquidity",
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("tvl"));
-      const incentiveTokenTvl = row.original.incentiveTokenTvl;
-      const participatingTokenTvl = row.original.participatingTokenTvl;
       const token = row.original.project.displayToken;
-      const formatted = toNiceDollar(amount, 0);
 
-      const url = row.original.project.liquiditySource;
-
-      return (
+      const El = ({
+        tvl,
+        incentiveTokenTvl,
+        participatingTokenTvl,
+        url,
+      }: {
+        tvl: number;
+        incentiveTokenTvl: number | null;
+        participatingTokenTvl: number | null;
+        url: string | null;
+      }) => (
         <SpiTooltip
           content={
             <p className="text-center">
@@ -90,21 +104,44 @@ export const columns: ColumnDef<ProjectRecord>[] = [
           }
           showContent={!!incentiveTokenTvl}
           trigger={
-            <div className="flex items-center float-right">
+            <div className="flex items-center">
               {url ? (
                 <a
                   href={url}
                   target="_blank"
                   className="float-right underline font-medium cursor-pointer"
                 >
-                  {formatted}
+                  {toNiceDollar(tvl, 0)}
                 </a>
               ) : (
-                <div className="text-right font-medium">{formatted}</div>
+                <div className="text-right font-medium">
+                  {toNiceDollar(tvl, 0)}
+                </div>
               )}
             </div>
           }
         />
+      );
+
+      return (
+        <div className="flex flex-col float-left">
+          <El
+            tvl={row.getValue<number>("tvl")}
+            incentiveTokenTvl={row.original.incentiveTokenTvl}
+            participatingTokenTvl={row.original.participatingTokenTvl}
+            url={row.original.project.liquiditySource}
+          />
+          {row.getIsExpanded() &&
+            row.original.subrecords?.map((x) => (
+              <El
+                key={x.projectDex}
+                tvl={x.tvl}
+                incentiveTokenTvl={x.incentiveTokenTvl}
+                participatingTokenTvl={x.participatingTokenTvl}
+                url={x.project.liquiditySource}
+              />
+            ))}
+        </div>
       );
     },
   },
@@ -121,7 +158,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
           </p>
         }
         trigger={
-          <div className="flex items-center float-right">
+          <div className="flex items-center">
             <span className="mr-1">Earnings</span>
             <InfoCircledIcon className="cursor-help" />
           </div>
@@ -129,12 +166,13 @@ export const columns: ColumnDef<ProjectRecord>[] = [
       />
     ),
     cell: ({ row }) => {
-      const currentMonthEarnings = parseFloat(
-        row.getValue("currentMonthEarnings")
-      );
-      const earnings = row.original.earnings;
-
-      return (
+      const El = ({
+        earnings,
+        currentMonthEarnings,
+      }: {
+        earnings: number;
+        currentMonthEarnings: number;
+      }) => (
         <SpiTooltip
           content={
             <span className="text-xs text-spi-white">
@@ -143,6 +181,22 @@ export const columns: ColumnDef<ProjectRecord>[] = [
           }
           trigger={toNiceDollar(currentMonthEarnings)}
         />
+      );
+      return (
+        <div className="flex flex-col">
+          <El
+            earnings={row.original.earnings}
+            currentMonthEarnings={row.getValue<number>("currentMonthEarnings")}
+          />
+          {row.getIsExpanded() &&
+            row.original.subrecords?.map((x) => (
+              <El
+                key={x.projectDex}
+                earnings={x.earnings}
+                currentMonthEarnings={x.currentMonthEarnings}
+              />
+            ))}
+        </div>
       );
     },
   },
@@ -173,20 +227,50 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     id: "addLiquidity",
     accessorFn: (row) => row.project.addLiquidity,
     header: () => <div className="text-right">Add liquidity</div>,
-    cell: ({ getValue }) => {
-      const url = getValue<string>();
-      if (!url) {
-        return "";
-      }
+    cell: ({ row, getValue }) => {
+      const El = ({
+        url,
+        small = false,
+      }: {
+        url: string | null;
+        small?: boolean;
+      }) =>
+        url ? (
+          <a
+            href={url}
+            target="_blank"
+            className={clsx(
+              "px-2 font-medium text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 float-right",
+              small ? "h-[20px] mt-1 text-xs" : "text-xs py-1 "
+            )}
+          >
+            Add liquidity
+          </a>
+        ) : null;
 
+      const canExpand =
+        row.original.subrecords && row.original.subrecords.length;
       return (
-        <a
-          href={url}
-          target="_blank"
-          className="px-2 py-1 text-xs font-medium text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 float-right"
-        >
-          Add liquidity
-        </a>
+        <div className="flex flex-col items-end">
+          {!canExpand ? (
+            <El url={getValue<string>()} />
+          ) : (
+            <div
+              className="cursor-pointer"
+              onClick={() => row.toggleExpanded()}
+            >
+              {row.getIsExpanded() ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            </div>
+          )}
+          {row.getIsExpanded() &&
+            row.original.subrecords?.map((x) => (
+              <El
+                key={x.projectDex}
+                url={x.project.addLiquidity}
+                small={true}
+              />
+            ))}
+        </div>
       );
     },
   },
@@ -197,7 +281,9 @@ export const columns: ColumnDef<ProjectRecord>[] = [
 ];
 
 export function Dashboard({ records, date }: DashboardProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "tvl", desc: true },
+  ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
     {
       id: "projectChainId",

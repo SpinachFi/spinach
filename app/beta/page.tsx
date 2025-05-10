@@ -56,10 +56,26 @@ export default async function Home() {
       const oldest = group.sort(
         (a, b) => a.project.createdAt.valueOf() - b.project.createdAt.valueOf()
       )[0];
+
+      const sumTvls = group.reduce(
+        (acc, cur) => ({
+          tvl: acc.tvl + cur.tvl,
+          incentiveTokenTvl:
+            acc.incentiveTokenTvl + (cur.incentiveTokenTvl || 0),
+          participatingTokenTvl:
+            acc.participatingTokenTvl + (cur.participatingTokenTvl || 0),
+        }),
+        {
+          tvl: 0,
+          incentiveTokenTvl: 0,
+          participatingTokenTvl: 0,
+        }
+      );
+
       return {
         ...oldest,
-        tvl: group.reduce((acc, cur) => acc + cur.tvl, 0),
-        subrecords: group.sort((a, b) => a.tvl - b.tvl), // Inner sort by tvl desc
+        ...sumTvls,
+        subrecords: group.sort((a, b) => b.tvl - a.tvl), // Inner sort by tvl desc
       };
     })
     .filter((x) => !!x);

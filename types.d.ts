@@ -33,6 +33,7 @@ type DexName = "uniswap" | "ubeswap";
 type ProjectRecord = {
   projectToken: string;
   projectChainId: number;
+  projectDex: string;
   tvl: number;
   incentiveTokenTvl: number | null;
   participatingTokenTvl: number | null;
