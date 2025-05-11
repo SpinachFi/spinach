@@ -64,11 +64,16 @@ export default async function Home() {
             acc.incentiveTokenTvl + (cur.incentiveTokenTvl || 0),
           participatingTokenTvl:
             acc.participatingTokenTvl + (cur.participatingTokenTvl || 0),
+          earnings: acc.earnings + cur.earnings,
+          currentMonthEarnings:
+            acc.currentMonthEarnings + cur.currentMonthEarnings,
         }),
         {
           tvl: 0,
           incentiveTokenTvl: 0,
           participatingTokenTvl: 0,
+          earnings: 0,
+          currentMonthEarnings: 0,
         }
       );
 
