@@ -47,6 +47,13 @@ export const columns: ColumnDef<PayoutRecord>[] = [
     ),
   },
   {
+    accessorFn: (row) => row.dex,
+    header: "Dex",
+    cell: ({ getValue }) => (
+      <span className="capitalize">{getValue<string>()}</span>
+    ),
+  },
+  {
     accessorFn: (row) => row.hash,
     header: "Processed",
     cell: ({ getValue }) => {

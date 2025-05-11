@@ -23,6 +23,7 @@ export default async function PayoutsPage() {
               displayToken: true,
               chainId: true,
               logo: true,
+              dex: true,
             },
           },
         },

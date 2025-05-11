@@ -74,4 +74,5 @@ type PayoutRecord = {
   name: string;
   displayToken: string;
   logo: string | null;
+  dex: string;
 };
