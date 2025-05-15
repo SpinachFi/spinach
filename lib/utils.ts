@@ -91,6 +91,7 @@ export const createProjectRecords = async (
     const yesterdayData = await prisma.projectRecord.findMany({
       select: {
         projectToken: true,
+        projectDex: true,
         currentMonthEarnings: true,
       },
       where: {
@@ -104,7 +105,7 @@ export const createProjectRecords = async (
     const yesterdayEarnings: Dict = yesterdayData.reduce(
       (acc, cur) => ({
         ...acc,
-        [cur.projectToken]: cur.currentMonthEarnings,
+        [`${cur.projectDex}/${cur.projectToken}`]: cur.currentMonthEarnings,
       }),
       {}
     );
@@ -133,7 +134,8 @@ export const createProjectRecords = async (
         incentiveTokenTvl,
         participatingTokenTvl,
         earnings: reward,
-        currentMonthEarnings: (yesterdayEarnings[token] || 0) + reward,
+        currentMonthEarnings:
+          (yesterdayEarnings[`${dex}/${token}`] || 0) + reward,
         date: getTodayMidnight(),
       })
     ),
