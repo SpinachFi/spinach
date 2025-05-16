@@ -23,9 +23,12 @@ export const getRefi = async (): Promise<PoolRecord> => {
   // Checks the lending contract, review total deposited amount, and subtract current amount in the contract.
   const total = totalFunds / scalar - balance / BigInt(10 ** 18);
 
+  const tvl = twoDecimals(Number(total));
   return {
     token: "refi",
-    tvl: twoDecimals(Number(total)),
+    tvl,
+    incentiveTokenTvl: tvl,
+    participatingTokenTvl: 0,
     dex: "uniswap",
   };
 };
@@ -48,9 +51,13 @@ export const getUbeswap = async (): Promise<PoolRecord> => {
 
   const total = Number(totalShares / BigInt(10 ** 18)) * parseFloat(celoPrice);
 
+  const halfTvl = twoDecimals(total / 2);
+
   return {
     token: "ube",
     tvl: twoDecimals(total),
+    incentiveTokenTvl: halfTvl,
+    participatingTokenTvl: halfTvl,
     dex: "ubeswap",
   };
 };

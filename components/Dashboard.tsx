@@ -98,7 +98,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
           content={
             <p className="text-center">
               {toNiceDollar(incentiveTokenTvl, 1, "compact")} USDGLO
-              {participatingTokenTvl &&
+              {participatingTokenTvl !== null &&
                 ` and ${toNiceDollar(participatingTokenTvl, 1, "compact")} ${token}`}
             </p>
           }
