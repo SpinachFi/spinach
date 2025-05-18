@@ -1,5 +1,6 @@
 import { Payout } from "@prisma/client";
 import { get } from "@vercel/edge-config";
+import axios from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { ethers, parseEther } from "ethers";
 import { twMerge } from "tailwind-merge";
@@ -337,6 +338,7 @@ export const findPayouts = async (chainId: number) => {
 };
 
 export const processPayouts = async (payouts: Payout[], chain: Chain) => {
+  let completed = 0;
   for (const payout of payouts) {
     if (payout.processed) {
       console.log(`Payout ${payout.id} already processed.`);
@@ -378,7 +380,14 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
     });
 
     console.log(`Payout ${payout.id} completed.`);
+    completed++;
   }
+  const total = payouts.length;
+  let txt = `${completed}/${total} payouts completed for ${chain.name}.`;
+  if (completed !== total) {
+    txt += " Issues detected! <!here>";
+  }
+  await postSlack(txt);
 };
 
 // TODO: To migrate
@@ -433,4 +442,10 @@ export const transferTo = async (
   }
 
   return null;
+};
+
+export const postSlack = async (text: string) => {
+  await axios.post(process.env.SLACK_WEBHOOK!, {
+    text,
+  });
 };

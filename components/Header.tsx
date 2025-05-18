@@ -19,12 +19,11 @@ export function Header({ actionsDisabled = false }) {
       >
         <div className="flex lg:flex-1 align-middle">
           <Link href="/" className="-m-1.5 p-1.5">
-            <span className="sr-only">Spinach</span>
             <Image
-              height={60}
-              width={231}
+              height={45}
+              width={173}
+              className="min-h-[45px] min-w-[173px]"
               priority
-              className="w-auto h-auto"
               src="/spinach-logo.png"
               alt={"Spinach"}
             />

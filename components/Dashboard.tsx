@@ -338,7 +338,7 @@ export function Dashboard({ records, date }: DashboardProps) {
 
   return (
     <div className="w-full">
-      <div className="w-full flex justify-between">
+      <div className="flex">
         {AVAILABLE_CHAINS.map((chain) => (
           <Button
             key={chain}
@@ -365,18 +365,21 @@ export function Dashboard({ records, date }: DashboardProps) {
             </div>
           </Button>
         ))}
-        <Link href="/new-competition" className="flex-1">
-          <Button
-            className="flex flex-col h-[96px] cursor-pointer border-1 border-spi-gray w-full"
-            variant={"ghost"}
+        <Button
+          className="h-[96px] cursor-pointer border-1 border-spi-gray flex-1"
+          variant={"ghost"}
+        >
+          <Link
+            href="/new-competition"
+            className="flex flex-col items-center justify-center w-full h-full"
           >
-            <PlusIcon className="size-6" />
+            <PlusIcon className="size-6 mb-1" />
             <div className="flex items-center">
               <Sprout size={24} color="green" />
               <span>Create Competition</span>
             </div>
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
       <Summary
         daily={calcDailyRewards(selectedChain)}

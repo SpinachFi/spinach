@@ -19,8 +19,8 @@ type CardProps = {
 
 const Card = ({ title, numbers, subtitle, footer, tooltip }: CardProps) => {
   const element = (
-    <>
-      <span className="text-spi-gray text-sm">{title}</span>
+    <div className="flex flex-col items-center">
+      <div className="text-spi-gray text-sm">{title}</div>
       <div>
         <span className="font-medium text-spi-dark-green text-xl">
           {numbers}
@@ -28,11 +28,12 @@ const Card = ({ title, numbers, subtitle, footer, tooltip }: CardProps) => {
         {subtitle}
       </div>
       <span className="text-xs text-spi-gray">{footer || <wbr />}</span>
-    </>
+    </div>
   );
+
   return (
     <div className="flex items-center justify-center flex-1">
-      <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col items-center">
         {tooltip ? <SpiTooltip content={tooltip} trigger={element} /> : element}
       </div>
     </div>
@@ -42,6 +43,12 @@ const Card = ({ title, numbers, subtitle, footer, tooltip }: CardProps) => {
 export default function Summary({ daily, liquidity, projects }: Props) {
   const apr = (daily * 365 * 100) / liquidity;
 
+  const Sep = () => (
+    <div className="py-5">
+      <Separator orientation="vertical" />
+    </div>
+  );
+
   return (
     <div className="flex h-[96px] my-3 justify-between border-1 rounded-sm shadow-sm">
       <Card
@@ -50,8 +57,7 @@ export default function Summary({ daily, liquidity, projects }: Props) {
         footer={`From ${toNiceDate(firstOfThisMonth())} - ${toNiceDate(lastOfThisMonth())}`}
         tooltip={"USDGLO 75% $OTHER 25%"}
       />
-
-      <Separator orientation="vertical" className="ml-8" />
+      <Sep />
       <Card
         title="Liquidity provided"
         subtitle={
@@ -61,8 +67,8 @@ export default function Summary({ daily, liquidity, projects }: Props) {
         }
         numbers={`$${Math.round(liquidity).toLocaleString()}`}
       />
-      <Separator orientation="vertical" className="ml-10" />
-      <Card title="Project competing" numbers={projects.toString()} />
+      <Sep />
+      <Card title="Projects competing" numbers={projects.toString()} />
     </div>
   );
 }
