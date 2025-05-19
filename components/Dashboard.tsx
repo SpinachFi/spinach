@@ -400,7 +400,7 @@ export function Dashboard({ records, date }: DashboardProps) {
             </Button>
           </div>
           <span className="text-xs text-spi-green-gradient-2">
-            for funding by rallying their community to add $TOKEN$ liquidity
+            {`for funding by rallying their community to add USDGLO liquidity on ${selectedChain}`}
           </span>
         </div>
         <Table>
