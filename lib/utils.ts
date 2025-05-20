@@ -338,10 +338,11 @@ export const findPayouts = async (chainId: number) => {
 };
 
 export const processPayouts = async (payouts: Payout[], chain: Chain) => {
-  let completed = 0;
+  let [total, completed] = [payouts.length, 0];
   for (const payout of payouts) {
     if (payout.processed) {
       console.log(`Payout ${payout.id} already processed.`);
+      total -= 1;
       continue;
     }
 
@@ -382,7 +383,7 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
     console.log(`Payout ${payout.id} completed.`);
     completed++;
   }
-  const total = payouts.length;
+
   let txt = `${completed}/${total} payouts completed for ${chain.name}.`;
   if (completed !== total) {
     txt += " Issues detected! <!here>";
