@@ -39,25 +39,19 @@ export const getUbeswap = async (): Promise<PoolRecord> => {
   );
 
   const result = await axios.get(`${ipfsData.ipfsUrl}/metadata.json`);
-  const totalShares = BigInt(result.data.totalShares);
+  const incentiveTokenTvl = BigInt(result.data.activeAmount0);
+  const participatingTokenTvl =
+    BigInt(result.data.activeAmount1) * BigInt(10 ** 12); // USDC to ERC20
+  const total = incentiveTokenTvl + participatingTokenTvl;
 
-  const {
-    data: {
-      result: { ethusd: celoPrice },
-    },
-  } = await axios.get(
-    `https://api.celoscan.io/api?module=stats&action=ethprice&apikey=${process.env.CELOSCAN_API_KEY}`
-  );
-
-  const total = Number(totalShares / BigInt(10 ** 18)) * parseFloat(celoPrice);
-
-  const halfTvl = twoDecimals(total / 2);
+  const format = (value: bigint) =>
+    twoDecimals(Number(value / BigInt(10 ** 18)));
 
   return {
     token: "ube",
-    tvl: twoDecimals(total),
-    incentiveTokenTvl: halfTvl,
-    participatingTokenTvl: halfTvl,
+    tvl: format(total),
+    incentiveTokenTvl: format(incentiveTokenTvl),
+    participatingTokenTvl: format(participatingTokenTvl),
     dex: "ubeswap",
   };
 };
