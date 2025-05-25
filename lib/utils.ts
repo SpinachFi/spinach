@@ -391,24 +391,15 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
   await postSlack(txt);
 };
 
-// TODO: To migrate
-export const GLO_ALFAJORES = "0x6054aC9c220070F8c3093730d64E701ad23077C5";
-const TEST_MODE = true;
-
 export const transferTo = async (
   toAddress: string,
   amount: number,
   chain: Chain
 ) => {
-  const [token, provider] = TEST_MODE
-    ? [
-        GLO_ALFAJORES,
-        new ethers.JsonRpcProvider("https://alfajores-forno.celo-testnet.org/"),
-      ]
-    : [
-        getGloContractAddress(chain),
-        new ethers.JsonRpcProvider(getChainRPCUrl(chain)),
-      ];
+  const [token, provider] = [
+    getGloContractAddress(chain),
+    new ethers.JsonRpcProvider(getChainRPCUrl(chain)),
+  ];
 
   const abi = [
     "function transfer(address _to, uint256 _value) public returns (bool success)",
@@ -446,7 +437,15 @@ export const transferTo = async (
 };
 
 export const postSlack = async (text: string) => {
-  await axios.post(process.env.SLACK_WEBHOOK!, {
+  const webhook = process.env.SLACK_WEBHOOK;
+
+  if (!webhook) {
+    console.log(text);
+    console.warn("SLACK_WEBHOOK is not set, skipping Slack notification.");
+    return;
+  }
+
+  await axios.post(webhook, {
     text,
   });
 };
