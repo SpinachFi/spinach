@@ -200,6 +200,7 @@ const addRewards = (
 };
 
 export const calcDailyRewards = (chain: ChainName) => {
+  return 100;
   const monthly = { celo: 3000, optimism: 1000 }[chain];
 
   const daysInMonth = new Date(

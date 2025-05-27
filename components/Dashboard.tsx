@@ -37,7 +37,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import clsx from "clsx";
-import { Sprout } from "lucide-react";
+import { CircleDollarSign, Sprout } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
@@ -347,20 +347,30 @@ export function Dashboard({ records, date }: DashboardProps) {
               chain === selectedChain ? "border-spi-green" : "shadow-sm"
             )}
             variant={"ghost"}
+            disabled={chain === "optimism"}
             onClick={() => setSelectedChain(chain)}
           >
             <div className="flex">
-              <span>USDGLO on&nbsp;</span>
+              <span>
+                {chain === "optimism" ? "$YOUR TOKEN" : "USDGLO"} on&nbsp;
+              </span>
               <span className="first-letter:uppercase">{chain}</span>
             </div>
             <div className="flex justify-between">
-              <Image
-                className="mr-2"
-                height={24}
-                width={24}
-                src="/usdglo.svg"
-                alt="USDGLO"
-              />
+              {chain === "optimism" ? (
+                <CircleDollarSign
+                  style={{ width: 24, height: 24 }}
+                  className="mr-2"
+                />
+              ) : (
+                <Image
+                  className="mr-2"
+                  height={24}
+                  width={24}
+                  src={"/usdglo.svg"}
+                  alt="USDGLO"
+                />
+              )}
               <Image height={24} width={24} src={`/${chain}.svg`} alt={chain} />
             </div>
           </Button>
