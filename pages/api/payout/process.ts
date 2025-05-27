@@ -1,16 +1,16 @@
 import { AVAILABLE_CHAINS, CHAIN_MAP, getChainNameById } from "@/consts";
+import { getGloContractAddress } from "@/lib/config";
 import {
   calcDailyRewards,
   createPayouts,
   findPayouts,
   getTodayRecords,
-  GLO_ALFAJORES,
   processPayouts,
 } from "@/lib/utils";
 import { Payout } from "@prisma/client";
 import { isAddress } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
-import { celo, Chain } from "viem/chains";
+import { Chain } from "viem/chains";
 
 export default async function handler(
   req: NextApiRequest,
@@ -65,7 +65,7 @@ const createOrFetchPayouts = async (chain: Chain): Promise<Payout[]> => {
       throw new BusinessLogicError(`Could not create payout records (${msg}).`);
     }
 
-    const daily = calcDailyRewards(getChainNameById(celo.id));
+    const daily = calcDailyRewards(getChainNameById(chainId));
 
     const isAbove = record.earnings > daily;
     if (isAbove) {
@@ -75,7 +75,10 @@ const createOrFetchPayouts = async (chain: Chain): Promise<Payout[]> => {
     }
   }
 
-  const payouts = await createPayouts({ projectRecords, token: GLO_ALFAJORES });
+  const payouts = await createPayouts({
+    projectRecords,
+    token: getGloContractAddress(chain),
+  });
   console.log(`Created ${payouts.count} payout records.`);
 
   return findPayouts(chainId);
