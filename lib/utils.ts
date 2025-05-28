@@ -169,7 +169,6 @@ const rewardSplit = (
   participatingTokenTvl?: number
 ) => {
   const REWARDS_SPLIT: Dict = {
-    ube: 50,
     refi: 100,
   };
   // Defaults to 75% Glo (incentive token) and 25% other token (participating token)
