@@ -194,23 +194,24 @@ export const getDexData = async (
 };
 
 type OkuPoolData = {
-  result: {
-    t0_symbol: string;
-    t0_tvl_usd: number;
-    t1_tvl_usd: number;
-    tvl_usd: number;
-  };
+  t0_symbol: string;
+  t1_symbol: string;
+  t0_tvl_usd: number;
+  t1_tvl_usd: number;
+  tvl_usd: number;
 };
 
 export const getOkuTradeData = async (
   poolId: string,
   chain: ChainName
 ): Promise<PoolRecord> => {
-  const res = await axios.post<OkuPoolData>(
+  const res = await axios.post<{ result: OkuPoolData }>(
     `https://omni.icarus.tools/${chain}/cush/analyticsPool`,
     { params: [poolId] }
   );
   const data = res.data.result;
+  // console.log("OkuTrade data:", data);
+  await getOkuTradesData(chain);
 
   const tvls = [data.t0_tvl_usd, data.t1_tvl_usd];
   const [incentiveTokenTvl, participatingTokenTvl] =
@@ -223,4 +224,41 @@ export const getOkuTradeData = async (
     participatingTokenTvl,
     dex: "uniswap",
   };
+};
+
+export const getOkuTradesData = async (
+  chain: ChainName
+): Promise<PoolRecord[]> => {
+  const res = await axios.post<{ result: { pools: OkuPoolData[] } }>(
+    `https://omni.icarus.tools/${chain}/cush/searchPoolsByTokenNameOrSymbol`,
+    {
+      params: [
+        "USDGLO",
+        {
+          result_size: 100,
+          sort_by: "tvl_usd",
+        },
+      ],
+    }
+  );
+  const data = res.data.result;
+
+  const pools: PoolRecord[] = data.pools.map((pool) => {
+    const isT0Glo = pool.t0_symbol === "USDGLO";
+    const tvls = [pool.t0_tvl_usd, pool.t1_tvl_usd];
+    const [incentiveTokenTvl, participatingTokenTvl] = isT0Glo
+      ? tvls
+      : tvls.reverse();
+    const token = isT0Glo ? pool.t1_symbol : pool.t0_symbol;
+
+    return {
+      token,
+      tvl: twoDecimals(pool.tvl_usd),
+      incentiveTokenTvl,
+      participatingTokenTvl,
+      dex: "uniswap",
+    };
+  });
+
+  return pools.reverse();
 };

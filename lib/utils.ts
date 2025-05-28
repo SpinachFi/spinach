@@ -1,5 +1,4 @@
 import { Payout } from "@prisma/client";
-import { get } from "@vercel/edge-config";
 import axios from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { ethers, parseEther } from "ethers";
@@ -227,12 +226,9 @@ export const calcDailyRewards = (chain: ChainName) => {
 */
 export const calcRewards = async (
   pools: PoolRecord[],
-  dailyRewards: number
+  dailyRewards: number,
+  lowerCaseWhiteList: string[]
 ) => {
-  const whiteListedProjects: string[] =
-    (await get("whitelistedProjects")) || [];
-  const lowerCaseWhiteList = whiteListedProjects.map((x) => x.toLowerCase());
-
   const whitelisted = pools.filter(({ token }) =>
     lowerCaseWhiteList.includes(token.toLowerCase())
   );

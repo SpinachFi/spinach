@@ -1,4 +1,4 @@
-import { getDexData, getOkuTradeData, getRefi, getUbeswap } from "@/lib/celo";
+import { getDexData, getOkuTradesData, getRefi, getUbeswap } from "@/lib/celo";
 import {
   calcDailyRewards,
   calcRewards,
@@ -6,6 +6,7 @@ import {
   createProjectRecords,
   hasRunToday,
 } from "@/lib/utils";
+import { get } from "@vercel/edge-config";
 import { NextApiRequest, NextApiResponse } from "next";
 import { celo } from "viem/chains";
 
@@ -36,16 +37,29 @@ export default async function handler(
   const refi = await getRefi();
   const aggregated: PoolRecord[] = [...dex, ...dexUbe, ube, refi];
 
-  const NATURE = "NATURE";
-  if (!aggregated.find((item) => item.token === NATURE)) {
-    const oku = await getOkuTradeData(
-      "0x4eb0685f69f0b87da744e159576556b709a74c09",
-      "celo"
-    );
+  // Fallback for missing (low vol) dexscreener data
+  const okuData = await getOkuTradesData("celo");
+  const whiteListedProjects: string[] =
+    (await get("whitelistedProjects")) || [];
+  const lowerCaseWhiteList = whiteListedProjects.map((x) => x.toLowerCase());
+  const aggregatedTokens = aggregated.map((x) => x.token.toLowerCase());
+
+  for (const oku of okuData.filter((x) =>
+    lowerCaseWhiteList.includes(x.token.toLowerCase())
+  )) {
+    const token = oku.token.toLowerCase();
+    if (aggregatedTokens.includes(token)) {
+      continue;
+    }
+    aggregatedTokens.push(token);
     aggregated.push(oku);
   }
 
-  const result = await calcRewards(aggregated, calcDailyRewards("celo"));
+  const result = await calcRewards(
+    aggregated,
+    calcDailyRewards("celo"),
+    lowerCaseWhiteList
+  );
 
   await createNewProjectDefs(result, chainId);
 
