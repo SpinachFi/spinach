@@ -55,11 +55,7 @@ export default async function handler(
     aggregated.push(oku);
   }
 
-  const result = await calcRewards(
-    aggregated,
-    calcDailyRewards("celo"),
-    lowerCaseWhiteList
-  );
+  const result = await calcRewards(aggregated, calcDailyRewards("celo"));
 
   await createNewProjectDefs(result, chainId);
 
