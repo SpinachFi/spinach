@@ -20,7 +20,6 @@ type PoolRecord = {
   incentiveTokenTvl?: number;
   participatingTokenTvl?: number;
   dex: DexName;
-  reward?: number;
 };
 
 type PoolRewardRecord = PoolRecord & {

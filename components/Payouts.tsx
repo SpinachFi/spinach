@@ -62,7 +62,7 @@ export const columns: ColumnDef<PayoutRecord>[] = [
         return <CircleX />;
       }
       return (
-        <a href={`https://alfajores.celoscan.io/tx/${hash}`} target="_blank">
+        <a href={`https://celoscan.io/tx/${hash}`} target="_blank">
           <CircleCheck className="text-spi-green" />
         </a>
       );
