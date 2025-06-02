@@ -86,7 +86,8 @@ export const createProjectRecords = async (
   pools: PoolRewardRecord[],
   chainId: number
 ) => {
-  const isFirstDayOfMonth = new Date().getDate() === 1;
+  // As we run process on 2nd
+  const isFirstDayOfMonth = new Date().getDate() === 2;
 
   const getYesterdayEarnings = async () => {
     const yesterdayData = await prisma.projectRecord.findMany({
