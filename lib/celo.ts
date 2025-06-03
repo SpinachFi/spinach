@@ -262,3 +262,56 @@ export const getOkuTradesData = async (
 
   return pools.reverse();
 };
+
+type BlockScoutData = {
+  items: {
+    value: string;
+    token: {
+      address: string;
+      name: string;
+      symbol: string;
+      exchange_rate: string;
+    };
+  }[];
+};
+export const getBlockScoutData = async (
+  poolId: string,
+  addresses: [string, string]
+): Promise<PoolRecord[]> => {
+  const res = await axios.get<BlockScoutData>(
+    `https://celo.blockscout.com/api/v2/addresses/${poolId}/tokens?type=ERC-20`
+  );
+
+  const incentiveToken = res.data.items.find(
+    (x) => x.token.address.toLowerCase() === addresses[0].toLowerCase()
+  );
+  const participatingToken = res.data.items.find(
+    (x) => x.token.address.toLowerCase() === addresses[1].toLowerCase()
+  );
+
+  if (!incentiveToken || !participatingToken) {
+    return [];
+  }
+
+  const format = (value: string, rate: string) =>
+    twoDecimals(Number(BigInt(value) / BigInt(10 ** 18)) * Number(rate));
+  const incentiveTokenTvl = format(
+    incentiveToken.value,
+    incentiveToken.token.exchange_rate
+  );
+  const participatingTokenTvl = format(
+    participatingToken.value,
+    participatingToken.token.exchange_rate
+  );
+
+  const token = participatingToken.token.symbol;
+  return [
+    {
+      token: token === "G" ? "G$" : token,
+      tvl: incentiveTokenTvl + participatingTokenTvl,
+      incentiveTokenTvl,
+      participatingTokenTvl,
+      dex: "ubeswap",
+    },
+  ];
+};

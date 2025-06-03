@@ -1,4 +1,11 @@
-import { getDexData, getOkuTradesData, getRefi, getUbeswap } from "@/lib/celo";
+import {
+  getBlockScoutData,
+  getDexData,
+  getOkuTradesData,
+  getRefi,
+  getUbeswap,
+} from "@/lib/celo";
+import { getGloContractAddress } from "@/lib/config";
 import {
   calcDailyRewards,
   calcRewards,
@@ -31,11 +38,15 @@ export default async function handler(
   }
 
   const dex = await getDexData("celo");
-  const dexUbe = await getDexData("celo", "ubeswap");
+  // const dexUbe = await getDexData("celo", "ubeswap");
+  const ubeGoodDollar = await getBlockScoutData(
+    "0x3d9e27c04076288ebfdc4815b4f6d81b0ed1b341",
+    [getGloContractAddress(celo), "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"]
+  );
 
   const ube = await getUbeswap();
   const refi = await getRefi();
-  const aggregated: PoolRecord[] = [...dex, ...dexUbe, ube, refi];
+  const aggregated: PoolRecord[] = [...dex, ...ubeGoodDollar, ube, refi];
 
   // Fallback for missing (low vol) dexscreener data
   const okuData = await getOkuTradesData("celo");
