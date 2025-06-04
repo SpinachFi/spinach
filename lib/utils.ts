@@ -182,10 +182,14 @@ const rewardSplit = (
   );
 };
 
-const addRewards = (
+export const addRewards = (
   pools: PoolRecord[],
   dailyRewards: number
 ): PoolRewardRecord[] => {
+  if (pools.length === 0) {
+    return [];
+  }
+
   const result = pools.map((pool) => ({
     ...pool,
     reward: rewardSplit(pool.token, pool.tvl),
@@ -193,10 +197,22 @@ const addRewards = (
 
   const totalLiquidity = result.reduce((acc, cur) => acc + cur.reward, 0);
 
-  return result.map((pool) => ({
+  const rewards = result.map((pool) => ({
     ...pool,
     reward: (pool.reward / totalLiquidity) * dailyRewards,
   }));
+
+  const sum = rewards.reduce((acc, cur) => acc + cur.reward, 0);
+  if (sum != dailyRewards) {
+    const bottom = rewards.reduce(
+      (min, curr) => (curr.reward < min.reward ? curr : min),
+      rewards[0]
+    );
+
+    bottom.reward = dailyRewards - (sum - bottom.reward) + 0.00000000000001; // Add a tiny bit to avoid rounding issues
+  }
+
+  return rewards;
 };
 
 export const calcDailyRewards = (chain: ChainName) => {
