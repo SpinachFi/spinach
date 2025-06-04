@@ -1,4 +1,4 @@
-import { addRewards } from "@/lib/utils";
+import { addRewards, rewardSplit } from "@/lib/utils";
 
 const DAILY_REWARDS = 100;
 
@@ -111,5 +111,20 @@ describe("Utils tests", () => {
     expect(
       result.reduce((acc, cur) => acc + cur.reward, 0)
     ).toBeLessThanOrEqual(100);
+  });
+
+  it("Splits reward for regular token just tvl", () => {
+    const split = rewardSplit("token", 2000);
+    expect(split).toEqual(1500);
+  });
+
+  it("Splits reward for regular detailed tvls", () => {
+    const split = rewardSplit("token", 2000, 1000, 1000);
+    expect(split).toEqual(1000);
+  });
+
+  it("Splits reward for refi", () => {
+    const split = rewardSplit("refi", 1000, 1000, 0);
+    expect(split).toEqual(1000);
   });
 });

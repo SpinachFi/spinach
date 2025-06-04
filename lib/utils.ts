@@ -163,7 +163,7 @@ export const hasRunToday = async (chainId: number) => {
 
 export const twoDecimals = (num: number) => Math.floor(num * 100) / 100;
 
-const rewardSplit = (
+export const rewardSplit = (
   token: string,
   tvl: number,
   incentiveTokenTvl?: number,
