@@ -209,7 +209,7 @@ export const addRewards = (
       rewards[0]
     );
 
-    bottom.reward = dailyRewards - (sum - bottom.reward) + 0.00000000000001; // Add a tiny bit to avoid rounding issues
+    bottom.reward = dailyRewards - (sum - bottom.reward);
   }
 
   return rewards;
