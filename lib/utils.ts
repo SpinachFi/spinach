@@ -163,15 +163,13 @@ export const hasRunToday = async (chainId: number) => {
 
 export const twoDecimals = (num: number) => Math.floor(num * 100) / 100;
 
-export const rewardSplit = (
-  token: string,
-  tvl: number,
-  incentiveTokenTvl?: number,
-  participatingTokenTvl?: number
-) => {
+export const rewardSplit = (pool: PoolRecord) => {
+  const { token, tvl, incentiveTokenTvl, participatingTokenTvl } = pool;
+
   const REWARDS_SPLIT: Dict = {
     refi: 100,
   };
+
   // Defaults to 75% Glo (incentive token) and 25% other token (participating token)
   const incentive = (REWARDS_SPLIT[token] || 75) / 100;
   const participating = 1 - incentive;
@@ -192,7 +190,7 @@ export const addRewards = (
 
   const result = pools.map((pool) => ({
     ...pool,
-    reward: rewardSplit(pool.token, pool.tvl),
+    reward: rewardSplit(pool),
   }));
 
   const totalLiquidity = result.reduce((acc, cur) => acc + cur.reward, 0);
