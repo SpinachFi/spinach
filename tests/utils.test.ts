@@ -114,17 +114,73 @@ describe("Utils tests", () => {
   });
 
   it("Splits reward for regular token just tvl", () => {
-    const split = rewardSplit("token", 2000);
+    const split = rewardSplit({ token: "token", tvl: 2000, dex: "uniswap" });
     expect(split).toEqual(1500);
   });
 
   it("Splits reward for regular detailed tvls", () => {
-    const split = rewardSplit("token", 2000, 1000, 1000);
+    const split = rewardSplit({
+      token: "token",
+      tvl: 2000,
+      incentiveTokenTvl: 1000,
+      participatingTokenTvl: 1000,
+      dex: "uniswap",
+    });
     expect(split).toEqual(1000);
   });
 
   it("Splits reward for refi", () => {
-    const split = rewardSplit("refi", 1000, 1000, 0);
+    const split = rewardSplit({
+      token: "refi",
+      tvl: 2000,
+      incentiveTokenTvl: 1000,
+      participatingTokenTvl: 0,
+      dex: "uniswap",
+    });
     expect(split).toEqual(1000);
+  });
+
+  it("Splits reward for axlregen", () => {
+    const split = rewardSplit({
+      token: "axlregen",
+      tvl: 10987,
+      incentiveTokenTvl: 4781,
+      participatingTokenTvl: 6205,
+      dex: "uniswap",
+    });
+    expect(split).toEqual(5137);
+
+    const split2 = rewardSplit({
+      token: "nature",
+      tvl: 10676,
+      incentiveTokenTvl: 5338,
+      participatingTokenTvl: 5338,
+      dex: "uniswap",
+    });
+    expect(split2).toEqual(5338);
+
+    const rewards = addRewards(
+      [
+        {
+          token: "axlregen",
+          dex: "uniswap",
+          tvl: 10987,
+          incentiveTokenTvl: 4781,
+          participatingTokenTvl: 6205,
+        },
+        {
+          token: "nature",
+          dex: "uniswap",
+          tvl: 10676,
+          incentiveTokenTvl: 5338,
+          participatingTokenTvl: 5338,
+        },
+      ],
+      100
+    );
+
+    expect(rewards.map((x) => x.reward)).toEqual([
+      49.04057279236277, 50.95942720763723,
+    ]);
   });
 });
