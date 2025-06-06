@@ -48,6 +48,12 @@ type ProjectRecord = {
     logo: string | null;
   };
   subrecords?: ProjectRecord[];
+  rewardId?: number | null;
+  reward: {
+    name: string;
+  } | null;
+  earningsMap?: Dict;
+  currentMonthEarningsMap?: Dict;
 };
 
 type DashboardProps = {

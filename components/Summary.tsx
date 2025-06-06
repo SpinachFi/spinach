@@ -53,7 +53,7 @@ export default function Summary({ daily, liquidity, projects }: Props) {
     <div className="flex h-[96px] my-3 justify-between border-1 rounded-sm shadow-sm">
       <Card
         title="Daily rewards"
-        numbers={`$${daily.toFixed(0)} USDGLO`}
+        numbers={`$${daily.toFixed(0)} USDGLO + 1000 CELO`}
         footer={`From ${toNiceDate(firstOfThisMonth())} - ${toNiceDate(lastOfThisMonth())}`}
         tooltip={"USDGLO 75% $OTHER 25%"}
       />

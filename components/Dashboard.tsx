@@ -14,6 +14,7 @@ import {
   firstOfThisMonth,
   toNiceDate,
   toNiceDollar,
+  toNiceToken,
 } from "@/lib/utils";
 import { useSpiStore } from "@/store";
 import {
@@ -170,30 +171,40 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         earnings,
         currentMonthEarnings,
       }: {
-        earnings: number;
-        currentMonthEarnings: number;
+        earnings: string;
+        currentMonthEarnings: string;
       }) => (
         <SpiTooltip
-          content={
-            <span className="text-xs text-spi-white">
-              {toNiceDollar(earnings)}
-            </span>
-          }
-          trigger={toNiceDollar(currentMonthEarnings)}
+          content={<span className="text-xs text-spi-white">{earnings}</span>}
+          trigger={currentMonthEarnings}
         />
       );
+
+      const buildTag = (dataMap: Dict) =>
+        Object.keys(dataMap || {}).reduce(
+          (acc, cur, index) =>
+            `${acc}${index > 0 ? " + " : ""}${toNiceToken(dataMap[cur], cur)}`,
+          ""
+        );
+
       return (
         <div className="flex flex-col">
-          <El
-            earnings={row.original.earnings}
-            currentMonthEarnings={row.getValue<number>("currentMonthEarnings")}
-          />
+          <div>
+            <El
+              earnings={buildTag(row.original.earningsMap!)}
+              currentMonthEarnings={buildTag(
+                row.original.currentMonthEarningsMap!
+              )}
+            />
+          </div>
           {row.getIsExpanded() &&
-            row.original.subrecords?.map((x) => (
+            row.original.subrecords?.map((subrecord) => (
               <El
-                key={x.projectDex}
-                earnings={x.earnings}
-                currentMonthEarnings={x.currentMonthEarnings}
+                key={subrecord.projectDex}
+                earnings={buildTag(subrecord.earningsMap!)}
+                currentMonthEarnings={buildTag(
+                  subrecord.currentMonthEarningsMap!
+                )}
               />
             ))}
         </div>

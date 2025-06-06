@@ -281,6 +281,17 @@ export const toNiceDollar = (
     notation,
   }).format(num || 0);
 
+export const toNiceToken = (num: number | null, token: string) => {
+  const isDollar = token.toUpperCase().includes("USD");
+  if (isDollar) {
+    return toNiceDollar(num);
+  }
+
+  return `${new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+  }).format(num || 0)} ${token}`;
+};
+
 export const firstOfThisMonth = () => {
   const today = new Date();
   return new Date(Date.UTC(today.getFullYear(), today.getMonth(), 1));
@@ -463,4 +474,105 @@ export const postSlack = async (text: string) => {
   await axios.post(webhook, {
     text,
   });
+};
+
+export const hasRewardRunToday = async (id: number) => {
+  const latest = await prisma.projectRecord.findFirst({
+    where: {
+      rewardId: id,
+    },
+    orderBy: {
+      date: "desc",
+    },
+  });
+
+  return latest?.date.toISOString() === getTodayMidnight().toISOString();
+};
+
+export const getCompetitionRewards = async (slug: string) => {
+  const competition = await prisma.competition.findUnique({
+    where: {
+      slug,
+    },
+    select: {
+      startDate: true,
+      endDate: true,
+      rewards: {
+        select: {
+          id: true,
+          tokenAddress: true,
+          value: true,
+        },
+      },
+    },
+  });
+  console.log({ competition, rewards: competition?.rewards });
+
+  return competition;
+};
+
+export const createProjectRecordsRewards = async (
+  pools: PoolRewardRecord[],
+  chainId: number,
+  rewardId: number
+) => {
+  // As we run process on 2nd
+  const isFirstDayOfMonth = new Date().getDate() === 2;
+
+  const getYesterdayEarnings = async () => {
+    const yesterdayData = await prisma.projectRecord.findMany({
+      select: {
+        projectToken: true,
+        projectDex: true,
+        currentMonthEarnings: true,
+      },
+      where: {
+        rewardId: rewardId,
+        date: {
+          equals: getYesterdayMidnight(),
+        },
+      },
+    });
+
+    const yesterdayEarnings: Dict = yesterdayData.reduce(
+      (acc, cur) => ({
+        ...acc,
+        [`${cur.projectDex}/${cur.projectToken}`]: cur.currentMonthEarnings,
+      }),
+      {}
+    );
+
+    return yesterdayEarnings;
+  };
+
+  const yesterdayEarnings: Dict = isFirstDayOfMonth
+    ? {}
+    : await getYesterdayEarnings();
+
+  const records = await prisma.projectRecord.createMany({
+    data: pools.map(
+      ({
+        token,
+        dex,
+        tvl,
+        incentiveTokenTvl,
+        participatingTokenTvl,
+        reward,
+      }) => ({
+        projectToken: token,
+        projectChainId: chainId,
+        projectDex: dex,
+        rewardId,
+        tvl,
+        incentiveTokenTvl,
+        participatingTokenTvl,
+        earnings: reward,
+        currentMonthEarnings:
+          (yesterdayEarnings[`${dex}/${token}`] || 0) + reward,
+        date: getTodayMidnight(),
+      })
+    ),
+  });
+
+  console.log(`${records.count} records created (reward: ${rewardId}).`);
 };

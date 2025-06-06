@@ -6,12 +6,8 @@
   },
   "crons": [
     {
-      "path": "/api/collect/celo",
+      "path": "/api/collect/competition?slug=usdglo",
       "schedule": "00 00 * * *"
-    },
-    {
-      "path": "/api/collect/optimism",
-      "schedule": "05 00 * * *"
     },
     {
       "path": "/api/payout/process?chain=celo",

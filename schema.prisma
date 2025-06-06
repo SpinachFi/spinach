@@ -8,11 +8,11 @@ generator client {
 }
 
 model Project {
-  id              Int             @id @default(autoincrement())
+  id              Int                      @id @default(autoincrement())
   name            String
   token           String
   dex             String
-  displayToken    String          @default("TOKEN")
+  displayToken    String                   @default("TOKEN")
   chainId         Int
   website         String?
   addLiquidity    String?
@@ -21,8 +21,9 @@ model Project {
   logo            String?
   payoutAddress   String?
   records         ProjectRecord[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  competitions    CompetitionsOnProjects[]
 
   @@unique([token, chainId, dex])
 }
@@ -40,6 +41,8 @@ model ProjectRecord {
   currentMonthEarnings  Float    @default(0)
   date                  DateTime
   Payout                Payout?
+  reward                Reward?  @relation(fields: [rewardId], references: [id])
+  rewardId              Int?
 }
 
 model Payout {
@@ -55,4 +58,42 @@ model Payout {
   processed       Boolean       @default(false)
   isProcessing    Boolean       @default(false)
   hash            String?
+}
+
+model Competition {
+  id          Int                      @id @default(autoincrement())
+  slug        String                   @unique
+  name        String                   @unique
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  rewards     Reward[]
+  projects    CompetitionsOnProjects[]
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+
+  @@unique([name, startDate, endDate])
+}
+
+model Reward {
+  id            Int             @id @default(autoincrement())
+  competition   Competition     @relation(fields: [competitionId], references: [id])
+  competitionId Int
+  chainId       Int
+  value         Float
+  name          String          @default("TOKEN")
+  tokenAddress  String
+  records       ProjectRecord[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model CompetitionsOnProjects {
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  competitionId Int
+  project       Project     @relation(fields: [projectId], references: [id])
+  projectId     Int
+  assignedAt    DateTime    @default(now())
+
+  @@id([competitionId, projectId])
 }
