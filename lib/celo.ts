@@ -210,7 +210,6 @@ export const getOkuTradeData = async (
     { params: [poolId] }
   );
   const data = res.data.result;
-  // console.log("OkuTrade data:", data);
   await getOkuTradesData(chain);
 
   const tvls = [data.t0_tvl_usd, data.t1_tvl_usd];

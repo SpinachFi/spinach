@@ -69,19 +69,6 @@ const groupAndSum = (records: ProjectRecord[]) => {
   const rewardNames: string[] = records
     .map((x) => x.reward?.name)
     .filter((x) => x !== undefined);
-  const baseDict: Dict = rewardNames.reduce(
-    (acc, cur) => ({ ...acc, [cur]: 0 }),
-    {}
-  );
-  const buildSummary = () => ({
-    tvl: 0,
-    incentiveTokenTvl: 0,
-    participatingTokenTvl: 0,
-    earnings: 0,
-    earningsMap: { ...baseDict },
-    currentMonthEarnings: 0,
-    currentMonthEarningsMap: { ...baseDict },
-  });
 
   const extended: ProjectRecord[] = [];
 
@@ -90,40 +77,53 @@ const groupAndSum = (records: ProjectRecord[]) => {
       continue;
     }
 
-    const parent = group[0];
-    const summary = buildSummary();
-
-    for (const child of group) {
-      summary.tvl += child.tvl;
-      summary.earningsMap[child.reward!.name] += child.earnings;
-      summary.currentMonthEarningsMap[child.reward!.name] +=
-        child.currentMonthEarnings;
-    }
-
     const subrecords: ProjectRecord[] = [];
 
     const groupedByDex = Object.groupBy(group, (group) => group.projectDex);
     if (groupedByDex && Object.keys(groupedByDex).length > 1) {
-      console.log({ groupedByDex });
-
-      for (const dex of Object.values(groupedByDex)) {
-        if (!dex?.length) {
+      for (const subgroup of Object.values(groupedByDex)) {
+        if (!subgroup?.length) {
           continue;
         }
-        const subsummary = buildSummary();
 
-        for (const child of dex) {
-          subsummary.tvl += child.tvl;
-          subsummary.earningsMap[child.reward!.name] += child.earnings;
-          subsummary.currentMonthEarningsMap[child.reward!.name] +=
-            child.currentMonthEarnings;
-        }
-        console.log({ tmp: { ...dex[0], ...subsummary } });
-        subrecords.push({ ...dex[0], ...subsummary });
+        subrecords.push({
+          ...subgroup[0],
+          ...buildSummary(subgroup, rewardNames),
+        });
       }
     }
-    extended.push({ ...parent, ...summary, subrecords });
+    extended.push({
+      ...group[0],
+      ...buildSummary(group, rewardNames),
+      subrecords,
+    });
   }
 
   return extended;
+};
+
+const buildSummary = (records: ProjectRecord[], rewardNames: string[]) => {
+  const baseDict: Dict = rewardNames.reduce(
+    (acc, cur) => ({ ...acc, [cur]: 0 }),
+    {}
+  );
+
+  const subsummary = {
+    tvl: 0,
+    incentiveTokenTvl: 0,
+    participatingTokenTvl: 0,
+    earnings: 0,
+    earningsMap: { ...baseDict },
+    currentMonthEarnings: 0,
+    currentMonthEarningsMap: { ...baseDict },
+  };
+
+  for (const record of records) {
+    subsummary.tvl += record.tvl;
+    subsummary.earningsMap[record.reward!.name] += record.earnings;
+    subsummary.currentMonthEarningsMap[record.reward!.name] +=
+      record.currentMonthEarnings;
+  }
+
+  return subsummary;
 };

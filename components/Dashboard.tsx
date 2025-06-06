@@ -175,7 +175,11 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         currentMonthEarnings: string;
       }) => (
         <SpiTooltip
-          content={<span className="text-xs text-spi-white">{earnings}</span>}
+          content={
+            <span className="text-xs text-spi-white">
+              {earnings} (yesterday)
+            </span>
+          }
           trigger={currentMonthEarnings}
         />
       );

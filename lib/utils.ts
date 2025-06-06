@@ -506,7 +506,6 @@ export const getCompetitionRewards = async (slug: string) => {
       },
     },
   });
-  console.log({ competition, rewards: competition?.rewards });
 
   return competition;
 };
