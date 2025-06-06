@@ -9,6 +9,7 @@ import { get } from "@vercel/edge-config";
 export default async function Home() {
   const whiteListedProjects = (await get("whitelistedProjects")) || [];
   const date = getTodayMidnight();
+
   const records = await prisma.projectRecord.findMany({
     select: {
       projectToken: true,
@@ -31,6 +32,12 @@ export default async function Home() {
       tvl: true,
       incentiveTokenTvl: true,
       participatingTokenTvl: true,
+      rewardId: true,
+      reward: {
+        select: {
+          name: true,
+        },
+      },
     },
     where: {
       date,
@@ -44,46 +51,7 @@ export default async function Home() {
     },
   });
 
-  const getKey = (record: ProjectRecord) =>
-    [record.projectToken, record.projectChainId].join("-");
-
-  const grouped = Object.groupBy(records, (record) => getKey(record));
-
-  const extended: ProjectRecord[] = Object.values(grouped)
-    .map((group) => {
-      if (!group?.length) return null;
-      if (group?.length === 1) return group[0];
-      const oldest = group.sort(
-        (a, b) => a.project.createdAt.valueOf() - b.project.createdAt.valueOf()
-      )[0];
-
-      const sumTvls = group.reduce(
-        (acc, cur) => ({
-          tvl: acc.tvl + cur.tvl,
-          incentiveTokenTvl:
-            acc.incentiveTokenTvl + (cur.incentiveTokenTvl || 0),
-          participatingTokenTvl:
-            acc.participatingTokenTvl + (cur.participatingTokenTvl || 0),
-          earnings: acc.earnings + cur.earnings,
-          currentMonthEarnings:
-            acc.currentMonthEarnings + cur.currentMonthEarnings,
-        }),
-        {
-          tvl: 0,
-          incentiveTokenTvl: 0,
-          participatingTokenTvl: 0,
-          earnings: 0,
-          currentMonthEarnings: 0,
-        }
-      );
-
-      return {
-        ...oldest,
-        ...sumTvls,
-        subrecords: group.sort((a, b) => b.tvl - a.tvl), // Inner sort by tvl desc
-      };
-    })
-    .filter((x) => !!x);
+  const extended = groupAndSum(records);
 
   return (
     <Layout>
@@ -92,3 +60,70 @@ export default async function Home() {
     </Layout>
   );
 }
+
+const groupAndSum = (records: ProjectRecord[]) => {
+  const getKey = (record: ProjectRecord) =>
+    [record.projectToken, record.projectChainId].join("-");
+
+  const grouped = Object.groupBy(records, (record) => getKey(record));
+  const rewardNames: string[] = records
+    .map((x) => x.reward?.name)
+    .filter((x) => x !== undefined);
+
+  const extended: ProjectRecord[] = [];
+
+  for (const group of Object.values(grouped)) {
+    if (!group?.length) {
+      continue;
+    }
+
+    const subrecords: ProjectRecord[] = [];
+
+    const groupedByDex = Object.groupBy(group, (group) => group.projectDex);
+    if (groupedByDex && Object.keys(groupedByDex).length > 1) {
+      for (const subgroup of Object.values(groupedByDex)) {
+        if (!subgroup?.length) {
+          continue;
+        }
+
+        subrecords.push({
+          ...subgroup[0],
+          ...buildSummary(subgroup, rewardNames),
+        });
+      }
+    }
+    extended.push({
+      ...group[0],
+      ...buildSummary(group, rewardNames),
+      subrecords,
+    });
+  }
+
+  return extended;
+};
+
+const buildSummary = (records: ProjectRecord[], rewardNames: string[]) => {
+  const baseDict: Dict = rewardNames.reduce(
+    (acc, cur) => ({ ...acc, [cur]: 0 }),
+    {}
+  );
+
+  const subsummary = {
+    tvl: 0,
+    incentiveTokenTvl: 0,
+    participatingTokenTvl: 0,
+    earnings: 0,
+    earningsMap: { ...baseDict },
+    currentMonthEarnings: 0,
+    currentMonthEarningsMap: { ...baseDict },
+  };
+
+  for (const record of records) {
+    subsummary.tvl += record.tvl;
+    subsummary.earningsMap[record.reward!.name] += record.earnings;
+    subsummary.currentMonthEarningsMap[record.reward!.name] +=
+      record.currentMonthEarnings;
+  }
+
+  return subsummary;
+};

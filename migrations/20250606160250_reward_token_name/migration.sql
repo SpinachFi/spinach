@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Reward" ADD COLUMN     "name" TEXT NOT NULL DEFAULT 'TOKEN';
