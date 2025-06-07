@@ -354,6 +354,10 @@ export const findPayouts = async (chainId: number) => {
 
 export const processPayouts = async (payouts: Payout[], chain: Chain) => {
   let [total, completed] = [payouts.length, 0];
+
+  const provider = new ethers.JsonRpcProvider(getChainRPCUrl(chain));
+  const signer = new ethers.Wallet(process.env.PAYOUT_PRIVATE_KEY!, provider);
+
   for (const payout of payouts) {
     if (payout.processed) {
       console.log(`Payout ${payout.id} already processed.`);
@@ -377,7 +381,10 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
       },
     });
 
-    const hash = await transferTo(payout.payoutAddress, payout.value, chain);
+    const hash = await transferTo(payout.payoutAddress, payout.value, chain, {
+      provider,
+      signer,
+    });
     if (!hash) {
       console.log(`Payout ${payout.id} failed.`);
       continue;
@@ -409,13 +416,14 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
 export const transferTo = async (
   toAddress: string,
   amount: number,
-  chain: Chain
+  chain: Chain,
+  config: {
+    provider: ethers.JsonRpcProvider;
+    signer: ethers.Wallet;
+  }
 ) => {
-  const [token, provider] = [
-    getGloContractAddress(chain),
-    new ethers.JsonRpcProvider(getChainRPCUrl(chain)),
-  ];
-
+  const { signer, provider } = config;
+  const token = getGloContractAddress(chain);
   const abi = [
     "function transfer(address _to, uint256 _value) public returns (bool success)",
   ];
@@ -426,8 +434,6 @@ export const transferTo = async (
     toAddress,
     parseEther(amount.toString()),
   ]);
-
-  const signer = new ethers.Wallet(process.env.PAYOUT_PRIVATE_KEY!, provider);
 
   try {
     const tx = await signer.sendTransaction({
