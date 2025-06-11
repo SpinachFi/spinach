@@ -15,5 +15,5 @@ export default function HowItWorks() {
     setTallyFormId(TALLY.CREATE_COMPETITION);
   }, [setTallyFormId]);
 
-  return <Layout onTallyClose={() => push("/beta")}></Layout>;
+  return <Layout onTallyClose={() => push("/")}></Layout>;
 }

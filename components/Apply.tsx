@@ -1,13 +1,13 @@
 "use client";
 
-import { TALLY } from "@/consts";
 import { useSpiStore } from "@/store";
 import Image from "next/image";
+import Link from "next/link";
 import { celo } from "viem/chains";
 import { Button } from "./ui/button";
 
 export default function Apply() {
-  const { selectedChain, setTallyFormId } = useSpiStore();
+  const { selectedChain } = useSpiStore();
 
   if (selectedChain !== celo.name.toLowerCase()) {
     return null;
@@ -30,13 +30,14 @@ export default function Apply() {
         <br />
         claim your part of the rewards
       </div>
-      <Button
-        className="mt-3 text-spi-dark-green w-[145px] cursor-pointer"
-        variant={"outline"}
-        onClick={() => setTallyFormId(TALLY.CELO)}
-      >
-        + join competition
-      </Button>
+      <Link href="/join-competition/celo-usdglo">
+        <Button
+          className="mt-3 text-spi-dark-green w-[145px] cursor-pointer"
+          variant={"outline"}
+        >
+          + join competition
+        </Button>
+      </Link>
     </div>
   );
 }

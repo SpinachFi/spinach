@@ -1,6 +1,5 @@
 "use client";
 
-import { TALLY } from "@/consts";
 import { useSpiStore } from "@/store";
 import { TwitterLogoIcon } from "@radix-ui/react-icons";
 import { MailIcon } from "lucide-react";
@@ -59,11 +58,7 @@ export function Header({ actionsDisabled = false }) {
               </Button>
             </Link>
             <Link href="/new-competition">
-              <Button
-                onClick={() => setTallyFormId(TALLY.CREATE_COMPETITION)}
-                variant={"secondary"}
-                className="ml-2 cursor-pointer"
-              >
+              <Button variant={"secondary"} className="ml-2 cursor-pointer">
                 Create Competition
               </Button>
             </Link>

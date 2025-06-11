@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN, TALLY } from "@/consts";
+import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN } from "@/consts";
 import {
   calcDailyRewards,
   firstOfThisMonth,
@@ -400,14 +400,16 @@ export function Dashboard({ records, date }: DashboardProps) {
         <div className="ml-2 mt-5 mb-2">
           <div>
             <span className="font-semibold mr-2">Projects competing</span>
-            <Button
-              className="text-xs h-[24px] text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 w-[145px] cursor-pointer"
-              hidden={!isCelo}
-              variant={"ghost"}
-              onClick={() => setTallyFormId(TALLY.CELO)}
-            >
-              + join competition
-            </Button>
+
+            <Link href="/join-competition/celo-usdglo">
+              <Button
+                className="text-xs h-[24px] text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 w-[145px] cursor-pointer"
+                hidden={!isCelo}
+                variant={"ghost"}
+              >
+                + join competition
+              </Button>
+            </Link>
           </div>
           <span className="text-xs text-spi-green-gradient-2">
             {`for funding by rallying their community to add USDGLO liquidity on ${selectedChain}`}

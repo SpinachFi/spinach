@@ -15,5 +15,5 @@ export default function CaseStudies() {
     setTallyFormId(TALLY.CASE_STUDIES);
   }, [setTallyFormId]);
 
-  return <Layout onTallyClose={() => push("/beta")}></Layout>;
+  return <Layout onTallyClose={() => push("/")}></Layout>;
 }
