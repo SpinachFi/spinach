@@ -18,7 +18,11 @@ export function Header({ actionsDisabled = false }) {
         className="flex items-center justify-between p-6 lg:px-8"
       >
         <div className="flex lg:flex-1 align-middle">
-          <Link href="/" className="-m-1.5 p-1.5">
+          <Link
+            href="/"
+            onClick={() => setTallyFormId()}
+            className="-m-1.5 p-1.5"
+          >
             <Image
               height={45}
               width={173}
