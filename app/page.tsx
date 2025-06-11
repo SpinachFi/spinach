@@ -1,5 +1,5 @@
-import DashboardContainer from "@/components/DashboardContainer";
-import { Header } from "@/components/Header";
+import Apply from "@/components/Apply";
+import { Dashboard } from "@/components/Dashboard";
 import Layout from "@/components/Layout";
 import prisma from "@/lib/prisma";
 import { getTodayMidnight } from "@/lib/utils";
@@ -87,8 +87,8 @@ export default async function Home() {
 
   return (
     <Layout>
-      <Header />
-      <DashboardContainer records={extended} date={date} />
+      <Dashboard records={extended} date={date} />
+      <Apply />
     </Layout>
   );
 }

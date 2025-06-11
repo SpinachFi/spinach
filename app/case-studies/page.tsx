@@ -1,6 +1,7 @@
 "use client";
 
 import Layout from "@/components/Layout";
+import Tally from "@/components/Tally";
 import { TALLY } from "@/consts";
 import { useSpiStore } from "@/store";
 import { useRouter } from "next/navigation";
@@ -15,5 +16,9 @@ export default function CaseStudies() {
     setTallyFormId(TALLY.CASE_STUDIES);
   }, [setTallyFormId]);
 
-  return <Layout onTallyClose={() => push("/")}></Layout>;
+  return (
+    <Layout>
+      <Tally onClose={() => push("/")} />
+    </Layout>
+  );
 }

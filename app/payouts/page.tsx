@@ -1,4 +1,3 @@
-import { Header } from "@/components/Header";
 import Layout from "@/components/Layout";
 import { Payouts } from "@/components/Payouts";
 import prisma from "@/lib/prisma";
@@ -50,7 +49,6 @@ export default async function PayoutsPage() {
   );
   return (
     <Layout>
-      <Header />
       <Payouts payouts={payouts} date={date} />
     </Layout>
   );
