@@ -62,6 +62,10 @@ export default async function Home() {
 }
 
 const groupAndSum = (records: ProjectRecord[]) => {
+  if (!records.length) {
+    return [];
+  }
+
   const getKey = (record: ProjectRecord) =>
     [record.projectToken, record.projectChainId].join("-");
 
@@ -108,6 +112,8 @@ const buildSummary = (records: ProjectRecord[], rewardNames: string[]) => {
     {}
   );
 
+  const firstReward = Object.keys(baseDict)[0];
+
   const subsummary = {
     tvl: 0,
     incentiveTokenTvl: 0,
@@ -119,7 +125,11 @@ const buildSummary = (records: ProjectRecord[], rewardNames: string[]) => {
   };
 
   for (const record of records) {
-    subsummary.tvl += record.tvl;
+    if (record.reward?.name === firstReward) {
+      subsummary.tvl += record.tvl;
+      subsummary.incentiveTokenTvl += record.incentiveTokenTvl || 0;
+      subsummary.participatingTokenTvl += record.participatingTokenTvl || 0;
+    }
     subsummary.earningsMap[record.reward!.name] += record.earnings;
     subsummary.currentMonthEarningsMap[record.reward!.name] +=
       record.currentMonthEarnings;
