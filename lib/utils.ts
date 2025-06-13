@@ -314,6 +314,12 @@ export const getTodayRecords = async (chainId: number) => {
           payoutAddress: true,
         },
       },
+      reward: {
+        select: {
+          value: true,
+          tokenAddress: true,
+        },
+      },
     },
 
     where: {
@@ -329,7 +335,6 @@ export const getTodayRecords = async (chainId: number) => {
 
 export const createPayouts = async ({
   projectRecords,
-  token,
 }: {
   projectRecords: {
     project: {
@@ -339,14 +344,16 @@ export const createPayouts = async ({
     projectToken: string;
     projectChainId: number;
     earnings: number;
+    reward: {
+      tokenAddress: string;
+    } | null;
   }[];
-  token: string;
 }) => {
   return await prisma.payout.createMany({
     data: projectRecords.map((record) => ({
       projectRecordId: record.id,
       payoutAddress: record.project.payoutAddress!,
-      tokenAddress: token,
+      tokenAddress: record.reward!.tokenAddress,
       value: record.earnings,
     })),
   });
@@ -392,10 +399,17 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
       },
     });
 
-    const hash = await transferTo(payout.payoutAddress, payout.value, chain, {
-      provider,
-      signer,
-    });
+    const hash = await transferTo(
+      {
+        toAddress: payout.payoutAddress,
+        amount: payout.value,
+        token: payout.tokenAddress,
+      },
+      {
+        provider,
+        signer,
+      }
+    );
     if (!hash) {
       console.log(`Payout ${payout.id} failed.`);
       continue;
@@ -425,34 +439,48 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
 };
 
 export const transferTo = async (
-  toAddress: string,
-  amount: number,
-  chain: Chain,
+  details: {
+    toAddress: string;
+    amount: number;
+    token: string;
+  },
   config: {
     provider: ethers.JsonRpcProvider;
     signer: ethers.Wallet;
   }
 ) => {
+  const { toAddress, amount, token } = details;
   const { signer, provider } = config;
-  const token = getGloContractAddress(chain);
-  const abi = [
-    "function transfer(address _to, uint256 _value) public returns (bool success)",
-  ];
 
-  const usdgloContract = new ethers.Contract(token, abi, provider);
+  const getTxDetails = () => {
+    const value = parseEther(amount.toString());
+    if (token === "native") {
+      return {
+        to: toAddress,
+        value,
+      };
+    }
+    const abi = [
+      "function transfer(address _to, uint256 _value) public returns (bool success)",
+    ];
 
-  const data = usdgloContract.interface.encodeFunctionData("transfer", [
-    toAddress,
-    parseEther(amount.toString()),
-  ]);
+    const usdgloContract = new ethers.Contract(token, abi, provider);
 
-  try {
-    const tx = await signer.sendTransaction({
+    const data = usdgloContract.interface.encodeFunctionData("transfer", [
+      toAddress,
+      value,
+    ]);
+
+    return {
       to: token,
       from: signer.address,
       value: parseEther("0.0"),
       data: data,
-    });
+    };
+  };
+
+  try {
+    const tx = await signer.sendTransaction(getTxDetails());
 
     console.log("Mining transaction...");
 

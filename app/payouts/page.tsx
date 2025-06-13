@@ -25,6 +25,11 @@ export default async function PayoutsPage() {
               dex: true,
             },
           },
+          reward: {
+            select: {
+              name: true,
+            },
+          },
         },
       },
     },
@@ -44,6 +49,7 @@ export default async function PayoutsPage() {
       processedAt,
       value,
       hash,
+      token: projectRecord.reward?.name,
       ...projectRecord.project,
     })
   );

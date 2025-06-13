@@ -9,13 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getChainNameById } from "@/consts";
-import { toNiceDate, toNiceDollar } from "@/lib/utils";
+import { toNiceDate, toNiceToken } from "@/lib/utils";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -33,10 +32,17 @@ export const columns: ColumnDef<PayoutRecord>[] = [
   {
     accessorFn: (row) => row.value,
     header: "Payout",
-    cell: ({ getValue }) => (
+    cell: ({ row, getValue }) => (
       <span className="text-right font-medium">
-        {toNiceDollar(getValue<number>())}
+        {toNiceToken(getValue<number>(), row.original.token!)}
       </span>
+    ),
+  },
+  {
+    accessorFn: (row) => row.token,
+    header: "Token",
+    cell: ({ getValue }) => (
+      <span className="capitalize">{getValue<string>()}</span>
     ),
   },
   {
@@ -75,7 +81,6 @@ export function Payouts({ payouts, date }: PayoutTableProps) {
     data: payouts,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });

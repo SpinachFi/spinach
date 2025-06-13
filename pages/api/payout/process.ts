@@ -1,7 +1,5 @@
-import { AVAILABLE_CHAINS, CHAIN_MAP, getChainNameById } from "@/consts";
-import { getGloContractAddress } from "@/lib/config";
+import { AVAILABLE_CHAINS, CHAIN_MAP } from "@/consts";
 import {
-  calcDailyRewards,
   createPayouts,
   findPayouts,
   getTodayRecords,
@@ -65,7 +63,7 @@ const createOrFetchPayouts = async (chain: Chain): Promise<Payout[]> => {
       throw new BusinessLogicError(`Could not create payout records (${msg}).`);
     }
 
-    const daily = calcDailyRewards(getChainNameById(chainId));
+    const daily = record.reward?.value || 0;
 
     const isAbove = record.earnings > daily;
     if (isAbove) {
@@ -77,7 +75,6 @@ const createOrFetchPayouts = async (chain: Chain): Promise<Payout[]> => {
 
   const payouts = await createPayouts({
     projectRecords,
-    token: getGloContractAddress(chain),
   });
   console.log(`Created ${payouts.count} payout records.`);
 
