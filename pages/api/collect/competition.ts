@@ -1,6 +1,7 @@
 import {
   getBlockScoutData,
   getDexData,
+  getGarden,
   getOkuTradesData,
   getRefi,
   getUbeswap,
@@ -71,7 +72,18 @@ export default async function handler(
 
   const ube = await getUbeswap();
   const refi = await getRefi();
-  const aggregated: PoolRecord[] = [...dex, ...ubeGoodDollar, ube, refi];
+  const kokonut = await getGarden(
+    "Kokonut",
+    "0x432952e34729f92B08443A573b8A9CD60557Cea7"
+  );
+
+  const aggregated: PoolRecord[] = [
+    ...dex,
+    ...ubeGoodDollar,
+    ube,
+    refi,
+    kokonut,
+  ];
 
   // Fallback for missing (low vol) dexscreener data
   const okuData = await getOkuTradesData("celo");

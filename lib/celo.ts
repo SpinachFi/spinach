@@ -314,3 +314,19 @@ export const getBlockScoutData = async (
     },
   ];
 };
+
+export const getGarden = async (
+  token: string,
+  poolAddress: string
+): Promise<PoolRecord> => {
+  const balance = await getBalance(poolAddress, celo);
+
+  const tvl = twoDecimals(Number(balance / BigInt(10 ** 18)));
+  return {
+    token: token,
+    tvl,
+    incentiveTokenTvl: tvl,
+    participatingTokenTvl: 0,
+    dex: "garden",
+  };
+};
