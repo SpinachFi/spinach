@@ -38,9 +38,7 @@ export default async function PayoutsPage() {
         date,
       },
     },
-    orderBy: {
-      value: "desc",
-    },
+    orderBy: [{ tokenAddress: "desc" }, { value: "desc" }],
   });
 
   const payouts = records.map(
