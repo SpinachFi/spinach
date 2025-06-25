@@ -10,8 +10,12 @@
       "schedule": "00 00 * * *"
     },
     {
-      "path": "/api/payout/process?chain=celo",
+      "path": "/api/payout/process?slug=usdglo&reward=USDGLO",
       "schedule": "0 01 * * *"
+    },
+    {
+      "path": "/api/payout/process?slug=usdglo&reward=CELO",
+      "schedule": "10 01 * * *"
     }
   ]
 }

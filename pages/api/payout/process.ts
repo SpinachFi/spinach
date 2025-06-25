@@ -27,7 +27,9 @@ export default async function handler(
   const reward = await getReward(slug, rewardName);
 
   if (!reward) {
-    return res.status(404).json({ message: `Reward '${slug}' not found.` });
+    return res
+      .status(404)
+      .json({ message: `Reward ${slug}/${rewardName} not found.` });
   }
 
   try {
