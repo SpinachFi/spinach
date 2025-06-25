@@ -5,7 +5,11 @@ import { clsx, type ClassValue } from "clsx";
 import { ethers, parseEther } from "ethers";
 import { twMerge } from "tailwind-merge";
 import { Chain } from "viem";
-import { getChainRPCUrl, getGloContractAddress } from "./config";
+import {
+  CHAIN_RPC_URLS,
+  getChainRPCUrl,
+  getGloContractAddress,
+} from "./config";
 import prisma from "./prisma";
 
 export function cn(...inputs: ClassValue[]) {
@@ -302,7 +306,10 @@ export const lastOfThisMonth = () => {
   return new Date(Date.UTC(today.getFullYear(), today.getMonth() + 1, 0));
 };
 
-export const getTodayRecords = async (chainId: number) => {
+export const getTodayRecords = async (
+  projectSlug: string,
+  rewardName: string
+) => {
   const res = await prisma.projectRecord.findMany({
     select: {
       id: true,
@@ -323,7 +330,12 @@ export const getTodayRecords = async (chainId: number) => {
     },
 
     where: {
-      projectChainId: chainId,
+      reward: {
+        name: rewardName,
+        competition: {
+          slug: projectSlug,
+        },
+      },
       date: {
         equals: getTodayMidnight(),
       },
@@ -359,21 +371,46 @@ export const createPayouts = async ({
   });
 };
 
-export const findPayouts = async (chainId: number) => {
+export const findPayouts = async (projectSlug: string, rewardName: string) => {
   return await prisma.payout.findMany({
     where: {
       projectRecord: {
-        projectChainId: chainId,
+        reward: {
+          name: rewardName,
+          competition: {
+            slug: projectSlug,
+          },
+        },
         date: getTodayMidnight(),
       },
     },
   });
 };
 
-export const processPayouts = async (payouts: Payout[], chain: Chain) => {
+export const getReward = async (projectSlug: string, rewardName: string) => {
+  const rewards = await prisma.reward.findMany({
+    where: {
+      name: rewardName,
+      competition: {
+        slug: projectSlug,
+      },
+    },
+  });
+
+  if (rewards.length !== 1) {
+    console.error(
+      `Incorrect numbet of rewards for ${projectSlug} -> ${rewardName}`
+    );
+    return null;
+  }
+
+  return rewards[0];
+};
+
+export const processPayouts = async (payouts: Payout[], chainId: number) => {
   let [total, completed] = [payouts.length, 0];
 
-  const provider = new ethers.JsonRpcProvider(getChainRPCUrl(chain));
+  const provider = new ethers.JsonRpcProvider(CHAIN_RPC_URLS[chainId]);
   const signer = new ethers.Wallet(process.env.PAYOUT_PRIVATE_KEY!, provider);
 
   for (const payout of payouts) {
@@ -431,7 +468,7 @@ export const processPayouts = async (payouts: Payout[], chain: Chain) => {
     completed++;
   }
 
-  let txt = `${completed}/${total} payouts completed for ${chain.name}.`;
+  let txt = `${completed}/${total} payouts completed for ${payouts[0].tokenAddress} @ ${chainId}.`;
   if (completed !== total) {
     txt += " Issues detected! <!here>";
   }
@@ -536,6 +573,7 @@ export const getCompetitionRewards = async (slug: string) => {
           id: true,
           tokenAddress: true,
           value: true,
+          name: true,
         },
       },
     },

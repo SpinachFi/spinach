@@ -1,14 +1,13 @@
-import { AVAILABLE_CHAINS, CHAIN_MAP } from "@/consts";
 import {
   createPayouts,
   findPayouts,
+  getReward,
   getTodayRecords,
   processPayouts,
 } from "@/lib/utils";
 import { Payout } from "@prisma/client";
 import { isAddress } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Chain } from "viem/chains";
 
 export default async function handler(
   req: NextApiRequest,
@@ -22,17 +21,18 @@ export default async function handler(
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const chainName = req.query?.chain as ChainName;
+  const slug = req.query?.slug as string;
+  const rewardName = req.query?.reward as string;
 
-  if (!AVAILABLE_CHAINS.includes(chainName)) {
-    return res.status(401).json({ message: `Incorrect chain "${chainName}"` });
+  const reward = await getReward(slug, rewardName);
+
+  if (!reward) {
+    return res.status(404).json({ message: `Reward '${slug}' not found.` });
   }
 
-  const chain = CHAIN_MAP[chainName];
-
   try {
-    const payouts = await createOrFetchPayouts(chain);
-    await processPayouts(payouts, chain);
+    const payouts = await createOrFetchPayouts(slug, rewardName);
+    await processPayouts(payouts, reward.chainId);
   } catch (error) {
     if (error instanceof BusinessLogicError) {
       return res.status(200).json({ message: error.message });
@@ -44,16 +44,20 @@ export default async function handler(
   return res.status(200).json({ message: "Payouts completed." });
 }
 
-const createOrFetchPayouts = async (chain: Chain): Promise<Payout[]> => {
-  const chainId = chain.id;
-  const todayPayouts = await findPayouts(chainId);
+const createOrFetchPayouts = async (
+  projectSlug: string,
+  rewardName: string
+): Promise<Payout[]> => {
+  const todayPayouts = await findPayouts(projectSlug, rewardName);
 
   if (todayPayouts.length > 0) {
-    console.log(`Payouts records already created for ${chainId}. Fetching...`);
+    console.log(
+      `Payouts records already created for ${projectSlug} -> ${rewardName}. Fetching...`
+    );
     return todayPayouts;
   }
 
-  const projectRecords = await getTodayRecords(chainId);
+  const projectRecords = await getTodayRecords(projectSlug, rewardName);
 
   for (const record of projectRecords) {
     const isValid = isAddress(record.project.payoutAddress);
@@ -78,7 +82,7 @@ const createOrFetchPayouts = async (chain: Chain): Promise<Payout[]> => {
   });
   console.log(`Created ${payouts.count} payout records.`);
 
-  return findPayouts(chainId);
+  return findPayouts(projectSlug, rewardName);
 };
 
 class BusinessLogicError extends Error {

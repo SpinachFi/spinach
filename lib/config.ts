@@ -19,12 +19,12 @@ const chainConfig: { [id: number]: `0x${string}` } = {
   [vechain.id]: "0x29c630cce4ddb23900f5fe66ab55e488c15b9f5e",
 };
 
-const chainRPCUrl: { [chainId: number]: string } = {
+export const CHAIN_RPC_URLS: { [chainId: number]: string } = {
   [celo.id]: process.env.NEXT_PUBLIC_CELO_RPC_URL!,
 };
 
 export const getChainRPCUrl = (chain: Chain): string => {
-  return chainRPCUrl[chain.id];
+  return CHAIN_RPC_URLS[chain.id];
 };
 
 export const getGloContractAddress = (chain: Chain): `0x${string}` =>
