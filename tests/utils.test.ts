@@ -1,4 +1,5 @@
 import { addRewards, rewardSplit } from "@/lib/utils";
+import { parseEther } from "ethers";
 
 const DAILY_REWARDS = 100;
 
@@ -182,5 +183,16 @@ describe("Utils tests", () => {
     expect(rewards.map((x) => x.reward)).toEqual([
       49.04057279236277, 50.95942720763723,
     ]);
+  });
+
+  const amount = 0.0008379776576136395;
+
+  it("Throws expception while parsing too long number", () => {
+    expect(() => parseEther(amount.toString())).toThrow();
+  });
+
+  it("Parse amount correctly", () => {
+    const eth = parseEther(amount.toFixed(18));
+    expect(eth).toEqual(BigInt(837977657613639));
   });
 });

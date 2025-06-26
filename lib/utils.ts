@@ -490,7 +490,7 @@ export const transferTo = async (
   const { signer, provider } = config;
 
   const getTxDetails = () => {
-    const value = parseEther(amount.toString());
+    const value = parseEther(amount.toFixed(18));
     if (token === "native") {
       return {
         to: toAddress,
@@ -629,19 +629,21 @@ export const createProjectRecordsRewards = async (
         incentiveTokenTvl,
         participatingTokenTvl,
         reward,
-      }) => ({
-        projectToken: token,
-        projectChainId: chainId,
-        projectDex: dex,
-        rewardId,
-        tvl,
-        incentiveTokenTvl,
-        participatingTokenTvl,
-        earnings: reward,
-        currentMonthEarnings:
-          (yesterdayEarnings[`${dex}/${token}`] || 0) + reward,
-        date: getTodayMidnight(),
-      })
+      }) => {
+        return {
+          projectToken: token,
+          projectChainId: chainId,
+          projectDex: dex,
+          rewardId,
+          tvl,
+          incentiveTokenTvl,
+          participatingTokenTvl,
+          earnings: reward,
+          currentMonthEarnings:
+            (yesterdayEarnings[`${dex}/${token}`] || 0) + reward,
+          date: getTodayMidnight(),
+        };
+      }
     ),
   });
 
