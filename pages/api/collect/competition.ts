@@ -76,6 +76,10 @@ export default async function handler(
     "Kokonut",
     "0x432952e34729f92B08443A573b8A9CD60557Cea7"
   );
+  const agrofest = await getGarden(
+    "AgroforestDAO",
+    "0xd251c52c091c54a14e00ad1a31a4cffb9e6c8197"
+  );
 
   const aggregated: PoolRecord[] = [
     ...dex,
@@ -83,6 +87,7 @@ export default async function handler(
     ube,
     refi,
     kokonut,
+    agrofest,
   ];
 
   // Fallback for missing (low vol) dexscreener data
