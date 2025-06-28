@@ -317,7 +317,8 @@ export const getBlockScoutData = async (
 
 export const getGarden = async (
   token: string,
-  poolAddress: string
+  poolAddress: string,
+  dex: DexName = "garden"
 ): Promise<PoolRecord> => {
   const balance = await getBalance(poolAddress, celo);
 
@@ -327,6 +328,58 @@ export const getGarden = async (
     tvl,
     incentiveTokenTvl: tvl,
     participatingTokenTvl: 0,
+    dex,
+  };
+};
+
+// WeightedPool 50USDGLO-50cUSD
+// 0x13f3adc9683d6f83d592df7ad7178cfd672803ff (getPoolId, getVault)
+// Vault
+// https://celo.blockscout.com/address/0xeA280B39437a64473a0C77949759E6629eD1Dc73?tab=contract_abi
+// Pool R-USDGLO-CUSD
+// https://celo.blockscout.com/address/0xF7fEe07D4410AF146795021F01C54af179494cB5?tab=read_write_contract
+export const getRefiPoolTokens = async (): Promise<Dict> => {
+  const provider = new ethers.JsonRpcProvider(getChainRPCUrl(celo));
+  const abi = [
+    "function getPoolTokens(bytes32 poolId) view returns (address[], uint256[], uint256)",
+  ];
+  const contract = new ethers.Contract(
+    "0xeA280B39437a64473a0C77949759E6629eD1Dc73",
+    abi,
+    provider
+  );
+
+  try {
+    const result = await contract.getPoolTokens(
+      "0xf7fee07d4410af146795021f01c54af179494cb500000000000000000000000c"
+    );
+    const zipped = result[0].reduce(
+      (acc: Dict, cur: string, index: number) => ({
+        ...acc,
+        [cur]: twoDecimals(Number(result[1][index] / BigInt(10 ** 18))),
+      }),
+      {} as Dict
+    );
+
+    return zipped;
+  } catch (err) {
+    console.log(`Could not fetch getPoolTokens for Refi`);
+    console.error(err);
+    return {};
+  }
+};
+
+export const getRegenerativeFi = async (): Promise<PoolRecord> => {
+  const tokensMap = await getRefiPoolTokens();
+
+  const cusd = tokensMap["0x765DE816845861e75A25fCA122bb6898B8B1282a"];
+  const glo = tokensMap[getGloContractAddress(celo)];
+
+  return {
+    token: "regenerative.fi",
+    tvl: cusd + glo,
+    incentiveTokenTvl: glo,
+    participatingTokenTvl: cusd,
     dex: "garden",
   };
 };

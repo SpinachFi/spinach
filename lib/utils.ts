@@ -528,6 +528,7 @@ export const transferTo = async (
     return tx.hash;
   } catch (err) {
     console.log({ err });
+    // TODO: [RAD] Retry if nouce error
   }
 
   return null;

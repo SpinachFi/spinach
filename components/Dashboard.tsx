@@ -72,7 +72,13 @@ export const columns: ColumnDef<ProjectRecord>[] = [
           {token}
           {row.getIsExpanded() &&
             row.original.subrecords?.map((x) => (
-              <div key={x.projectDex}>- {x.projectDex}</div>
+              <div
+                key={x.projectDex}
+                className="overflow-hidden text-ellipsis max-w-[85px]"
+                title={x.projectDex}
+              >
+                - {x.projectDex}
+              </div>
             ))}
         </div>
       );
@@ -343,6 +349,10 @@ export function Dashboard({ records, date }: DashboardProps) {
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination: {
+        pageIndex: 0,
+        pageSize: 20,
+      },
     },
   });
 
