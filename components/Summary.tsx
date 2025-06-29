@@ -1,4 +1,4 @@
-import { firstOfThisMonth, lastOfThisMonth, toNiceDate } from "@/lib/utils";
+import { toNiceDate } from "@/lib/utils";
 import { ReactNode } from "react";
 import SpiTooltip from "./SpiTooltip";
 import { Separator } from "./ui/separator";
@@ -7,6 +7,9 @@ type Props = {
   daily: number;
   liquidity: number;
   projects: number;
+  startDate: Date;
+  endDate: Date;
+  rewards: Dict;
 };
 
 type CardProps = {
@@ -40,7 +43,14 @@ const Card = ({ title, numbers, subtitle, footer, tooltip }: CardProps) => {
   );
 };
 
-export default function Summary({ daily, liquidity, projects }: Props) {
+export default function Summary({
+  daily,
+  liquidity,
+  projects,
+  startDate,
+  endDate,
+  rewards,
+}: Props) {
   const apr = (daily * 365 * 100) / liquidity;
 
   const Sep = () => (
@@ -48,13 +58,17 @@ export default function Summary({ daily, liquidity, projects }: Props) {
       <Separator orientation="vertical" />
     </div>
   );
-
   return (
     <div className="flex h-[96px] my-3 justify-between border-1 rounded-sm shadow-sm">
       <Card
         title="Daily rewards"
-        numbers={`$${daily.toFixed(0)} USDGLO + 165 CELO`}
-        footer={`From ${toNiceDate(firstOfThisMonth())} - ${toNiceDate(lastOfThisMonth())}`}
+        numbers={Object.entries(rewards)
+          .map(
+            ([token, value]) =>
+              `${token.includes("USD") ? "$" : ""}${value} ${token}`
+          )
+          .join(" + ")}
+        footer={`From ${toNiceDate(startDate)} - ${toNiceDate(endDate)}`}
         tooltip={"USDGLO 75% $OTHER 25%"}
       />
       <Sep />

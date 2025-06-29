@@ -2,12 +2,12 @@ import Apply from "@/components/Apply";
 import { Dashboard } from "@/components/Dashboard";
 import Layout from "@/components/Layout";
 import { getRecords } from "@/lib/dashboard";
-import { getTodayMidnight } from "@/lib/utils";
+import { getMidnightOn } from "@/lib/utils";
 
 export default async function Home() {
-  const date = getTodayMidnight();
+  const date = getMidnightOn(2025, 6, 1);
 
-  const { meta, records } = await getRecords("usdglo", date);
+  const { records, meta } = await getRecords("usdglo", date);
 
   return (
     <Layout>

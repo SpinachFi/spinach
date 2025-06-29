@@ -301,7 +301,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
   },
 ];
 
-export function Dashboard({ records, date }: DashboardProps) {
+export function Dashboard({ records, meta, date }: DashboardProps) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "tvl", desc: true },
   ]);
@@ -417,6 +417,9 @@ export function Dashboard({ records, date }: DashboardProps) {
         </Button>
       </div>
       <Summary
+        rewards={meta.rewards}
+        startDate={meta.startDate}
+        endDate={meta.endDate}
         daily={calcDailyRewards(selectedChain)}
         liquidity={liquidity}
         projects={projects}

@@ -86,6 +86,14 @@ export const getYesterdayMidnight = () => {
   return midnight;
 };
 
+export const getMidnightOn = (year: number, month: number, day: number) => {
+  const midnight = new Date(Date.UTC(year, month, day));
+
+  midnight.setMilliseconds(-1);
+
+  return midnight;
+};
+
 export const createProjectRecords = async (
   pools: PoolRewardRecord[],
   chainId: number
