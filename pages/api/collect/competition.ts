@@ -43,7 +43,10 @@ export default async function handler(
 
   const today = getTodayMidnight();
   const isActive =
-    competition.startDate <= today && today < competition.endDate;
+    competition.startDate.toISOString().split("T")[0] <=
+      today.toISOString().split("T")[0] &&
+    today.toISOString().split("T")[0] <=
+      competition.endDate.toISOString().split("T")[0];
   if (!isActive) {
     return res
       .status(400)

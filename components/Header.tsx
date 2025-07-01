@@ -57,6 +57,11 @@ export function Header({ actionsDisabled = false }) {
                 Case studies
               </Button>
             </Link>
+            <Link href="/history">
+              <Button variant={"ghost"} className="mr-1 cursor-pointer">
+                Completed competition
+              </Button>
+            </Link>
             <Link href="/new-competition">
               <Button variant={"secondary"} className="ml-2 cursor-pointer">
                 Create Competition
