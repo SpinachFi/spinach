@@ -7,7 +7,7 @@ import { getTodayMidnight } from "@/lib/utils";
 export default async function Home() {
   const date = getTodayMidnight();
 
-  const { meta, records } = await getRecords("usdglo", date);
+  const { meta, records } = await getRecords("usdglo2", date);
 
   return (
     <Layout>
