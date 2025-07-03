@@ -10,6 +10,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: "/",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, stale-while-revalidate=60",
+          },
+        ],
+      },
+    ];
+  },
 };
-
 export default nextConfig;
