@@ -51,7 +51,7 @@ export default function Summary({
   endDate,
   rewards,
 }: Props) {
-  const apr = (daily * 365 * 100) / liquidity;
+  const apr = liquidity ? (daily * 365 * 100) / liquidity : 0;
 
   const Sep = () => (
     <div className="py-5">
