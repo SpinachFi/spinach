@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AVAILABLE_CHAINS, CHAIN_MAP, DEFAULT_CHAIN } from "@/consts";
+import { CHAIN_MAP, DEFAULT_CHAIN } from "@/consts";
 import {
   calcDailyRewards,
   firstOfThisMonth,
@@ -300,8 +300,8 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     header: "projectChainId",
   },
 ];
-
-export function Dashboard({ records, meta, date }: DashboardProps) {
+const chain = DEFAULT_CHAIN;
+export function Dashboard({ competitions, date }: DashboardProps) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "tvl", desc: true },
   ]);
@@ -316,6 +316,10 @@ export function Dashboard({ records, meta, date }: DashboardProps) {
       projectChainId: false,
     });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
+
+  const [selectedCompetiton, setSelectedCompetiton] = React.useState(
+    competitions[0]
+  );
 
   const { selectedChain, setSelectedChain, setTallyFormId } = useSpiStore();
   const isCelo = selectedChain === celo.name.toLowerCase();
@@ -334,7 +338,7 @@ export function Dashboard({ records, meta, date }: DashboardProps) {
   }, [setTallyFormId, setSelectedChain]);
 
   const table = useReactTable({
-    data: records,
+    data: selectedCompetiton.records,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -364,21 +368,20 @@ export function Dashboard({ records, meta, date }: DashboardProps) {
   return (
     <div className="w-full">
       <div className="flex">
-        {AVAILABLE_CHAINS.map((chain) => (
+        {competitions.map((competition) => (
           <Button
-            key={chain}
+            key={competition.meta.token}
             className={clsx(
               "flex flex-col h-[96px] cursor-pointer border-1 flex-1 mr-3",
-              chain === selectedChain ? "border-spi-green" : "shadow-sm"
+              competition.meta.token === selectedCompetiton.meta.token
+                ? "border-spi-green"
+                : "shadow-sm"
             )}
             variant={"ghost"}
-            disabled={chain === "optimism"}
-            onClick={() => setSelectedChain(chain)}
+            onClick={() => setSelectedCompetiton(competition)}
           >
             <div className="flex">
-              <span>
-                {chain === "optimism" ? "$YOUR TOKEN" : "USDGLO"} on&nbsp;
-              </span>
+              <span>{competition.meta.token} on&nbsp;</span>
               <span className="first-letter:uppercase">{chain}</span>
             </div>
             <div className="flex justify-between">
@@ -392,8 +395,8 @@ export function Dashboard({ records, meta, date }: DashboardProps) {
                   className="mr-2"
                   height={24}
                   width={24}
-                  src={"/usdglo.svg"}
-                  alt="USDGLO"
+                  src={`/${competition.meta.token.toLowerCase()}.svg`}
+                  alt={competition.meta.token}
                 />
               )}
               <Image height={24} width={24} src={`/${chain}.svg`} alt={chain} />
@@ -417,9 +420,9 @@ export function Dashboard({ records, meta, date }: DashboardProps) {
         </Button>
       </div>
       <Summary
-        rewards={meta.rewards}
-        startDate={meta.startDate}
-        endDate={meta.endDate}
+        rewards={selectedCompetiton.meta.rewards}
+        startDate={selectedCompetiton.meta.startDate}
+        endDate={selectedCompetiton.meta.endDate}
         daily={calcDailyRewards(selectedChain)}
         liquidity={liquidity}
         projects={projects}
@@ -440,7 +443,7 @@ export function Dashboard({ records, meta, date }: DashboardProps) {
             </Link>
           </div>
           <span className="text-xs text-spi-green-gradient-2">
-            {`for funding by rallying their community to add USDGLO liquidity on ${selectedChain}`}
+            {selectedCompetiton.meta.description}
           </span>
         </div>
         <Table>
@@ -485,7 +488,7 @@ export function Dashboard({ records, meta, date }: DashboardProps) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  Coming soon.
                 </TableCell>
               </TableRow>
             )}

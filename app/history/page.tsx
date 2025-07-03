@@ -7,11 +7,11 @@ import { getMidnightOn } from "@/lib/utils";
 export default async function Home() {
   const date = getMidnightOn(2025, 6, 1);
 
-  const { records, meta } = await getRecords("usdglo", date);
+  const usdglo = await getRecords("usdglo", date);
 
   return (
     <Layout>
-      <Dashboard records={records} meta={meta} date={date} />
+      <Dashboard competitions={[usdglo]} date={date} />
       <Apply />
     </Layout>
   );

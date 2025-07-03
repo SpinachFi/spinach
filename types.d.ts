@@ -58,12 +58,16 @@ type ProjectRecord = {
 };
 
 type DashboardProps = {
-  records: ProjectRecord[];
-  meta: {
-    startDate: Date;
-    endDate: Date;
-    rewards: Dict;
-  };
+  competitions: {
+    records: ProjectRecord[];
+    meta: {
+      startDate: Date;
+      endDate: Date;
+      rewards: Dict;
+      token: string;
+      description: string | null;
+    };
+  }[];
   date: Date;
 };
 

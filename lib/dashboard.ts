@@ -5,6 +5,7 @@ export const getRecords = async (slug: string, date: Date) => {
     select: {
       startDate: true,
       endDate: true,
+      description: true,
       rewards: {
         select: {
           name: true,
@@ -55,6 +56,8 @@ export const getRecords = async (slug: string, date: Date) => {
     meta: {
       startDate: competition.startDate,
       endDate: competition.endDate,
+      description: competition.description,
+      token: competition.rewards[0]?.name || "",
       rewards: competition.rewards.reduce(
         (acc, { name, value }) => ({ ...acc, [name]: value }),
         {} as Dict

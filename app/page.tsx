@@ -4,14 +4,17 @@ import Layout from "@/components/Layout";
 import { getRecords } from "@/lib/dashboard";
 import { getTodayMidnight } from "@/lib/utils";
 
+export const revalidate = 300; // invalidate every 5m
+
 export default async function Home() {
   const date = getTodayMidnight();
 
-  const { meta, records } = await getRecords("usdglo2", date);
+  const usdglo = await getRecords("usdglo2", date);
+  const regen = await getRecords("regen", date);
 
   return (
     <Layout>
-      <Dashboard records={records} meta={meta} date={date} />
+      <Dashboard competitions={[usdglo, regen]} date={date} />
       <Apply />
     </Layout>
   );

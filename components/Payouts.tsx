@@ -136,7 +136,7 @@ export function Payouts({ payouts, date }: PayoutTableProps) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  Coming soon.
                 </TableCell>
               </TableRow>
             )}
