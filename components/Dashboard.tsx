@@ -41,6 +41,7 @@ import clsx from "clsx";
 import { CircleDollarSign, Sprout } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import * as React from "react";
 import { celo } from "viem/chains";
 import { LogoCell } from "./LogoCell";
@@ -302,6 +303,8 @@ export const columns: ColumnDef<ProjectRecord>[] = [
 ];
 const chain = DEFAULT_CHAIN;
 export function Dashboard({ competitions, date }: DashboardProps) {
+  const pathname = usePathname();
+
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "tvl", desc: true },
   ]);
@@ -318,7 +321,12 @@ export function Dashboard({ competitions, date }: DashboardProps) {
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const [selectedCompetiton, setSelectedCompetiton] = React.useState(
-    competitions[0]
+    pathname === "/"
+      ? competitions[0]
+      : competitions.find(
+          (competition) =>
+            competition.meta.token.toLowerCase() === pathname?.split("/")[1]
+        ) || competitions[0]
   );
 
   const { selectedChain, setSelectedChain, setTallyFormId } = useSpiStore();
