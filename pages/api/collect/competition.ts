@@ -91,6 +91,17 @@ export default async function handler(
     "0xf3d67757c2a3b68c090572962113d7e5db530425"
   );
 
+  const refidao = await getGarden(
+    "ReFiDAO",
+    "0x0f52002482c3188575f2e751dc948ab2fdd39d10",
+    "Network Initiatives"
+  );
+  const refidao2 = await getGarden(
+    "ReFiDAO",
+    "0xcb857f1f2e36e0ee393125efa39802ece6363f80",
+    "Node Kickstarter"
+  );
+
   const regfi = await getRegenerativeFi();
 
   const aggregated: PoolRecord[] = [
@@ -102,6 +113,8 @@ export default async function handler(
     agroforest,
     web3i,
     regfi,
+    refidao,
+    refidao2,
   ];
 
   // Fallback for missing (low vol) dexscreener data
