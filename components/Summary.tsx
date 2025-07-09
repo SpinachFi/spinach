@@ -4,7 +4,6 @@ import SpiTooltip from "./SpiTooltip";
 import { Separator } from "./ui/separator";
 
 type Props = {
-  daily: number;
   liquidity: number;
   projects: number;
   startDate: Date;
@@ -44,14 +43,15 @@ const Card = ({ title, numbers, subtitle, footer, tooltip }: CardProps) => {
 };
 
 export default function Summary({
-  daily,
   liquidity,
   projects,
   startDate,
   endDate,
   rewards,
 }: Props) {
-  const apr = liquidity ? (daily * 365 * 100) / liquidity : 0;
+  const apr = liquidity
+    ? (Object.values(rewards)[0] * 365 * 100) / liquidity
+    : 0;
 
   const Sep = () => (
     <div className="py-5">

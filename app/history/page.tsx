@@ -11,7 +11,7 @@ export default async function Home() {
 
   return (
     <Layout>
-      <Dashboard competitions={[usdglo]} date={date} />
+      <Dashboard chain="celo" competitions={[usdglo]} date={date} />
       <Apply />
     </Layout>
   );

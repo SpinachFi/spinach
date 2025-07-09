@@ -3,6 +3,7 @@ import { celo, Chain, optimism } from "viem/chains";
 export const CHAIN_MAP: { [name in ChainName]: Chain } = {
   celo: celo,
   optimism: optimism,
+  stellar: {} as Chain,
 };
 
 export const getChainNameById = (chainId: number): ChainName => {

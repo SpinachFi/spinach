@@ -225,18 +225,6 @@ export const addRewards = (
   return rewards;
 };
 
-export const calcDailyRewards = (chain: ChainName) => {
-  return 100;
-  const monthly = { celo: 3000, optimism: 1000 }[chain];
-
-  const daysInMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() + 1,
-    0
-  ).getDate();
-  return monthly / daysInMonth;
-};
-
 /*
   At its core, Spinach is a product to help chains distribute liquidity incentives to builders based on how much DEX liquidity there is against their project's token.
 

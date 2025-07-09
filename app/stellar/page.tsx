@@ -9,12 +9,11 @@ export const revalidate = 300; // invalidate every 5m
 export default async function Home() {
   const date = getTodayMidnight();
 
-  const usdglo = await getRecords("usdglo2", date);
-  const regen = await getRecords("regen", date);
+  const stellar = await getRecords("stellar", date);
 
   return (
     <Layout>
-      <Dashboard chain="celo" competitions={[usdglo, regen]} date={date} />
+      <Dashboard chain="stellar" competitions={[stellar]} date={date} />
       <Apply />
     </Layout>
   );

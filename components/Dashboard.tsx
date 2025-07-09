@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/table";
 import { CHAIN_MAP, DEFAULT_CHAIN } from "@/consts";
 import {
-  calcDailyRewards,
   firstOfThisMonth,
   toNiceDate,
   toNiceDollar,
@@ -301,8 +300,8 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     header: "projectChainId",
   },
 ];
-const chain = DEFAULT_CHAIN;
-export function Dashboard({ competitions, date }: DashboardProps) {
+
+export function Dashboard({ competitions, date, chain }: DashboardProps) {
   const pathname = usePathname();
 
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -431,7 +430,6 @@ export function Dashboard({ competitions, date }: DashboardProps) {
         rewards={selectedCompetiton.meta.rewards}
         startDate={selectedCompetiton.meta.startDate}
         endDate={selectedCompetiton.meta.endDate}
-        daily={calcDailyRewards(selectedChain)}
         liquidity={liquidity}
         projects={projects}
       />
