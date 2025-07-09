@@ -34,7 +34,7 @@ export default async function handler(
 
   try {
     const payouts = await createOrFetchPayouts(slug, rewardName);
-    await processPayouts(payouts, reward.chainId);
+    await processPayouts(payouts, reward.chainId, "USDGLO");
   } catch (error) {
     if (error instanceof BusinessLogicError) {
       return res.status(200).json({ message: error.message });

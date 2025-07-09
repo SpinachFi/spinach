@@ -403,11 +403,19 @@ export const getReward = async (projectSlug: string, rewardName: string) => {
   return rewards[0];
 };
 
-export const processPayouts = async (payouts: Payout[], chainId: number) => {
+export const processPayouts = async (
+  payouts: Payout[],
+  chainId: number,
+  walletName: string
+) => {
   let [total, completed] = [payouts.length, 0];
 
   const provider = new ethers.JsonRpcProvider(CHAIN_RPC_URLS[chainId]);
-  const signer = new ethers.Wallet(process.env.PAYOUT_PRIVATE_KEY!, provider);
+  const pk = process.env[`${walletName}_PAYOUT_PRIVATE_KEY`];
+  if (!pk) {
+    throw new Error(`No private key found for ${walletName}.`);
+  }
+  const signer = new ethers.Wallet(pk, provider);
 
   for (const payout of payouts) {
     if (payout.processed) {
