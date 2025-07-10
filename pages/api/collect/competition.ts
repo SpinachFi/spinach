@@ -1,12 +1,13 @@
 "use server";
 
 import {
+  fetchTokenPrices,
   getBlockScoutData,
   getDexData,
   getGarden,
-  getOkuTradesData,
   getRefi,
   getRegenerativeFi,
+  getTokenPrice,
   getUbeswap,
 } from "@/lib/celo";
 import { getGloContractAddress } from "@/lib/config";
@@ -17,7 +18,6 @@ import {
   getTodayMidnight,
   hasRewardRunToday,
 } from "@/lib/utils";
-import { get } from "@vercel/edge-config";
 import { NextApiRequest, NextApiResponse } from "next";
 import { celo } from "viem/chains";
 
@@ -62,12 +62,12 @@ export default async function handler(
   }
 
   const hasRun = await hasRewardRunToday(competition.rewards[0].id);
-
   if (hasRun) {
     return res
       .status(400)
       .json({ message: `Data already connected for competition '${slug}'.` });
   }
+  const tokenPrices = await fetchTokenPrices();
 
   // Data collection for the competition
   const dex = await getDexData("celo");
@@ -102,7 +102,16 @@ export default async function handler(
     "Node Kickstarter"
   );
 
-  const regfi = await getRegenerativeFi();
+  const regfi = await getRegenerativeFi(
+    "0xf7fee07d4410af146795021f01c54af179494cb500000000000000000000000c",
+    "0x765DE816845861e75A25fCA122bb6898B8B1282a" // CUSD
+  );
+  const regfi2 = await getRegenerativeFi(
+    "0xefe83dde81e4494768e9196d3bf1d68b4fb49fa300020000000000000000000d",
+    "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754", // AxlRegen
+    "garden2",
+    getTokenPrice("0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754", tokenPrices)
+  );
 
   const aggregated: PoolRecord[] = [
     ...dex,
@@ -113,27 +122,10 @@ export default async function handler(
     agroforest,
     web3i,
     regfi,
+    regfi2,
     refidao,
     refidao2,
   ];
-
-  // Fallback for missing (low vol) dexscreener data
-  const okuData = await getOkuTradesData("celo");
-  const whiteListedProjects: string[] =
-    (await get("whitelistedProjects")) || [];
-  const lowerCaseWhiteList = whiteListedProjects.map((x) => x.toLowerCase());
-  const aggregatedTokens = aggregated.map((x) => x.token.toLowerCase());
-
-  for (const oku of okuData.filter((x) =>
-    lowerCaseWhiteList.includes(x.token.toLowerCase())
-  )) {
-    const token = oku.token.toLowerCase();
-    if (aggregatedTokens.includes(token)) {
-      continue;
-    }
-    aggregatedTokens.push(token);
-    aggregated.push(oku);
-  }
 
   for (const reward of competition.rewards) {
     const result = await calcRewards(aggregated, reward.value);

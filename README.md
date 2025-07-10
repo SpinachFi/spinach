@@ -29,3 +29,9 @@ Each job can be repeated from Vercel console. However first each failed payout h
 ```
     curl -H "Authorization: Bearer 1234567890" http://localhost:3000/api/collect/optimism | json_pp
 ```
+
+# Adding new competition / projects
+
+To start new competition the new record is required to be added in db - competition with at least one reward.
+
+To add new project aka participant for new/existing competition one new db record is needed. Besides cron job with data collection need to be adjusted or created so "project record" with liquidity data is collected on daily basis.

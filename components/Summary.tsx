@@ -49,9 +49,8 @@ export default function Summary({
   endDate,
   rewards,
 }: Props) {
-  const apr = liquidity
-    ? (Object.values(rewards)[0] * 365 * 100) / liquidity
-    : 0;
+  const [token, reward] = Object.entries(rewards)[0];
+  const apr = liquidity ? (reward * 365 * 100) / liquidity : 0;
 
   const Sep = () => (
     <div className="py-5">
@@ -69,7 +68,7 @@ export default function Summary({
           )
           .join(" + ")}
         footer={`From ${toNiceDate(startDate)} - ${toNiceDate(endDate)}`}
-        tooltip={"USDGLO 75% $OTHER 25%"}
+        tooltip={`${token} 75% $OTHER 25%`}
       />
       <Sep />
       <Card

@@ -338,25 +338,25 @@ export const getGarden = async (
 // https://celo.blockscout.com/address/0xeA280B39437a64473a0C77949759E6629eD1Dc73?tab=contract_abi
 // Pool R-USDGLO-CUSD
 // https://celo.blockscout.com/address/0xF7fEe07D4410AF146795021F01C54af179494cB5?tab=read_write_contract
-export const getRefiPoolTokens = async (): Promise<Dict> => {
+export const getRefiPoolTokens = async (poolAddr: string): Promise<Dict> => {
   const provider = new ethers.JsonRpcProvider(getChainRPCUrl(celo));
   const abi = [
     "function getPoolTokens(bytes32 poolId) view returns (address[], uint256[], uint256)",
   ];
   const contract = new ethers.Contract(
-    "0xeA280B39437a64473a0C77949759E6629eD1Dc73",
+    "0xeA280B39437a64473a0C77949759E6629eD1Dc73", // Vault address
     abi,
     provider
   );
 
   try {
-    const result = await contract.getPoolTokens(
-      "0xf7fee07d4410af146795021f01c54af179494cb500000000000000000000000c"
-    );
+    const result = await contract.getPoolTokens(poolAddr);
     const zipped = result[0].reduce(
       (acc: Dict, cur: string, index: number) => ({
         ...acc,
-        [cur]: twoDecimals(Number(result[1][index] / BigInt(10 ** 18))),
+        [cur.toLowerCase()]: twoDecimals(
+          Number(result[1][index] / BigInt(10 ** getDecimals(result[0][index])))
+        ),
       }),
       {} as Dict
     );
@@ -369,17 +369,59 @@ export const getRefiPoolTokens = async (): Promise<Dict> => {
   }
 };
 
-export const getRegenerativeFi = async (): Promise<PoolRecord> => {
-  const tokensMap = await getRefiPoolTokens();
+const getDecimals = (tokenAddr: string) => {
+  const decMap: Dict = {
+    "0x4f604735c1cf31399c6e711d5962b2b3e0225ad3": 18, // GLO
+    "0x765de816845861e75a25fca122bb6898b8b1282a": 18, // CUSD
+    "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754": 6, // AXL
+  };
 
-  const cusd = tokensMap["0x765DE816845861e75A25fCA122bb6898B8B1282a"];
-  const glo = tokensMap[getGloContractAddress(celo)];
+  return decMap[tokenAddr.toLowerCase()] || 18;
+};
+
+export const getRegenerativeFi = async (
+  poolAddr: string,
+  token: string,
+  dex: DexName = "garden",
+  price: number = 1
+): Promise<PoolRecord> => {
+  const tokensMap = await getRefiPoolTokens(poolAddr);
+  const other = twoDecimals(tokensMap[token.toLowerCase()] * price);
+  const glo = tokensMap[getGloContractAddress(celo).toLowerCase()];
 
   return {
     token: "regenerative.fi",
-    tvl: cusd + glo,
+    tvl: other + glo,
     incentiveTokenTvl: glo,
-    participatingTokenTvl: cusd,
-    dex: "garden",
+    participatingTokenTvl: other,
+    dex,
   };
+};
+
+export const fetchTokenPrices = async () => {
+  const tokens: string[] = [
+    "0x2E6C05f1f7D1f4Eb9A088bf12257f1647682b754", // AxlRegen
+    "0x34fA24Edcf5099c6f7e9a89B557C5d766354598E", // Nature
+    "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A", // G$
+  ];
+  const res = await axios.get<
+    { baseToken: { address: string }; priceUsd: string }[]
+  >(`https://api.dexscreener.com/tokens/v1/celo/${tokens.join(",")}`);
+
+  const prices = res.data.reduce(
+    (acc, cur) => ({
+      ...acc,
+      [cur.baseToken.address.toLowerCase()]: parseFloat(cur.priceUsd),
+    }),
+    {} as Record<string, number>
+  );
+
+  return prices;
+};
+
+export const getTokenPrice = (
+  tokenAddress: string,
+  tokenPrices: Record<string, number>
+) => {
+  return tokenPrices[tokenAddress.toLowerCase()] || 0;
 };
