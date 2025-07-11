@@ -381,20 +381,20 @@ const getDecimals = (tokenAddr: string) => {
 
 export const getRegenerativeFi = async (
   poolAddr: string,
+  tokenAddr: string,
   token: string,
-  dex: DexName = "garden",
   price: number = 1
 ): Promise<PoolRecord> => {
   const tokensMap = await getRefiPoolTokens(poolAddr);
-  const other = twoDecimals(tokensMap[token.toLowerCase()] * price);
+  const other = twoDecimals(tokensMap[tokenAddr.toLowerCase()] * price);
   const glo = tokensMap[getGloContractAddress(celo).toLowerCase()];
 
   return {
-    token: "regenerative.fi",
+    token,
     tvl: other + glo,
     incentiveTokenTvl: glo,
     participatingTokenTvl: other,
-    dex,
+    dex: "garden",
   };
 };
 

@@ -104,12 +104,13 @@ export default async function handler(
 
   const regfi = await getRegenerativeFi(
     "0xf7fee07d4410af146795021f01c54af179494cb500000000000000000000000c",
-    "0x765DE816845861e75A25fCA122bb6898B8B1282a" // CUSD
+    "0x765DE816845861e75A25fCA122bb6898B8B1282a", // CUSD
+    "regenerative.fi"
   );
   const regfi2 = await getRegenerativeFi(
     "0xefe83dde81e4494768e9196d3bf1d68b4fb49fa300020000000000000000000d",
     "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754", // AxlRegen
-    "garden2",
+    "axlREGEN",
     getTokenPrice("0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754", tokenPrices)
   );
 
