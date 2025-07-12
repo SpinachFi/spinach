@@ -2,7 +2,7 @@ import { Payout } from "@prisma/client";
 import { get } from "@vercel/edge-config";
 import axios from "axios";
 import { clsx, type ClassValue } from "clsx";
-import { ethers, parseEther } from "ethers";
+import { ethers, parseEther, parseUnits } from "ethers";
 import { twMerge } from "tailwind-merge";
 import { Chain } from "viem";
 import {
@@ -479,6 +479,16 @@ export const processPayouts = async (
   await postSlack(txt);
 };
 
+const getDecimals = (tokenAddr: string) => {
+  const decMap: Dict = {
+    native: 18, // CELO
+    "0x4f604735c1cf31399c6e711d5962b2b3e0225ad3": 18, // GLO
+    "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754": 6, // AXL
+  };
+
+  return decMap[tokenAddr.toLowerCase()] || 0;
+};
+
 export const transferTo = async (
   details: {
     toAddress: string;
@@ -493,8 +503,15 @@ export const transferTo = async (
   const { toAddress, amount, token } = details;
   const { signer, provider } = config;
 
+  const decimals = getDecimals(token.toLowerCase());
+
+  if (!decimals) {
+    console.error(`Unknown token ${token}`);
+    return null;
+  }
+
   const getTxDetails = () => {
-    const value = parseEther(amount.toFixed(18));
+    const value = parseUnits(amount.toFixed(18), decimals);
     if (token === "native") {
       return {
         to: toAddress,
