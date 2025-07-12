@@ -16,6 +16,14 @@
     {
       "path": "/api/payout/process?slug=usdglo2&reward=CELO",
       "schedule": "10 01 * * *"
+    },
+    {
+      "path": "/api/collect/competition?slug=regen",
+      "schedule": "20 01 * * *"
+    },
+    {
+      "path": "/api/payout/process?slug=regen&reward=REGEN",
+      "schedule": "30 01 * * *"
     }
   ]
 }

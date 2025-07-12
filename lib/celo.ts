@@ -379,20 +379,27 @@ const getDecimals = (tokenAddr: string) => {
   return decMap[tokenAddr.toLowerCase()] || 18;
 };
 
-export const getRegenerativeFi = async (
-  poolAddr: string,
-  tokenAddr: string,
-  token: string,
-  price: number = 1
-): Promise<PoolRecord> => {
+export const getRegenerativeFi = async (config: {
+  poolAddr: string;
+  name: string;
+  participatingToken: { addr: string; price?: number };
+  incentiveToken: { addr: string; price?: number };
+}): Promise<PoolRecord> => {
+  const { poolAddr, name, incentiveToken, participatingToken } = config;
   const tokensMap = await getRefiPoolTokens(poolAddr);
-  const other = twoDecimals(tokensMap[tokenAddr.toLowerCase()] * price);
-  const glo = tokensMap[getGloContractAddress(celo).toLowerCase()];
+
+  const main = twoDecimals(
+    tokensMap[incentiveToken.addr.toLowerCase()] * (incentiveToken.price || 1)
+  );
+  const other = twoDecimals(
+    tokensMap[participatingToken.addr.toLowerCase()] *
+      (participatingToken.price || 1)
+  );
 
   return {
-    token,
-    tvl: other + glo,
-    incentiveTokenTvl: glo,
+    token: name,
+    tvl: twoDecimals(other + main),
+    incentiveTokenTvl: main,
     participatingTokenTvl: other,
     dex: "garden",
   };
@@ -417,6 +424,17 @@ export const fetchTokenPrices = async () => {
   );
 
   return prices;
+};
+
+export const getCeloPrice = async () => {
+  const {
+    data: {
+      result: { ethusd: celoPrice },
+    },
+  } = await axios.get(
+    `https://api.celoscan.io/api?module=stats&action=ethprice&apikey=${process.env.CELOSCAN_API_KEY}`
+  );
+  return parseFloat(celoPrice);
 };
 
 export const getTokenPrice = (
