@@ -89,7 +89,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     header: "Current liquidity",
     cell: ({ row }) => {
       const token = row.original.project.displayToken;
-
+      const incentiveToken = row.original.reward?.name;
       const El = ({
         tvl,
         incentiveTokenTvl,
@@ -104,7 +104,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         <SpiTooltip
           content={
             <p className="text-center">
-              {toNiceDollar(incentiveTokenTvl, 1, "compact")} USDGLO
+              {toNiceDollar(incentiveTokenTvl, 1, "compact")} {incentiveToken}
               {participatingTokenTvl !== null &&
                 ` and ${toNiceDollar(participatingTokenTvl, 1, "compact")} ${token}`}
             </p>
