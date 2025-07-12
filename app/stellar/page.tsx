@@ -1,4 +1,3 @@
-import Apply from "@/components/Apply";
 import { Dashboard } from "@/components/Dashboard";
 import Layout from "@/components/Layout";
 import { getRecords } from "@/lib/dashboard";
@@ -14,7 +13,6 @@ export default async function Home() {
   return (
     <Layout>
       <Dashboard chain="stellar" competitions={[stellar]} date={date} />
-      <Apply />
     </Layout>
   );
 }

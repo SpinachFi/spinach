@@ -26,4 +26,12 @@ export const TALLY = {
   CREATE_COMPETITION: "w7EbWa",
   CASE_STUDIES: "3jEVqR",
   HOW_IT_WORKS: "woxNMe",
+  REGEN: "woNzrV",
+  STELLAR: "wzBbx1",
+};
+
+export const TALLY_MAP: SDict = {
+  usdglo2: "celo-usdglo",
+  regen: "regen",
+  stellar: "stellar",
 };

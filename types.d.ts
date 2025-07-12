@@ -1,4 +1,5 @@
 type Dict = { [token: string]: number };
+type SDict = { [token: string]: string };
 
 type DictTvl = {
   [token: string]: {
@@ -61,6 +62,7 @@ type DashboardProps = {
   competitions: {
     records: ProjectRecord[];
     meta: {
+      slug: string;
       startDate: Date;
       endDate: Date;
       rewards: Dict;
