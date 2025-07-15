@@ -74,11 +74,6 @@ type ResType = {
   ];
 };
 
-const UNISWAP_V3_SUBPGRAPH = `https://gateway.thegraph.com/api/${process.env.THEGRAPH_API_KEY}/subgraphs/id/ESdrTJ3twMwWVoQ1hUE2u7PugEHX3QkenudD6aXCkDQ4`;
-
-export const getCeloUniswapLpTVL = async () =>
-  getUniswapGraphData(UNISWAP_V3_SUBPGRAPH, celo);
-
 export const getUniswapGraphData = async (url: string, chain: Chain) => {
   const client = createClient({
     url,
