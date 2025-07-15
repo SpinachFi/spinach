@@ -163,6 +163,7 @@ type DexType = {
 
 export const getDexData = async (
   chain: ChainName,
+  poolsWhitelist: string[],
   dex: DexName = "uniswap"
 ): Promise<PoolRecord[]> => {
   const glo = getGloContractAddress(celo);
@@ -171,7 +172,11 @@ export const getDexData = async (
   );
 
   return pairs
-    .filter((pair) => pair.dexId === dex)
+    .filter(
+      (pair) =>
+        pair.dexId === dex &&
+        poolsWhitelist.includes(pair.pairAddress.toLowerCase())
+    )
     .map((pair) => {
       const isGloBase = pair.baseToken.symbol === "USDGLO";
       const priceUsd = parseFloat(pair.priceUsd);

@@ -28,7 +28,12 @@ const getUsdglo = async () => {
   const tokenPrices = await fetchTokenPrices();
 
   // Data collection for the competition
-  const dex = await getDexData("celo");
+  const UNISWAP_POOLS = [
+    "0x0dbb0769b00d01d241ba4f7b2891fb5c2a975d51", // G$
+    "0x4eb0685f69f0b87da744e159576556b709a74c09", // NATURE
+    "0xeaaeabc83df22075d87bff0ae62f9496ffc808f3", // Axlregen
+  ];
+  const dex = await getDexData("celo", UNISWAP_POOLS);
   const ubeGoodDollar = await getBlockScoutData(
     "0x3d9e27c04076288ebfdc4815b4f6d81b0ed1b341",
     [getGloContractAddress(celo), "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"]

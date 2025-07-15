@@ -1,5 +1,4 @@
 import { Payout } from "@prisma/client";
-import { get } from "@vercel/edge-config";
 import axios from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { ethers, parseEther, parseUnits } from "ethers";
@@ -244,15 +243,7 @@ export const calcRewards = async (
   pools: PoolRecord[],
   dailyRewards: number
 ) => {
-  const whiteListedProjects: string[] =
-    (await get("whitelistedProjects")) || [];
-  const lowerCaseWhiteList = whiteListedProjects.map((x) => x.toLowerCase());
-
-  const whitelisted = pools.filter(({ token }) =>
-    lowerCaseWhiteList.includes(token.toLowerCase())
-  );
-
-  const enriched = addRewards(whitelisted, dailyRewards);
+  const enriched = addRewards(pools, dailyRewards);
 
   return enriched;
 };
