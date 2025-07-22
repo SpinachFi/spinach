@@ -318,7 +318,7 @@ export const getBlockScoutData = async (
 export const getGarden = async (
   token: string,
   poolAddress: string,
-  dex: DexName = "regenerative"
+  dex: DexName = "garden"
 ): Promise<PoolRecord> => {
   const balance = await getBalance(poolAddress, celo);
 
