@@ -401,7 +401,7 @@ export const getRegenerativeFi = async (config: {
     tvl: twoDecimals(other + main),
     incentiveTokenTvl: main,
     participatingTokenTvl: other,
-    dex: "garden",
+    dex: "regenerative",
   };
 };
 
