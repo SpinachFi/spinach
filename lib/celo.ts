@@ -394,7 +394,7 @@ export const getRegenerativeFi = async (
     tvl: other + glo,
     incentiveTokenTvl: glo,
     participatingTokenTvl: other,
-    dex: "regenerative",
+    dex: "garden",
   };
 };
 
