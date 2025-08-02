@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CHAIN_MAP, DEFAULT_CHAIN } from "@/consts";
+import { CHAIN_MAP, DEFAULT_CHAIN, TALLY_MAP } from "@/consts";
 import {
   firstOfThisMonth,
   toNiceDate,
@@ -42,7 +42,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
-import { celo } from "viem/chains";
+import Apply from "./Apply";
 import { LogoCell } from "./LogoCell";
 import SpiTooltip from "./SpiTooltip";
 import Summary from "./Summary";
@@ -89,7 +89,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
     header: "Current liquidity",
     cell: ({ row }) => {
       const token = row.original.project.displayToken;
-
+      const incentiveToken = row.original.reward?.name;
       const El = ({
         tvl,
         incentiveTokenTvl,
@@ -104,7 +104,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         <SpiTooltip
           content={
             <p className="text-center">
-              {toNiceDollar(incentiveTokenTvl, 1, "compact")} USDGLO
+              {toNiceDollar(incentiveTokenTvl, 1, "compact")} {incentiveToken}
               {participatingTokenTvl !== null &&
                 ` and ${toNiceDollar(participatingTokenTvl, 1, "compact")} ${token}`}
             </p>
@@ -329,7 +329,6 @@ export function Dashboard({ competitions, date, chain }: DashboardProps) {
   );
 
   const { selectedChain, setSelectedChain, setTallyFormId } = useSpiStore();
-  const isCelo = selectedChain === celo.name.toLowerCase();
 
   React.useEffect(() => {
     setColumnFilters([
@@ -372,139 +371,154 @@ export function Dashboard({ competitions, date, chain }: DashboardProps) {
     .getRowModel()
     .flatRows.reduce((acc, cur) => acc + cur.original.tvl, 0);
 
+  const joinLink =
+    TALLY_MAP[selectedCompetiton.meta.slug] &&
+    `/join-competition/${TALLY_MAP[selectedCompetiton.meta.slug]}`;
+
   return (
-    <div className="w-full">
-      <div className="flex">
-        {competitions.map((competition) => (
-          <Button
-            key={competition.meta.token}
-            className={clsx(
-              "flex flex-col h-[96px] cursor-pointer border-1 flex-1 mr-3",
-              competition.meta.token === selectedCompetiton.meta.token
-                ? "border-spi-green"
-                : "shadow-sm"
-            )}
-            variant={"ghost"}
-            onClick={() => setSelectedCompetiton(competition)}
-          >
-            <div className="flex">
-              <span>{competition.meta.token} on&nbsp;</span>
-              <span className="first-letter:uppercase">{chain}</span>
-            </div>
-            <div className="flex justify-between">
-              {chain === "optimism" ? (
-                <CircleDollarSign
-                  style={{ width: 24, height: 24 }}
-                  className="mr-2"
-                />
-              ) : (
+    <>
+      <div className="w-full">
+        <div className="flex">
+          {competitions.map((competition) => (
+            <Button
+              key={competition.meta.token}
+              className={clsx(
+                "flex flex-col h-[96px] cursor-pointer border-1 flex-1 mr-3",
+                competition.meta.token === selectedCompetiton.meta.token
+                  ? "border-spi-green"
+                  : "shadow-sm"
+              )}
+              variant={"ghost"}
+              onClick={() => setSelectedCompetiton(competition)}
+            >
+              <div className="flex">
+                <span>{competition.meta.token} on&nbsp;</span>
+                <span className="first-letter:uppercase">{chain}</span>
+              </div>
+              <div className="flex justify-between">
+                {chain === "optimism" ? (
+                  <CircleDollarSign
+                    style={{ width: 24, height: 24 }}
+                    className="mr-2"
+                  />
+                ) : (
+                  <Image
+                    className="mr-2"
+                    height={24}
+                    width={24}
+                    src={`/${competition.meta.token.toLowerCase()}.svg`}
+                    alt={competition.meta.token}
+                  />
+                )}
                 <Image
-                  className="mr-2"
                   height={24}
                   width={24}
-                  src={`/${competition.meta.token.toLowerCase()}.svg`}
-                  alt={competition.meta.token}
+                  src={`/${chain}.svg`}
+                  alt={chain}
                 />
-              )}
-              <Image height={24} width={24} src={`/${chain}.svg`} alt={chain} />
-            </div>
-          </Button>
-        ))}
-        <Button
-          className="h-[96px] cursor-pointer border-1 border-spi-gray flex-1"
-          variant={"ghost"}
-        >
-          <Link
-            href="/new-competition"
-            className="flex flex-col items-center justify-center w-full h-full"
+              </div>
+            </Button>
+          ))}
+          <Button
+            className="h-[96px] cursor-pointer border-1 border-spi-gray flex-1"
+            variant={"ghost"}
           >
-            <PlusIcon className="size-6 mb-1" />
-            <div className="flex items-center">
-              <Sprout size={24} color="green" />
-              <span>Create Competition</span>
-            </div>
-          </Link>
-        </Button>
-      </div>
-      <Summary
-        rewards={selectedCompetiton.meta.rewards}
-        startDate={selectedCompetiton.meta.startDate}
-        endDate={selectedCompetiton.meta.endDate}
-        liquidity={liquidity}
-        projects={projects}
-      />
-      <div className="rounded-md border mt-2">
-        <div className="ml-2 mt-5 mb-2">
-          <div>
-            <span className="font-semibold mr-2">Projects competing</span>
-
-            <Link href="/join-competition/celo-usdglo">
-              <Button
-                className="text-xs h-[24px] text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 w-[145px] cursor-pointer"
-                hidden={!isCelo}
-                variant={"ghost"}
-              >
-                + join competition
-              </Button>
+            <Link
+              href="/new-competition"
+              className="flex flex-col items-center justify-center w-full h-full"
+            >
+              <PlusIcon className="size-6 mb-1" />
+              <div className="flex items-center">
+                <Sprout size={24} color="green" />
+                <span>Create Competition</span>
+              </div>
             </Link>
-          </div>
-          <span className="text-xs text-spi-green-gradient-2">
-            {selectedCompetiton.meta.description}
-          </span>
+          </Button>
         </div>
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="text-spi-dark-green">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+        <Summary
+          rewards={selectedCompetiton.meta.rewards}
+          startDate={selectedCompetiton.meta.startDate}
+          endDate={selectedCompetiton.meta.endDate}
+          liquidity={liquidity}
+          projects={projects}
+        />
+        <div className="rounded-md border mt-2">
+          <div className="ml-2 mt-5 mb-2">
+            <div>
+              <span className="font-semibold mr-2">Projects competing</span>
+              {joinLink && (
+                <Link href={joinLink}>
+                  <Button
+                    className="text-xs h-[24px] text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 w-[145px] cursor-pointer"
+                    variant={"ghost"}
+                  >
+                    + join competition
+                  </Button>
+                </Link>
+              )}
+            </div>
+            <span className="text-xs text-spi-green-gradient-2">
+              {selectedCompetiton.meta.description}
+            </span>
+          </div>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead
+                        key={header.id}
+                        className="text-spi-dark-green"
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Coming soon.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        <div></div>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    Coming soon.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          <div></div>
+        </div>
+        <span className="float-right text-xs mt-1 text-spi-gray">
+          As of {date.toUTCString()}
+        </span>
       </div>
-      <span className="float-right text-xs mt-1 text-spi-gray">
-        As of {date.toUTCString()}
-      </span>
-    </div>
+      <Apply joinLink={joinLink} />
+    </>
   );
 }

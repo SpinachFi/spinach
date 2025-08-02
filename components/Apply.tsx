@@ -6,8 +6,12 @@ import Link from "next/link";
 import { celo } from "viem/chains";
 import { Button } from "./ui/button";
 
-export default function Apply() {
+export default function Apply({ joinLink }: { joinLink: string }) {
   const { selectedChain } = useSpiStore();
+
+  if (!joinLink) {
+    return null;
+  }
 
   if (selectedChain !== celo.name.toLowerCase()) {
     return null;
@@ -30,7 +34,7 @@ export default function Apply() {
         <br />
         claim your part of the rewards
       </div>
-      <Link href="/join-competition/celo-usdglo">
+      <Link href={joinLink}>
         <Button
           className="mt-3 text-spi-dark-green w-[145px] cursor-pointer"
           variant={"outline"}

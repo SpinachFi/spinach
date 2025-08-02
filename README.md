@@ -27,7 +27,7 @@ Each job can be repeated from Vercel console. However first each failed payout h
 # Run cron job locally
 
 ```
-    curl -H "Authorization: Bearer 1234567890" http://localhost:3000/api/collect/optimism | json_pp
+    curl -H "Authorization: Bearer 1234567890" "http://localhost:3000/api/collect/competition?slug=usdglo2" | json_pp
 ```
 
 # Adding new competition / projects

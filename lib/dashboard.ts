@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 export const getRecords = async (slug: string, date: Date) => {
   const competition = await prisma.competition.findUniqueOrThrow({
     select: {
+      slug: true,
       startDate: true,
       endDate: true,
       description: true,
@@ -54,6 +55,7 @@ export const getRecords = async (slug: string, date: Date) => {
 
   return {
     meta: {
+      slug: competition.slug,
       startDate: competition.startDate,
       endDate: competition.endDate,
       description: competition.description,

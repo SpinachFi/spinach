@@ -1,3 +1,4 @@
+import { getPayoutsWallet } from "@/lib/mappings/payouts";
 import {
   createPayouts,
   findPayouts,
@@ -34,7 +35,7 @@ export default async function handler(
 
   try {
     const payouts = await createOrFetchPayouts(slug, rewardName);
-    await processPayouts(payouts, reward.chainId, "USDGLO");
+    await processPayouts(payouts, reward.chainId, getPayoutsWallet(slug));
   } catch (error) {
     if (error instanceof BusinessLogicError) {
       return res.status(200).json({ message: error.message });
