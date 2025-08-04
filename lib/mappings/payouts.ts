@@ -1,7 +1,7 @@
 export const getPayoutsWallet = (slug: string) => {
   const dataMap: { [key: string]: string } = {
-    usdglo2: "USDGLO",
-    regen: "REGEN",
+    usdglo3: "USDGLO",
+    regen2: "REGEN",
   };
 
   return dataMap[slug];
