@@ -18,7 +18,9 @@ export const getPoolDataFunc = (slug: string) => {
   const dataMap: { [key: string]: () => Promise<PoolRecord[]> } = {
     usdglo: getUsdglo,
     usdglo2: getUsdglo,
+    usdglo3: getUsdglo,
     regen: getRegen,
+    regen2: getRegen,
   };
 
   return dataMap[slug];
