@@ -129,6 +129,17 @@ const getRegen = async () => {
     },
   });
 
-  const aggregated: PoolRecord[] = [regfi];
+  const ubeswapFarm = await getUbeswap("0x1e283e3cb1ffcbD92551867CFED10B712F52878c");
+
+  const gloDollarPools = await getDexData("celo", [
+    "0x23490b2a472a4c78c30ef02256846fa1cd7d0fbd",
+  ]);
+
+  const aggregated: PoolRecord[] = [
+    regfi,
+    ubeswapFarm,
+    ...gloDollarPools,
+  ];
+
   return aggregated;
 };

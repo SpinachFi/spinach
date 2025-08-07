@@ -33,9 +33,12 @@ export const getRefi = async (): Promise<PoolRecord> => {
   };
 };
 
-export const getUbeswap = async (): Promise<PoolRecord> => {
+export const getUbeswap = async (farmAddress?: string): Promise<PoolRecord> => {
+  const defaultFarm = "0x82774b5b1443759f20679a61497abf11115a4d0e2076caedf9d700a8c53f286f";
+  const farmAddr = farmAddress || defaultFarm;
+  
   const { data: ipfsData } = await axios.get(
-    "https://api.ubeswap.org/api/ubeswap/farmv3/0x82774b5b1443759f20679a61497abf11115a4d0e2076caedf9d700a8c53f286f/ipfs-url"
+    `https://api.ubeswap.org/api/ubeswap/farmv3/${farmAddr}/ipfs-url`
   );
 
   const result = await axios.get(`${ipfsData.ipfsUrl}/metadata.json`);
