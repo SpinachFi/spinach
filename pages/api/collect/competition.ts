@@ -65,7 +65,16 @@ export default async function handler(
     });
   }
 
-  const pools = await getPoolData();
+  const rawPools = await getPoolData();
+  
+  const pools = rawPools.map(pool => ({
+    ...pool,
+    chainId: 42220,
+    tvl: isNaN(pool.tvl) ? 0 : pool.tvl,
+    incentiveTokenTvl: isNaN(pool.incentiveTokenTvl || 0) ? 0 : (pool.incentiveTokenTvl || 0),
+    participatingTokenTvl: isNaN(pool.participatingTokenTvl || 0) ? 0 : (pool.participatingTokenTvl || 0)
+  }));
+
 
   for (const reward of competition.rewards) {
     const result = await calcRewards(pools, reward.value);
