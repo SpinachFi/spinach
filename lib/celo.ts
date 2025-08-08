@@ -34,17 +34,40 @@ export const getRefi = async (): Promise<PoolRecord> => {
 };
 
 export const getUbeswap = async (farmAddress?: string): Promise<PoolRecord> => {
-  const defaultFarm = "0x82774b5b1443759f20679a61497abf11115a4d0e2076caedf9d700a8c53f286f";
+  const defaultFarm =
+    "0x82774b5b1443759f20679a61497abf11115a4d0e2076caedf9d700a8c53f286f";
   const farmAddr = farmAddress || defaultFarm;
-  
-  const { data: ipfsData } = await axios.get(
-    `https://api.ubeswap.org/api/ubeswap/farmv3/${farmAddr}/ipfs-url`
-  );
 
-  const result = await axios.get(`${ipfsData.ipfsUrl}/metadata.json`);
+  let result;
+
+  if (farmAddr.length === 66) {
+    // Use IPFS endpoint for 32-byte incentive IDs
+    const { data: ipfsData } = await axios.get(
+      `https://api.ubeswap.org/api/ubeswap/farmv3/${farmAddr}/ipfs-url`
+    );
+    result = await axios.get(`${ipfsData.ipfsUrl}/metadata.json`);
+  } else {
+    // Use direct endpoint for 20-byte farm addresses
+    result = await axios.get(
+      `https://api.ubeswap.org/api/ubeswap/farmv3/${farmAddr}`
+    );
+  }
   const incentiveTokenTvl = BigInt(result.data.activeAmount0);
-  const participatingTokenTvl =
-    BigInt(result.data.activeAmount1) * BigInt(10 ** 12); // USDC to ERC20
+
+  // Handle different token pairs with different decimals
+  let participatingTokenTvl;
+  if (
+    farmAddr ===
+    "0x9fde166e7857f8b802dcd5da79a1362730c1d9c80771ba6000082f5d6aa6de42"
+  ) {
+    // axlREGEN/CELO farm - CELO has 18 decimals, no conversion needed
+    participatingTokenTvl = BigInt(result.data.activeAmount1);
+  } else {
+    // USDC has 6 decimals, convert to 18
+    participatingTokenTvl =
+      BigInt(result.data.activeAmount1) * BigInt(10 ** 12);
+  }
+
   const total = incentiveTokenTvl + participatingTokenTvl;
 
   const format = (value: bigint) =>

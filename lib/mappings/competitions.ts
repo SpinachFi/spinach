@@ -129,15 +129,22 @@ const getRegen = async () => {
     },
   });
 
-  const ubeswapFarm = await getUbeswap("0x1e283e3cb1ffcbD92551867CFED10B712F52878c");
+  const ubeswapFarm = await getUbeswap(
+    "0x1e283e3cb1ffcbD92551867CFED10B712F52878c"
+  );
 
-  const gloDollarPools = await getDexData("celo", [
+  const gloDollarPoolsRaw = await getDexData("celo", [
     "0x23490b2a472a4c78c30ef02256846fa1cd7d0fbd",
   ]);
+  
+  const gloDollarPools = gloDollarPoolsRaw.map(pool => ({
+    ...pool,
+    token: "USDGLO" // Override token name to USDGLO instead of axlREGEN
+  }));
 
   const aggregated: PoolRecord[] = [
     regfi,
-    ubeswapFarm,
+    { ...ubeswapFarm, token: "ube-regen" }, // Override to match database
     ...gloDollarPools,
   ];
 
