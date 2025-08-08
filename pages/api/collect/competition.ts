@@ -65,16 +65,27 @@ export default async function handler(
     });
   }
 
-  const rawPools = await getPoolData();
-  
-  const pools = rawPools.map(pool => ({
-    ...pool,
-    chainId: 42220,
-    tvl: isNaN(pool.tvl) ? 0 : pool.tvl,
-    incentiveTokenTvl: isNaN(pool.incentiveTokenTvl || 0) ? 0 : (pool.incentiveTokenTvl || 0),
-    participatingTokenTvl: isNaN(pool.participatingTokenTvl || 0) ? 0 : (pool.participatingTokenTvl || 0)
-  }));
+  let rawPools;
+  try {
+    rawPools = await getPoolData();
+  } catch (error) {
+    console.error(`Data collection failed for ${slug}:`, error);
+    return res.status(500).json({
+      message: `Data collection failed for competition '${slug}': ${String(error)}`,
+    });
+  }
 
+  const pools = rawPools.map((pool) => ({
+    ...pool,
+    chainId: celo.id,
+    tvl: isNaN(pool.tvl) ? 0 : pool.tvl,
+    incentiveTokenTvl: isNaN(pool.incentiveTokenTvl || 0)
+      ? 0
+      : pool.incentiveTokenTvl || 0,
+    participatingTokenTvl: isNaN(pool.participatingTokenTvl || 0)
+      ? 0
+      : pool.participatingTokenTvl || 0,
+  }));
 
   for (const reward of competition.rewards) {
     const result = await calcRewards(pools, reward.value);
