@@ -130,7 +130,7 @@ const getRegen = async () => {
   });
 
   const ubeswapFarm = await getUbeswap(
-    "0x1e283e3cb1ffcbD92551867CFED10B712F52878c"
+    "0x9fde166e7857f8b802dcd5da79a1362730c1d9c80771ba6000082f5d6aa6de42"
   );
 
   const gloDollarPoolsRaw = await getDexData("celo", [
