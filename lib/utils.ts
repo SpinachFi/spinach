@@ -431,10 +431,14 @@ export const processPayouts = async (
       },
     });
 
+    const decimals = getDecimals(payout.tokenAddress);
+    const roundingFactor = Math.pow(10, decimals);
+    const roundedAmount = Math.round(payout.value * roundingFactor) / roundingFactor;
+
     const hash = await transferTo(
       {
         toAddress: payout.payoutAddress,
-        amount: payout.value,
+        amount: roundedAmount,
         token: payout.tokenAddress,
       },
       {
