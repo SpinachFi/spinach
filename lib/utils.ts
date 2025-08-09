@@ -505,7 +505,7 @@ export const transferTo = async (
   }
 
   const getTxDetails = () => {
-    const value = parseUnits(amount.toFixed(18), decimals);
+    const value = parseUnits(amount.toFixed(decimals), decimals);
     if (token === "native") {
       return {
         to: toAddress,
