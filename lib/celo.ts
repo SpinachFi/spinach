@@ -292,7 +292,7 @@ type BlockScoutData = {
   items: {
     value: string;
     token: {
-      address: string;
+      address_hash: string;
       name: string;
       symbol: string;
       exchange_rate: string;
@@ -308,10 +308,10 @@ export const getBlockScoutData = async (
   );
 
   const incentiveToken = res.data.items.find(
-    (x) => x.token.address.toLowerCase() === addresses[0].toLowerCase()
+    (x) => x.token?.address_hash?.toLowerCase() === addresses[0].toLowerCase()
   );
   const participatingToken = res.data.items.find(
-    (x) => x.token.address.toLowerCase() === addresses[1].toLowerCase()
+    (x) => x.token?.address_hash?.toLowerCase() === addresses[1].toLowerCase()
   );
 
   if (!incentiveToken || !participatingToken) {
@@ -442,10 +442,15 @@ export const fetchTokenPrices = async () => {
   >(`https://api.dexscreener.com/tokens/v1/celo/${tokens.join(",")}`);
 
   const prices = res.data.reduce(
-    (acc, cur) => ({
-      ...acc,
-      [cur.baseToken.address.toLowerCase()]: parseFloat(cur.priceUsd),
-    }),
+    (acc, cur) => {
+      if (cur.baseToken?.address) {
+        return {
+          ...acc,
+          [cur.baseToken.address.toLowerCase()]: parseFloat(cur.priceUsd),
+        };
+      }
+      return acc;
+    },
     {} as Record<string, number>
   );
 
