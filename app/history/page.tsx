@@ -4,13 +4,29 @@ import { getRecords } from "@/lib/dashboard";
 import { getMidnightOn } from "@/lib/utils";
 
 export default async function Home() {
-  const date = getMidnightOn(2025, 6, 1);
+  const juneDate = getMidnightOn(2025, 5, 30);
+  const julyDate = getMidnightOn(2025, 6, 31);
 
-  const usdglo = await getRecords("usdglo", date);
+  const juneUsdglo = await getRecords("usdglo", juneDate);
+  const julyUsdglo = await getRecords("usdglo2", julyDate);
+  const julyRegen = await getRecords("regen", julyDate);
 
   return (
     <Layout>
-      <Dashboard chain="celo" competitions={[usdglo]} date={date} />
+      <div className="mb-4">
+        <h1 className="text-3xl font-bold text-center text-spi-dark-green mb-2">
+          Completed Competitions
+        </h1>
+        <p className="text-center text-spi-gray text-sm">
+          Historical performance data from past liquidity incentive competitions
+        </p>
+      </div>
+      <Dashboard
+        chain="celo"
+        competitions={[juneUsdglo, julyUsdglo, julyRegen]}
+        date={juneDate}
+        hideCreateCompetition={true}
+      />
     </Layout>
   );
 }

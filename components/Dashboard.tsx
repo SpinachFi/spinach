@@ -301,7 +301,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
   },
 ];
 
-export function Dashboard({ competitions, date, chain }: DashboardProps) {
+export function Dashboard({ competitions, date, chain, hideCreateCompetition = false }: DashboardProps & { hideCreateCompetition?: boolean }) {
   const pathname = usePathname();
 
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -319,14 +319,7 @@ export function Dashboard({ competitions, date, chain }: DashboardProps) {
     });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
-  const [selectedCompetiton, setSelectedCompetiton] = React.useState(
-    pathname === "/"
-      ? competitions[0]
-      : competitions.find(
-          (competition) =>
-            competition.meta.token.toLowerCase() === pathname?.split("/")[1]
-        ) || competitions[0]
-  );
+  const [selectedCompetiton, setSelectedCompetiton] = React.useState(competitions[0]);
 
   const { selectedChain, setSelectedChain, setTallyFormId } = useSpiStore();
 
@@ -379,21 +372,34 @@ export function Dashboard({ competitions, date, chain }: DashboardProps) {
     <>
       <div className="w-full">
         <div className="flex">
-          {competitions.map((competition) => (
+          {competitions.map((competition, index) => (
             <Button
-              key={competition.meta.token}
+              key={`${competition.meta.token}-${competition.meta.startDate}-${index}`}
               className={clsx(
                 "flex flex-col h-[96px] cursor-pointer border-1 flex-1 mr-3",
-                competition.meta.token === selectedCompetiton.meta.token
+                competition === selectedCompetiton
                   ? "border-spi-green"
                   : "shadow-sm"
               )}
               variant={"ghost"}
               onClick={() => setSelectedCompetiton(competition)}
             >
-              <div className="flex">
-                <span>{competition.meta.token} on&nbsp;</span>
-                <span className="first-letter:uppercase">{chain}</span>
+              <div className="flex flex-col">
+                <div className="flex">
+                  <span>{competition.meta.token} on&nbsp;</span>
+                  <span className="first-letter:uppercase">{chain}</span>
+                </div>
+                {pathname === '/history' && (
+                  <div className="text-xs text-spi-gray mt-1">
+                    {competition.meta.slug === 'usdglo' && 'June 2025'}
+                    {competition.meta.slug === 'usdglo2' && 'July 2025'}
+                    {competition.meta.slug === 'usdglo3' && 'August 2025'}
+                    {competition.meta.slug === 'regen' && 'July 2025'}
+                    {competition.meta.slug === 'regen2' && 'August 2025'}
+                    {!['usdglo', 'usdglo2', 'usdglo3', 'regen', 'regen2'].includes(competition.meta.slug) && 
+                     new Date(competition.meta.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                  </div>
+                )}
               </div>
               <div className="flex justify-between">
                 {chain === "optimism" ? (
@@ -419,21 +425,23 @@ export function Dashboard({ competitions, date, chain }: DashboardProps) {
               </div>
             </Button>
           ))}
-          <Button
-            className="h-[96px] cursor-pointer border-1 border-spi-gray flex-1"
-            variant={"ghost"}
-          >
-            <Link
-              href="/new-competition"
-              className="flex flex-col items-center justify-center w-full h-full"
+          {!hideCreateCompetition && (
+            <Button
+              className="h-[96px] cursor-pointer border-1 border-spi-gray flex-1"
+              variant={"ghost"}
             >
-              <PlusIcon className="size-6 mb-1" />
-              <div className="flex items-center">
-                <Sprout size={24} color="green" />
-                <span>Create Competition</span>
-              </div>
-            </Link>
-          </Button>
+              <Link
+                href="/new-competition"
+                className="flex flex-col items-center justify-center w-full h-full"
+              >
+                <PlusIcon className="size-6 mb-1" />
+                <div className="flex items-center">
+                  <Sprout size={24} color="green" />
+                  <span>Create Competition</span>
+                </div>
+              </Link>
+            </Button>
+          )}
         </div>
         <Summary
           rewards={selectedCompetiton.meta.rewards}
@@ -514,9 +522,11 @@ export function Dashboard({ competitions, date, chain }: DashboardProps) {
           </Table>
           <div></div>
         </div>
-        <span className="float-right text-xs mt-1 text-spi-gray">
-          As of {date.toUTCString()}
-        </span>
+        {pathname !== '/history' && (
+          <span className="float-right text-xs mt-1 text-spi-gray">
+            As of {date.toUTCString()}
+          </span>
+        )}
       </div>
       <Apply joinLink={joinLink} />
     </>
