@@ -474,3 +474,57 @@ export const getTokenPrice = (
 ) => {
   return tokenPrices[tokenAddress.toLowerCase()] || 0;
 };
+
+type BitSaveTransaction = {
+  amount: number;
+  transaction_type: "deposit" | "withdrawal";
+  currency: string;
+  created_at: string;
+};
+
+export const getBitSave = async (): Promise<PoolRecord> => {
+  const MAX_VALID_TX_AMOUNT = 1_000_000; // filter out wrong api values
+
+  try {
+    const { data } = await axios.get<BitSaveTransaction[]>(
+      "https://bitsaveapi.vercel.app/transactions/currency/usdglo"
+    );
+
+    const { deposits, withdrawals } = data.reduce(
+      (acc, tx) => {
+        if (tx.currency.toUpperCase() !== "USDGLO") return acc;
+        if (tx.amount > MAX_VALID_TX_AMOUNT) return acc; // skip large tx
+
+        if (tx.transaction_type === "deposit") acc.deposits += tx.amount;
+        if (tx.transaction_type === "withdrawal") acc.withdrawals += tx.amount;
+
+        return acc;
+      },
+      { deposits: 0, withdrawals: 0 }
+    );
+
+    const netTvl = Math.max(0, deposits - withdrawals);
+    const formattedNetTvl = twoDecimals(netTvl);
+
+    return {
+      token: "USDGLO",
+      tvl: formattedNetTvl,
+      incentiveTokenTvl: formattedNetTvl,
+      participatingTokenTvl: 0,
+      dex: "bitsave",
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Error fetching BitSave USDGLO data:", error.message);
+    } else {
+      console.error("Error fetching BitSave USDGLO data:", String(error));
+    }
+    return {
+      token: "USDGLO",
+      tvl: 0,
+      incentiveTokenTvl: 0,
+      participatingTokenTvl: 0,
+      dex: "bitsave",
+    };
+  }
+};

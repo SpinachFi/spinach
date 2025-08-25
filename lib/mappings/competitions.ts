@@ -2,6 +2,7 @@
 
 import {
   fetchTokenPrices,
+  getBitSave,
   getBlockScoutData,
   getCeloPrice,
   getDexData,
@@ -90,6 +91,8 @@ const getUsdglo = async () => {
     incentiveToken: { addr: getGloContractAddress(celo) },
   });
 
+  const bitsave = await getBitSave();
+
   const aggregated: PoolRecord[] = [
     ...dex,
     ...ubeGoodDollar,
@@ -102,6 +105,7 @@ const getUsdglo = async () => {
     regfi2,
     refidao,
     refidao2,
+    bitsave,
   ];
 
   return aggregated;

@@ -28,7 +28,7 @@ type PoolRewardRecord = PoolRecord & {
 };
 
 type ChainName = "celo" | "optimism" | "stellar";
-type DexName = "uniswap" | "ubeswap" | "garden" | CustomGarden;
+type DexName = "uniswap" | "ubeswap" | "garden" | "bitsave" | CustomGarden;
 type CustomGarden = "Network Initiatives" | "Node Kickstarter";
 
 type ProjectRecord = {
