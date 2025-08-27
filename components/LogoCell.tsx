@@ -17,7 +17,7 @@ export function LogoCell({
           src={`/favicons/${logo}`}
           height={20}
           width={20}
-          className="mr-1"
+          className="mr-1 object-contain max-h-5 max-w-5"
           alt={name}
         />
       ) : (

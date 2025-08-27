@@ -133,6 +133,23 @@ const getRegen = async () => {
     },
   });
 
+  const refidaoRegen = await getRegenerativeFi({
+    poolAddr:
+      "0x797960d015328961fa8e1a3303acf71bcf4b54c8000200000000000000000009",
+
+    name: "ReFiDAO",
+    participatingToken: {
+      addr: "0xcebA9300f2b948710d2653dD7B07f33A8B32118C", // USDC
+    },
+    incentiveToken: {
+      addr: "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754", // AxlRegen
+      price: getTokenPrice(
+        "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754",
+        tokenPrices
+      ),
+    },
+  });
+
   const ubeswapFarm = await getUbeswap(
     "0x9fde166e7857f8b802dcd5da79a1362730c1d9c80771ba6000082f5d6aa6de42"
   );
@@ -140,14 +157,15 @@ const getRegen = async () => {
   const gloDollarPoolsRaw = await getDexData("celo", [
     "0x23490b2a472a4c78c30ef02256846fa1cd7d0fbd",
   ]);
-  
-  const gloDollarPools = gloDollarPoolsRaw.map(pool => ({
+
+  const gloDollarPools = gloDollarPoolsRaw.map((pool) => ({
     ...pool,
-    token: "USDGLO" // Override token name to USDGLO instead of axlREGEN
+    token: "USDGLO", // Override token name to USDGLO instead of axlREGEN
   }));
 
   const aggregated: PoolRecord[] = [
     regfi,
+    refidaoRegen,
     { ...ubeswapFarm, token: "ube-regen" }, // Override to match database
     ...gloDollarPools,
   ];
