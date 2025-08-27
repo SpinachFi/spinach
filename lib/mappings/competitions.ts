@@ -67,6 +67,10 @@ const getUsdglo = async () => {
     "0xcb857f1f2e36e0ee393125efa39802ece6363f80",
     "Node Kickstarter"
   );
+  const cmcsg = await getGarden(
+    "CMCSG",
+    "0xa6a408914dc6e1ac9a8db8ce472923374b1b6beb"
+  );
 
   const regfi = await getRegenerativeFi({
     poolAddr:
@@ -105,6 +109,7 @@ const getUsdglo = async () => {
     regfi2,
     refidao,
     refidao2,
+    cmcsg,
     bitsave,
   ];
 
