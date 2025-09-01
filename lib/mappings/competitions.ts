@@ -20,8 +20,10 @@ export const getPoolDataFunc = (slug: string) => {
     usdglo: getUsdglo,
     usdglo2: getUsdglo,
     usdglo3: getUsdglo,
+    usdglo4: getUsdglo,
     regen: getRegen,
     regen2: getRegen,
+    regen3: getRegen,
   };
 
   return dataMap[slug];

@@ -8,8 +8,8 @@ export const revalidate = 300; // invalidate every 5m
 export default async function Home() {
   const date = getTodayMidnight();
 
-  const usdglo = await getRecords("usdglo3", date);
-  const regen = await getRecords("regen2", date);
+  const usdglo = await getRecords("usdglo4", date);
+  const regen = await getRecords("regen3", date);
 
   return (
     <Layout>

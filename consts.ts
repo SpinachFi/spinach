@@ -31,7 +31,7 @@ export const TALLY = {
 };
 
 export const TALLY_MAP: SDict = {
-  usdglo3: "celo-usdglo",
-  regen2: "regen",
+  usdglo4: "celo-usdglo",
+  regen3: "regen",
   stellar: "stellar",
 };
