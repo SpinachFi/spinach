@@ -10,10 +10,15 @@ export default async function Home() {
 
   const usdglo = await getRecords("usdglo4", date);
   const regen = await getRecords("regen3", date);
+  const gooddollar = await getRecords("gooddollar", date);
 
   return (
     <Layout>
-      <Dashboard chain="celo" competitions={[usdglo, regen]} date={date} />
+      <Dashboard
+        chain="celo"
+        competitions={[usdglo, regen, gooddollar]}
+        date={date}
+      />
     </Layout>
   );
 }

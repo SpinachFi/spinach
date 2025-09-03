@@ -24,6 +24,7 @@ export const getPoolDataFunc = (slug: string) => {
     regen: getRegen,
     regen2: getRegen,
     regen3: getRegen,
+    gooddollar: getGoodDollar,
   };
 
   return dataMap[slug];
@@ -178,4 +179,9 @@ const getRegen = async () => {
   ];
 
   return aggregated;
+};
+
+const getGoodDollar = async () => {
+  // coming soon - no projects yet
+  return [];
 };
