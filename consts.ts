@@ -28,10 +28,12 @@ export const TALLY = {
   HOW_IT_WORKS: "woxNMe",
   REGEN: "woNzrV",
   STELLAR: "wzBbx1",
+  GOODDOLLAR: "mVKWlj",
 };
 
 export const TALLY_MAP: SDict = {
   usdglo4: "celo-usdglo",
   regen3: "regen",
   stellar: "stellar",
+  gooddollar: "gooddollar",
 };
