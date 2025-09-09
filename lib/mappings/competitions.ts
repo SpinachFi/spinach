@@ -84,6 +84,15 @@ const getUsdglo = async () => {
     },
     incentiveToken: { addr: getGloContractAddress(celo) },
   });
+  const regfi3 = await getRegenerativeFi({
+    poolAddr:
+      "0xabe482b6e7e1a8dc87b81eea4d9de8f183bc785a000200000000000000000011",
+    name: "USDT",
+    participatingToken: {
+      addr: "0x48065fbBE25f71C9282ddf5e1cD6D6A887483D5e", // USDT
+    },
+    incentiveToken: { addr: getGloContractAddress(celo) },
+  });
   const regfi2 = await getRegenerativeFi({
     poolAddr:
       "0xefe83dde81e4494768e9196d3bf1d68b4fb49fa300020000000000000000000d",
@@ -110,6 +119,7 @@ const getUsdglo = async () => {
     web3i,
     regfi,
     regfi2,
+    regfi3,
     refidao,
     refidao2,
     cmcsg,
