@@ -181,11 +181,44 @@ const getRegen = async () => {
     token: "USDGLO", // Override token name to USDGLO instead of axlREGEN
   }));
 
+  const regendao2 = await getRegenerativeFi({
+    poolAddr:
+      "0x875cb46406226d17ba85a2686737ea5359726132000200000000000000000012",
+    name: "Regen DAO WETH",
+    participatingToken: {
+      addr: "0xD221812de1BD094f35587EE8E174B07B6167D9Af", // WETH
+    },
+    incentiveToken: {
+      addr: "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754", // AxlRegen
+      price: getTokenPrice(
+        "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754",
+        tokenPrices
+      ),
+    },
+  });
+  const regendao3 = await getRegenerativeFi({
+    poolAddr:
+      "0xefe83dde81e4494768e9196d3bf1d68b4fb49fa300020000000000000000000d",
+    name: "Regen DAO USDGLO",
+    participatingToken: {
+      addr: "0x4F604735c1cF31399C6E711D5962b2B3E0225AD3", // USDGLO
+    },
+    incentiveToken: {
+      addr: "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754", // AxlRegen
+      price: getTokenPrice(
+        "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754",
+        tokenPrices
+      ),
+    },
+  });
+
   const aggregated: PoolRecord[] = [
     regfi,
     refidaoRegen,
     { ...ubeswapFarm, token: "ube-regen" }, // Override to match database
     ...gloDollarPools,
+    regendao2,
+    regendao3,
   ];
 
   return aggregated;
