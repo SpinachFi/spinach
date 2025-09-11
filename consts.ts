@@ -1,9 +1,10 @@
-import { celo, Chain, optimism } from "viem/chains";
+import { arbitrum, celo, Chain, optimism } from "viem/chains";
 
 export const CHAIN_MAP: { [name in ChainName]: Chain } = {
   celo: celo,
   optimism: optimism,
   stellar: {} as Chain,
+  arbitrum: arbitrum,
 };
 
 export const getChainNameById = (chainId: number): ChainName => {
@@ -29,6 +30,7 @@ export const TALLY = {
   REGEN: "woNzrV",
   STELLAR: "wzBbx1",
   GOODDOLLAR: "mVKWlj",
+  ARBITRUM: "nGMoAZ",
 };
 
 export const TALLY_MAP: SDict = {
@@ -36,4 +38,5 @@ export const TALLY_MAP: SDict = {
   regen3: "regen",
   stellar: "stellar",
   gooddollar: "gooddollar",
+  arbitrum: "arbitrum",
 };
