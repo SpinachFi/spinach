@@ -20,6 +20,14 @@
     {
       "path": "/api/payout/process?slug=regen3&reward=REGEN",
       "schedule": "20 01 * * *"
+    },
+    {
+      "path": "/api/collect/competition?slug=gooddollar",
+      "schedule": "30 01 * * *"
+    },
+    {
+      "path": "/api/payout/process?slug=gooddollar&reward=G$",
+      "schedule": "40 01 * * *"
     }
   ]
 }
