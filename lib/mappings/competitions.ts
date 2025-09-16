@@ -225,6 +225,12 @@ const getRegen = async () => {
 };
 
 const getGoodDollar = async () => {
-  // coming soon - no projects yet
-  return [];
+  const goodDollarPool = await getBlockScoutData(
+    "0x3d9e27c04076288ebfdc4815b4f6d81b0ed1b341",
+    [getGloContractAddress(celo), "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"]
+  );
+
+  const aggregated: PoolRecord[] = [...goodDollarPool];
+
+  return aggregated;
 };
