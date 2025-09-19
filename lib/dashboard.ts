@@ -68,7 +68,7 @@ export const getRecords = async (slug: string, date: Date) => {
       },
       records: groupAndSum(records),
     };
-  } catch (error) {
+  } catch {
     
     return {
       meta: {
