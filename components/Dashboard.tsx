@@ -15,6 +15,7 @@ import {
   toNiceDollar,
   toNiceToken,
 } from "@/lib/utils";
+import { calculateTVL } from "@/lib/competition-stats";
 import { useSpiStore } from "@/store";
 import {
   ChevronDownIcon,
@@ -360,9 +361,7 @@ export function Dashboard({ competitions, date, chain, hideCreateCompetition = f
   });
 
   const projects = table.getRowCount();
-  const liquidity = table
-    .getRowModel()
-    .flatRows.reduce((acc, cur) => acc + cur.original.tvl, 0);
+  const liquidity = calculateTVL(table.getRowModel().flatRows.map(row => row.original));
 
   const joinLink =
     TALLY_MAP[selectedCompetiton.meta.slug] &&

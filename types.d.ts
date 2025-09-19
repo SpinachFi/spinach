@@ -95,3 +95,22 @@ type PayoutRecord = {
   dex: string;
   token?: string;
 };
+
+interface ChainDisplayData {
+  name: string;
+  icon: string;
+  color: string;
+  textColor: string;
+  href: string;
+  isActive: boolean;
+  activeCompetitions: number;
+  totalTVL: number;
+  totalProjects: number;
+  description: string;
+  competitions: Array<{
+    name: string;
+    slug: string;
+    projectCount: number;
+    tvl: number;
+  }>;
+}
