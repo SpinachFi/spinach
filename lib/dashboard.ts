@@ -1,7 +1,8 @@
 import prisma from "@/lib/prisma";
 
 export const getRecords = async (slug: string, date: Date) => {
-  const competition = await prisma.competition.findUniqueOrThrow({
+  try {
+    const competition = await prisma.competition.findUniqueOrThrow({
     select: {
       slug: true,
       startDate: true,
@@ -53,20 +54,34 @@ export const getRecords = async (slug: string, date: Date) => {
   });
   const records = competition.rewards.flatMap((reward) => reward.records) || [];
 
-  return {
-    meta: {
-      slug: competition.slug,
-      startDate: competition.startDate,
-      endDate: competition.endDate,
-      description: competition.description,
-      token: competition.rewards[0]?.name || "",
-      rewards: competition.rewards.reduce(
-        (acc, { name, value }) => ({ ...acc, [name]: value }),
-        {} as Dict
-      ),
-    },
-    records: groupAndSum(records),
-  };
+    return {
+      meta: {
+        slug: competition.slug,
+        startDate: competition.startDate,
+        endDate: competition.endDate,
+        description: competition.description,
+        token: competition.rewards[0]?.name || "",
+        rewards: competition.rewards.reduce(
+          (acc, { name, value }) => ({ ...acc, [name]: value }),
+          {} as Dict
+        ),
+      },
+      records: groupAndSum(records),
+    };
+  } catch (error) {
+    
+    return {
+      meta: {
+        token: slug.toUpperCase(),
+        slug,
+        startDate: new Date(0),
+        endDate: new Date(0),
+        description: "",
+        rewards: {},
+      },
+      records: [],
+    };
+  }
 };
 
 const groupAndSum = (records: ProjectRecord[]) => {
