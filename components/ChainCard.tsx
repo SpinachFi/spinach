@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { toNiceDollar } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 interface ChainCardProps {
   chain: ChainDisplayData;
@@ -73,11 +72,11 @@ export default function ChainCard({ chain }: ChainCardProps) {
           )}
         </div>
 
-        <Button variant="outline" className="w-full">
+        <div className="w-full border border-gray-300 bg-white rounded-md px-4 py-2 text-sm font-medium text-center">
           {chain.isActive
             ? `View ${chain.name} Competitions →`
             : `Learn More →`}
-        </Button>
+        </div>
       </div>
     </Link>
   );
