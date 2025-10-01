@@ -21,10 +21,13 @@ export const getPoolDataFunc = (slug: string) => {
     usdglo2: getUsdglo,
     usdglo3: getUsdglo,
     usdglo4: getUsdglo,
+    usdglo5: getUsdglo,
     regen: getRegen,
     regen2: getRegen,
     regen3: getRegen,
+    regen4: getRegen,
     gooddollar: getGoodDollar,
+    gooddollar2: getGoodDollar,
   };
 
   return dataMap[slug];

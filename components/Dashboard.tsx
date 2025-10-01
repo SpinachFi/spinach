@@ -393,9 +393,12 @@ export function Dashboard({ competitions, date, chain, hideCreateCompetition = f
                     {competition.meta.slug === 'usdglo' && 'June 2025'}
                     {competition.meta.slug === 'usdglo2' && 'July 2025'}
                     {competition.meta.slug === 'usdglo3' && 'August 2025'}
+                    {competition.meta.slug === 'usdglo4' && 'September 2025'}
                     {competition.meta.slug === 'regen' && 'July 2025'}
                     {competition.meta.slug === 'regen2' && 'August 2025'}
-                    {!['usdglo', 'usdglo2', 'usdglo3', 'regen', 'regen2'].includes(competition.meta.slug) && 
+                    {competition.meta.slug === 'regen3' && 'September 2025'}
+                    {competition.meta.slug === 'gooddollar' && 'September 2025'}
+                    {!['usdglo', 'usdglo2', 'usdglo3', 'usdglo4', 'regen', 'regen2', 'regen3', 'gooddollar'].includes(competition.meta.slug) &&
                      new Date(competition.meta.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                   </div>
                 )}

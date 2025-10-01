@@ -9,11 +9,11 @@ export const revalidate = 300; // invalidate every 5m
 
 export default async function Home() {
   const date = getTodayMidnight();
-  
+
   const [usdglo, regen, gooddollar, arbitrum, stellar] = await Promise.all([
-    getRecords("usdglo4", date),
-    getRecords("regen3", date),
-    getRecords("gooddollar", date),
+    getRecords("usdglo5", date),
+    getRecords("regen4", date),
+    getRecords("gooddollar2", date),
     getRecords("arbitrum", date),
     getRecords("stellar", date),
   ]);
