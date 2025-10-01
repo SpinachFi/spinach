@@ -8,9 +8,9 @@ export const revalidate = 300; // invalidate every 5m
 export default async function CeloPage() {
   const date = getTodayMidnight();
 
-  const usdglo = await getRecords("usdglo4", date);
-  const regen = await getRecords("regen3", date);
-  const gooddollar = await getRecords("gooddollar", date);
+  const usdglo = await getRecords("usdglo5", date);
+  const regen = await getRecords("regen4", date);
+  const gooddollar = await getRecords("gooddollar2", date);
 
   return (
     <Layout>
