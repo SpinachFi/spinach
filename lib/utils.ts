@@ -18,23 +18,21 @@ export function cn(...inputs: ClassValue[]) {
 export const getBalance = async (
   address: string,
   chain: Chain,
-  blockTag?: number
+  blockTag?: number,
+  tokenAddress?: string
 ): Promise<bigint> => {
   const provider = new ethers.JsonRpcProvider(getChainRPCUrl(chain));
   const abi = ["function balanceOf(address account) view returns (uint256)"];
-  const usdgloContract = new ethers.Contract(
-    getGloContractAddress(chain),
-    abi,
-    provider
-  );
+  const contractAddress = tokenAddress || getGloContractAddress(chain);
+  const tokenContract = new ethers.Contract(contractAddress, abi, provider);
 
   try {
     if (blockTag !== null) {
-      return await usdgloContract.balanceOf.call(undefined, address, {
+      return await tokenContract.balanceOf.call(undefined, address, {
         blockTag: blockTag,
       });
     }
-    return await usdgloContract.balanceOf(address);
+    return await tokenContract.balanceOf(address);
   } catch (err) {
     console.log(`Could not fetch balance for ${address} at ${chain.id}`);
     console.error(err);

@@ -344,11 +344,16 @@ export const getBlockScoutData = async (
 export const getGarden = async (
   token: string,
   poolAddress: string,
-  dex: DexName = "garden"
+  dex: DexName = "garden",
+  tokenAddress?: string,
+  tokenPrice?: number
 ): Promise<PoolRecord> => {
-  const balance = await getBalance(poolAddress, celo);
+  const balance = await getBalance(poolAddress, celo, undefined, tokenAddress);
+  const balanceInTokens = Number(balance / BigInt(10 ** 18));
+  const tvl = tokenPrice
+    ? twoDecimals(balanceInTokens * tokenPrice)
+    : twoDecimals(balanceInTokens);
 
-  const tvl = twoDecimals(Number(balance / BigInt(10 ** 18)));
   return {
     token: token,
     tvl,
