@@ -7,7 +7,6 @@ import {
   getCeloPrice,
   getDexData,
   getGarden,
-  getGardenGoodDollar,
   getRefi,
   getRegenerativeFi,
   getTokenPrice,
@@ -254,19 +253,25 @@ const getGoodDollar = async () => {
     [getGloContractAddress(celo), "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"]
   );
 
-  const gardenPools86 = await getGardenGoodDollar(
+  const gardenPools86 = await getGarden(
     "GoodDollar86",
-    "0x86888c171c280676b15d63ae443a901640f182c1"
+    "0x86888c171c280676b15d63ae443a901640f182c1",
+    "garden",
+    "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"
   );
 
-  const gardenPools80 = await getGardenGoodDollar(
+  const gardenPools80 = await getGarden(
     "GoodDollar80",
-    "0x3764607a0a721981780b798a02c2b1691d6baa39"
+    "0x3764607a0a721981780b798a02c2b1691d6baa39",
+    "garden",
+    "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"
   );
 
-  const gardenPools59 = await getGardenGoodDollar(
+  const gardenPools59 = await getGarden(
     "GoodDollar59",
-    "0x186660411ef4b1975834f29b5912b64de91252a2"
+    "0x186660411ef4b1975834f29b5912b64de91252a2",
+    "garden",
+    "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"
   );
 
   const aggregated: PoolRecord[] = [

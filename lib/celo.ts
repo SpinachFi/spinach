@@ -344,9 +344,10 @@ export const getBlockScoutData = async (
 export const getGarden = async (
   token: string,
   poolAddress: string,
-  dex: DexName = "garden"
+  dex: DexName = "garden",
+  tokenAddress?: string
 ): Promise<PoolRecord> => {
-  const balance = await getBalance(poolAddress, celo);
+  const balance = await getBalance(poolAddress, celo, undefined, tokenAddress);
 
   const tvl = twoDecimals(Number(balance / BigInt(10 ** 18)));
   return {
@@ -355,43 +356,6 @@ export const getGarden = async (
     incentiveTokenTvl: tvl,
     participatingTokenTvl: 0,
     dex,
-  };
-};
-
-export const getGardenGoodDollar = async (
-  token: string,
-  poolAddress: string
-): Promise<PoolRecord> => {
-  const res = await axios.get<BlockScoutData>(
-    `https://celo.blockscout.com/api/v2/addresses/${poolAddress}/tokens?type=ERC-20`
-  );
-
-  const gdToken = res.data.items.find(
-    (x) =>
-      x.token?.address_hash?.toLowerCase() ===
-      "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A".toLowerCase()
-  );
-
-  if (!gdToken) {
-    return {
-      token,
-      tvl: 0,
-      incentiveTokenTvl: 0,
-      participatingTokenTvl: 0,
-      dex: "garden",
-    };
-  }
-
-  const format = (value: string, rate: string) =>
-    twoDecimals(Number(BigInt(value) / BigInt(10 ** 18)) * Number(rate));
-  const tvl = format(gdToken.value, gdToken.token.exchange_rate);
-
-  return {
-    token,
-    tvl,
-    incentiveTokenTvl: tvl,
-    participatingTokenTvl: 0,
-    dex: "garden",
   };
 };
 
