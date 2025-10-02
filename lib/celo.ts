@@ -358,6 +358,43 @@ export const getGarden = async (
   };
 };
 
+export const getGardenGoodDollar = async (
+  token: string,
+  poolAddress: string
+): Promise<PoolRecord> => {
+  const res = await axios.get<BlockScoutData>(
+    `https://celo.blockscout.com/api/v2/addresses/${poolAddress}/tokens?type=ERC-20`
+  );
+
+  const gdToken = res.data.items.find(
+    (x) =>
+      x.token?.address_hash?.toLowerCase() ===
+      "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A".toLowerCase()
+  );
+
+  if (!gdToken) {
+    return {
+      token,
+      tvl: 0,
+      incentiveTokenTvl: 0,
+      participatingTokenTvl: 0,
+      dex: "garden",
+    };
+  }
+
+  const format = (value: string, rate: string) =>
+    twoDecimals(Number(BigInt(value) / BigInt(10 ** 18)) * Number(rate));
+  const tvl = format(gdToken.value, gdToken.token.exchange_rate);
+
+  return {
+    token,
+    tvl,
+    incentiveTokenTvl: tvl,
+    participatingTokenTvl: 0,
+    dex: "garden",
+  };
+};
+
 // WeightedPool 50USDGLO-50cUSD
 // 0x13f3adc9683d6f83d592df7ad7178cfd672803ff (getPoolId, getVault)
 // Vault
