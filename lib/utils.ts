@@ -479,6 +479,7 @@ const getDecimals = (tokenAddr: string) => {
     "0x4f604735c1cf31399c6e711d5962b2b3e0225ad3": 18, // GLO
     "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754": 6, // AXL
     "0x62b8b11039fcfe5ab0c56e502b1c372a3d2a9c7a": 18, // G$
+    "0x912ce59144191c1204e64559fe8253a0e49e6548": 18, // ARB
   };
 
   return decMap[tokenAddr.toLowerCase()] || 0;
