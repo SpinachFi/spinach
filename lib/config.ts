@@ -21,6 +21,7 @@ const chainConfig: { [id: number]: `0x${string}` } = {
 
 export const CHAIN_RPC_URLS: { [chainId: number]: string } = {
   [celo.id]: process.env.NEXT_PUBLIC_CELO_RPC_URL!,
+  [arbitrum.id]: process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL!,
 };
 
 export const getChainRPCUrl = (chain: Chain): string => {
