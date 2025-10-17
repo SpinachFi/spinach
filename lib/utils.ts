@@ -591,6 +591,7 @@ export const getCompetitionRewards = async (slug: string) => {
           tokenAddress: true,
           value: true,
           name: true,
+          chainId: true,
         },
       },
     },

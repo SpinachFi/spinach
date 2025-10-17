@@ -75,9 +75,11 @@ export default async function handler(
     });
   }
 
+  const chainId = competition.rewards[0]?.chainId || celo.id;
+
   const pools = rawPools.map((pool) => ({
     ...pool,
-    chainId: celo.id,
+    chainId: chainId,
     tvl: isNaN(pool.tvl) ? 0 : pool.tvl,
     incentiveTokenTvl: isNaN(pool.incentiveTokenTvl || 0)
       ? 0
@@ -89,7 +91,7 @@ export default async function handler(
 
   for (const reward of competition.rewards) {
     const result = await calcRewards(pools, reward.value);
-    await createProjectRecordsRewards(result, celo.id, reward.id);
+    await createProjectRecordsRewards(result, reward.chainId, reward.id);
   }
 
   return res
