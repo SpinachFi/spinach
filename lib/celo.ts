@@ -511,8 +511,8 @@ export const getUniblockPoolData = async (
     const tvlUsd = Number(attrs.reserve_in_usd) || 0;
     if (!tvlUsd) return null;
 
-    const baseUsd = Number(attrs.base_token_reserve_in_usd) || tvlUsd / 2;
-    const quoteUsd = Number(attrs.quote_token_reserve_in_usd) || tvlUsd / 2;
+    const baseUsd = Number(attrs.base_token_reserve_in_usd ?? tvlUsd / 2);
+    const quoteUsd = Number(attrs.quote_token_reserve_in_usd ?? tvlUsd / 2);
 
     const otherToken = isBaseGlo ? quote.symbol : base.symbol;
     if (!otherToken) return null;
