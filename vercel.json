@@ -28,6 +28,14 @@
     {
       "path": "/api/payout/process?slug=gooddollar2&reward=G$",
       "schedule": "40 01 * * *"
+    },
+    {
+      "path": "/api/collect/competition?slug=arbitrum",
+      "schedule": "50 01 * * *"
+    },
+    {
+      "path": "/api/payout/process?slug=arbitrum&reward=ARB",
+      "schedule": "00 02 * * *"
     }
   ]
 }

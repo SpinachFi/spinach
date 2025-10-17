@@ -11,9 +11,10 @@ import {
   getRegenerativeFi,
   getTokenPrice,
   getUbeswap,
+  getUniblockPoolData,
 } from "@/lib/celo";
 import { getGloContractAddress } from "@/lib/config";
-import { celo } from "viem/chains";
+import { arbitrum, celo } from "viem/chains";
 
 export const getPoolDataFunc = (slug: string) => {
   const dataMap: { [key: string]: () => Promise<PoolRecord[]> } = {
@@ -28,6 +29,7 @@ export const getPoolDataFunc = (slug: string) => {
     regen4: getRegen,
     gooddollar: getGoodDollar,
     gooddollar2: getGoodDollar,
+    arbitrum: getArbitrum,
   };
 
   return dataMap[slug];
@@ -291,4 +293,22 @@ const getGoodDollar = async () => {
   ];
 
   return aggregated;
+};
+
+const getArbitrum = async () => {
+  const UNISWAP_POOLS = [
+    "0x20f960d5b11d7b35072a38abff28ab882824c9b8", // USDGLO/USDC
+  ];
+
+  const gloAddress = getGloContractAddress(arbitrum);
+  const results: PoolRecord[] = [];
+
+  for (const poolAddress of UNISWAP_POOLS) {
+    const poolData = await getUniblockPoolData("arbitrum", poolAddress, gloAddress);
+    if (poolData) {
+      results.push(poolData);
+    }
+  }
+
+  return results;
 };

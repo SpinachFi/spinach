@@ -4,6 +4,14 @@ import { cacheExchange, createClient, fetchExchange, gql } from "urql";
 import { celo, Chain } from "viem/chains";
 
 import { getChainRPCUrl, getGloContractAddress } from "./config";
+import {
+  ResType,
+  DexType,
+  OkuPoolData,
+  BlockScoutData,
+  BitSaveTransaction,
+  UniblockPoolResponse,
+} from "./types";
 import { getBalance, twoDecimals } from "./utils";
 
 export const getRefi = async (): Promise<PoolRecord> => {
@@ -82,24 +90,6 @@ export const getUbeswap = async (farmAddress?: string): Promise<PoolRecord> => {
   };
 };
 
-type ResType = {
-  pools: [
-    {
-      id: string;
-      totalValueLockedToken0: string;
-      totalValueLockedToken1: string;
-      token0: {
-        id: string;
-        symbol: string;
-      };
-      token1: {
-        id: string;
-        symbol: string;
-      };
-    },
-  ];
-};
-
 export const getUniswapGraphData = async (url: string, chain: Chain) => {
   const client = createClient({
     url,
@@ -164,29 +154,6 @@ export const getUniswapGraphData = async (url: string, chain: Chain) => {
   return { total, details };
 };
 
-type DexType = {
-  chainId: string;
-  dexId: string;
-  url: string;
-  pairAddress: string;
-  priceUsd: string;
-  baseToken: {
-    address: string;
-    name: string;
-    symbol: string;
-  };
-  quoteToken: {
-    address: string;
-    name: string;
-    symbol: string;
-  };
-  liquidity: {
-    usd: number;
-    base: number;
-    quote: number;
-  };
-};
-
 export const getDexData = async (
   chain: ChainName,
   poolsWhitelist: string[],
@@ -217,14 +184,6 @@ export const getDexData = async (
         dex,
       };
     });
-};
-
-type OkuPoolData = {
-  t0_symbol: string;
-  t1_symbol: string;
-  t0_tvl_usd: number;
-  t1_tvl_usd: number;
-  tvl_usd: number;
 };
 
 export const getOkuTradeData = async (
@@ -288,17 +247,6 @@ export const getOkuTradesData = async (
   return pools.reverse();
 };
 
-type BlockScoutData = {
-  items: {
-    value: string;
-    token: {
-      address_hash: string;
-      name: string;
-      symbol: string;
-      exchange_rate: string;
-    };
-  }[];
-};
 export const getBlockScoutData = async (
   poolId: string,
   addresses: [string, string]
@@ -481,13 +429,6 @@ export const getTokenPrice = (
   return tokenPrices[tokenAddress.toLowerCase()] || 0;
 };
 
-type BitSaveTransaction = {
-  amount: number;
-  transaction_type: "deposit" | "withdrawal";
-  currency: string;
-  created_at: string;
-};
-
 export const getBitSave = async (): Promise<PoolRecord> => {
   const MAX_VALID_TX_AMOUNT = 1_000_000; // filter out wrong api values
 
@@ -532,5 +473,64 @@ export const getBitSave = async (): Promise<PoolRecord> => {
       participatingTokenTvl: 0,
       dex: "bitsave",
     };
+  }
+};
+
+export const getUniblockPoolData = async (
+  chain: string,
+  poolAddress: string,
+  expectedGloAddress?: string
+): Promise<PoolRecord | null> => {
+  const apiKey = process.env.UNIBLOCK_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const { data } = await axios.get<UniblockPoolResponse>(
+      `https://api.uniblock.dev/direct/v1/CoinGecko/onchain/networks/${chain}/pools/${poolAddress}`,
+      {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        params: { include: "base_token,quote_token,dex" },
+      }
+    );
+
+    const attrs = data?.data?.attributes;
+    if (!attrs) return null;
+
+    const included = Object.fromEntries(
+      (data.included ?? [])
+        .filter((i) => i.type && i.id)
+        .map((i) => [`${i.type}:${i.id}`, i.attributes])
+    );
+
+    const getToken = (key: "base_token" | "quote_token") =>
+      included[`token:${data.data?.relationships?.[key]?.data?.id}`];
+
+    const base = getToken("base_token");
+    const quote = getToken("quote_token");
+    if (!base || !quote) return null;
+
+    const isBaseGlo = expectedGloAddress
+      ? base.address?.toLowerCase() === expectedGloAddress.toLowerCase()
+      : base.symbol === "USDGLO";
+
+    const tvlUsd = Number(attrs.reserve_in_usd) || 0;
+    if (!tvlUsd) return null;
+
+    const baseUsd = Number(attrs.base_token_reserve_in_usd ?? tvlUsd / 2);
+    const quoteUsd = Number(attrs.quote_token_reserve_in_usd ?? tvlUsd / 2);
+
+    const otherToken = isBaseGlo ? quote.symbol : base.symbol;
+    if (!otherToken) return null;
+
+    return {
+      token: otherToken,
+      tvl: Math.round(tvlUsd),
+      incentiveTokenTvl: Math.round(isBaseGlo ? baseUsd : quoteUsd),
+      participatingTokenTvl: Math.round(isBaseGlo ? quoteUsd : baseUsd),
+      dex: "uniswap",
+    };
+  } catch (err) {
+    console.warn(`Uniblock fetch failed for ${poolAddress}`, err);
+    return null;
   }
 };

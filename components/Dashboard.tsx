@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CHAIN_MAP, DEFAULT_CHAIN, TALLY_MAP } from "@/consts";
+import { CHAIN_MAP, TALLY_MAP } from "@/consts";
 import {
   firstOfThisMonth,
   toNiceDate,
@@ -302,7 +302,12 @@ export const columns: ColumnDef<ProjectRecord>[] = [
   },
 ];
 
-export function Dashboard({ competitions, date, chain, hideCreateCompetition = false }: DashboardProps & { hideCreateCompetition?: boolean }) {
+export function Dashboard({
+  competitions,
+  date,
+  chain,
+  hideCreateCompetition = false,
+}: DashboardProps & { hideCreateCompetition?: boolean }) {
   const pathname = usePathname();
 
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -311,7 +316,7 @@ export function Dashboard({ competitions, date, chain, hideCreateCompetition = f
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
     {
       id: "projectChainId",
-      value: CHAIN_MAP[DEFAULT_CHAIN].id,
+      value: CHAIN_MAP[chain].id,
     },
   ]);
   const [columnVisibility, setColumnVisibility] =
@@ -320,9 +325,11 @@ export function Dashboard({ competitions, date, chain, hideCreateCompetition = f
     });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
-  const [selectedCompetiton, setSelectedCompetiton] = React.useState(competitions[0]);
+  const [selectedCompetiton, setSelectedCompetiton] = React.useState(
+    competitions[0]
+  );
 
-  const { selectedChain, setSelectedChain, setTallyFormId } = useSpiStore();
+  const { selectedChain, setSelectedChain } = useSpiStore();
 
   React.useEffect(() => {
     setColumnFilters([
@@ -334,8 +341,8 @@ export function Dashboard({ competitions, date, chain, hideCreateCompetition = f
   }, [selectedChain]);
 
   React.useEffect(() => {
-    setSelectedChain(DEFAULT_CHAIN);
-  }, [setTallyFormId, setSelectedChain]);
+    setSelectedChain(chain);
+  }, [chain, setSelectedChain]);
 
   const table = useReactTable({
     data: selectedCompetiton.records,
@@ -361,7 +368,9 @@ export function Dashboard({ competitions, date, chain, hideCreateCompetition = f
   });
 
   const projects = table.getRowCount();
-  const liquidity = calculateTVL(table.getRowModel().flatRows.map(row => row.original));
+  const liquidity = calculateTVL(
+    table.getRowModel().flatRows.map((row) => row.original)
+  );
 
   const joinLink =
     TALLY_MAP[selectedCompetiton.meta.slug] &&
@@ -388,18 +397,30 @@ export function Dashboard({ competitions, date, chain, hideCreateCompetition = f
                   <span>{competition.meta.token} on&nbsp;</span>
                   <span className="first-letter:uppercase">{chain}</span>
                 </div>
-                {pathname === '/history' && (
+                {pathname === "/history" && (
                   <div className="text-xs text-spi-gray mt-1">
-                    {competition.meta.slug === 'usdglo' && 'June 2025'}
-                    {competition.meta.slug === 'usdglo2' && 'July 2025'}
-                    {competition.meta.slug === 'usdglo3' && 'August 2025'}
-                    {competition.meta.slug === 'usdglo4' && 'September 2025'}
-                    {competition.meta.slug === 'regen' && 'July 2025'}
-                    {competition.meta.slug === 'regen2' && 'August 2025'}
-                    {competition.meta.slug === 'regen3' && 'September 2025'}
-                    {competition.meta.slug === 'gooddollar' && 'September 2025'}
-                    {!['usdglo', 'usdglo2', 'usdglo3', 'usdglo4', 'regen', 'regen2', 'regen3', 'gooddollar'].includes(competition.meta.slug) &&
-                     new Date(competition.meta.startDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    {competition.meta.slug === "usdglo" && "June 2025"}
+                    {competition.meta.slug === "usdglo2" && "July 2025"}
+                    {competition.meta.slug === "usdglo3" && "August 2025"}
+                    {competition.meta.slug === "usdglo4" && "September 2025"}
+                    {competition.meta.slug === "regen" && "July 2025"}
+                    {competition.meta.slug === "regen2" && "August 2025"}
+                    {competition.meta.slug === "regen3" && "September 2025"}
+                    {competition.meta.slug === "gooddollar" && "September 2025"}
+                    {![
+                      "usdglo",
+                      "usdglo2",
+                      "usdglo3",
+                      "usdglo4",
+                      "regen",
+                      "regen2",
+                      "regen3",
+                      "gooddollar",
+                    ].includes(competition.meta.slug) &&
+                      new Date(competition.meta.startDate).toLocaleDateString(
+                        "en-US",
+                        { month: "long", year: "numeric" }
+                      )}
                   </div>
                 )}
               </div>
@@ -524,7 +545,7 @@ export function Dashboard({ competitions, date, chain, hideCreateCompetition = f
           </Table>
           <div></div>
         </div>
-        {pathname !== '/history' && (
+        {pathname !== "/history" && (
           <span className="float-right text-xs mt-1 text-spi-gray">
             As of {date.toUTCString()}
           </span>
