@@ -1,7 +1,7 @@
 import { Payout } from "@prisma/client";
 import axios from "axios";
 import { clsx, type ClassValue } from "clsx";
-import { ethers, parseEther, parseUnits } from "ethers";
+import { ethers, isAddress, parseEther, parseUnits } from "ethers";
 import { twMerge } from "tailwind-merge";
 import { Chain } from "viem";
 import {
@@ -10,6 +10,7 @@ import {
   getGloContractAddress,
 } from "./config";
 import prisma from "./prisma";
+import { StrKey } from "@stellar/stellar-sdk";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -665,4 +666,65 @@ export const createProjectRecordsRewards = async (
   });
 
   console.log(`${records.count} records created (reward: ${rewardId}).`);
+};
+
+export class BusinessLogicError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "BusinessLogicError";
+  }
+}
+
+export const createOrFetchPayouts = async (
+  projectSlug: string,
+  rewardName: string,
+  chainId: number
+): Promise<Payout[]> => {
+  const todayPayouts = await findPayouts(projectSlug, rewardName);
+
+  if (todayPayouts.length > 0) {
+    console.log(
+      `Payouts records already created for ${projectSlug} -> ${rewardName}. Fetching...`
+    );
+    return todayPayouts;
+  }
+
+  const projectRecords = await getTodayRecords(projectSlug, rewardName);
+
+  for (const record of projectRecords) {
+    const payoutAddr = record.project.payoutAddress;
+
+    // Chain-specific address validation
+    let isValid = false;
+    if (chainId === 999) {
+      // Stellar address validation
+      isValid =
+        !!payoutAddr &&
+        payoutAddr.length === 56 &&
+        payoutAddr.startsWith("G") &&
+        StrKey.isValidEd25519PublicKey(payoutAddr);
+    } else {
+      // EVM address validation
+      isValid = !!payoutAddr && isAddress(payoutAddr);
+    }
+
+    if (!isValid) {
+      const msg = `Invalid payout address for project ${record.projectToken}/${record.projectChainId}`;
+      console.error(msg);
+      throw new BusinessLogicError(`Could not create payout records (${msg}).`);
+    }
+
+    const daily = record.reward?.value || 0;
+    const isAbove = record.earnings > daily;
+    if (isAbove) {
+      const msg = `Invalid reward for project ${record.projectToken}/${record.projectChainId}`;
+      console.error(msg);
+      throw new BusinessLogicError(`Could not create payout records (${msg}).`);
+    }
+  }
+
+  const payouts = await createPayouts({ projectRecords });
+  console.log(`Created ${payouts.count} payout records.`);
+
+  return findPayouts(projectSlug, rewardName);
 };
