@@ -50,10 +50,20 @@ export default async function handler(
     await processStellarPayouts(payouts);
   } catch (error) {
     if (error instanceof BusinessLogicError) {
-      return res.status(200).json({ message: error.message });
+      return res.status(422).json({
+        error: "Validation failed",
+        message: error.message,
+        project: slug,
+        reward: rewardName
+      });
     }
-    console.error({ error });
-    return res.status(200).json({ message: "Unknown error" });
+    console.error({ error, project: slug, reward: rewardName });
+    return res.status(500).json({
+      error: "Internal server error",
+      message: error instanceof Error ? error.message : "Unknown error",
+      project: slug,
+      reward: rewardName
+    });
   }
 
   return res.status(200).json({ message: "Stellar payouts completed." });

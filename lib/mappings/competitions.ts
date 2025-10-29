@@ -40,13 +40,24 @@ export const getPoolDataFunc = (slug: string) => {
 const getUsdglo = async () => {
   const tokenPrices = await fetchTokenPrices();
 
-  // Data collection for the competition
-  const UNISWAP_POOLS = [
-    "0x0dbb0769b00d01d241ba4f7b2891fb5c2a975d51", // G$
+  const DEXSCREENER_POOLS = [
     "0x4eb0685f69f0b87da744e159576556b709a74c09", // NATURE
     "0xeaaeabc83df22075d87bff0ae62f9496ffc808f3", // Axlregen
   ];
-  const dex = await getDexData("celo", UNISWAP_POOLS);
+  const dexPools = await getDexData("celo", DEXSCREENER_POOLS);
+
+  // Use Uniblock for G$ pool 
+  const gloAddress = getGloContractAddress(celo);
+  const goodDollarPool = await getUniblockPoolData(
+    "celo",
+    "0x0dbb0769b00d01d241ba4f7b2891fb5c2a975d51",
+    gloAddress
+  );
+
+  const uniswapPools = [
+    ...dexPools,
+    ...(goodDollarPool ? [goodDollarPool] : []),
+  ];
   const ubeGoodDollar = await getBlockScoutData(
     "0x3d9e27c04076288ebfdc4815b4f6d81b0ed1b341",
     [getGloContractAddress(celo), "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"]
@@ -136,7 +147,7 @@ const getUsdglo = async () => {
   const carbondefi = await getCarbonDeFi();
 
   const aggregated: PoolRecord[] = [
-    ...dex,
+    ...uniswapPools,
     ...ubeGoodDollar,
     ube,
     refi,
@@ -199,14 +210,16 @@ const getRegen = async () => {
     "0x9fde166e7857f8b802dcd5da79a1362730c1d9c80771ba6000082f5d6aa6de42"
   );
 
-  const gloDollarPoolsRaw = await getDexData("celo", [
+  const gloDollarPoolRaw = await getUniblockPoolData(
+    "celo",
     "0x23490b2a472a4c78c30ef02256846fa1cd7d0fbd",
-  ]);
+    getGloContractAddress(celo)
+  );
 
-  const gloDollarPools = gloDollarPoolsRaw.map((pool) => ({
-    ...pool,
+  const gloDollarPools = gloDollarPoolRaw ? [{
+    ...gloDollarPoolRaw,
     token: "USDGLO", // Override token name to USDGLO instead of axlREGEN
-  }));
+  }] : [];
 
   const regendao2 = await getRegenerativeFi({
     poolAddr:
