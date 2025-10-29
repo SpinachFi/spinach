@@ -1,9 +1,22 @@
 import { arbitrum, celo, Chain, optimism } from "viem/chains";
 
+const stellarChain: Chain = {
+  id: 999,
+  name: "Stellar",
+  nativeCurrency: { name: "Lumen", symbol: "XLM", decimals: 7 },
+  rpcUrls: {
+    default: { http: ["https://horizon.stellar.org"] },
+    public: { http: ["https://horizon.stellar.org"] },
+  },
+  blockExplorers: {
+    default: { name: "Stellar Expert", url: "https://stellar.expert/explorer/public" },
+  },
+} as const;
+
 export const CHAIN_MAP: { [name in ChainName]: Chain } = {
   celo: celo,
   optimism: optimism,
-  stellar: {} as Chain,
+  stellar: stellarChain,
   arbitrum: arbitrum,
 };
 

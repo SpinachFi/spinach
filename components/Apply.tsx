@@ -1,19 +1,11 @@
 "use client";
 
-import { useSpiStore } from "@/store";
 import Image from "next/image";
 import Link from "next/link";
-import { celo } from "viem/chains";
 import { Button } from "./ui/button";
 
 export default function Apply({ joinLink }: { joinLink: string }) {
-  const { selectedChain } = useSpiStore();
-
   if (!joinLink) {
-    return null;
-  }
-
-  if (selectedChain !== celo.name.toLowerCase()) {
     return null;
   }
 

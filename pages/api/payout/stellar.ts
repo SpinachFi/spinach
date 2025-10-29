@@ -1,11 +1,10 @@
-import { getPayoutsWallet } from "@/lib/mappings/payouts";
 import {
   BusinessLogicError,
   createOrFetchPayouts,
   getReward,
-  processPayouts,
 } from "@/lib/utils";
 import { NextApiRequest, NextApiResponse } from "next";
+import { validateStellarEnvironment, processStellarPayouts } from "@/lib/stellar";
 
 export default async function handler(
   req: NextApiRequest,
@@ -30,16 +29,25 @@ export default async function handler(
       .json({ message: `Reward ${slug}/${rewardName} not found.` });
   }
 
-  // Stellar payouts must use the dedicated Stellar endpoint
-  if (reward.chainId === 999) {
+  // Only process Stellar rewards (chainId 999)
+  if (reward.chainId !== 999) {
     return res.status(400).json({
-      message: `Stellar payouts (chainId 999) must use /api/payout/stellar endpoint, not /api/payout/process. Please update your cron job or tooling to call /api/payout/stellar?slug=${slug}&reward=${rewardName}`,
+      message: `This endpoint only processes Stellar rewards. Reward ${slug}/${rewardName} has chainId ${reward.chainId}`,
+    });
+  }
+
+  // Validate mainnet environment
+  const validation = validateStellarEnvironment();
+  if (!validation.valid) {
+    return res.status(500).json({
+      message: "Stellar mainnet environment validation failed",
+      errors: validation.errors,
     });
   }
 
   try {
     const payouts = await createOrFetchPayouts(slug, rewardName, reward.chainId);
-    await processPayouts(payouts, reward.chainId, getPayoutsWallet(slug));
+    await processStellarPayouts(payouts);
   } catch (error) {
     if (error instanceof BusinessLogicError) {
       return res.status(200).json({ message: error.message });
@@ -48,5 +56,5 @@ export default async function handler(
     return res.status(200).json({ message: "Unknown error" });
   }
 
-  return res.status(200).json({ message: "Payouts completed." });
+  return res.status(200).json({ message: "Stellar payouts completed." });
 }

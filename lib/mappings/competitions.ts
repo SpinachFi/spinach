@@ -13,6 +13,7 @@ import {
   getUbeswap,
   getUniblockPoolData,
 } from "@/lib/celo";
+import { getStellarPools } from "@/lib/stellar";
 import { getGloContractAddress } from "@/lib/config";
 import { arbitrum, celo } from "viem/chains";
 
@@ -30,6 +31,7 @@ export const getPoolDataFunc = (slug: string) => {
     gooddollar: getGoodDollar,
     gooddollar2: getGoodDollar,
     arbitrum: getArbitrum,
+    stellar: getStellarPools,
   };
 
   return dataMap[slug];
