@@ -600,11 +600,21 @@ export const getCompetitionRewards = async (slug: string) => {
   return competition;
 };
 
+export class ProjectRecordCreationError extends Error {
+  constructor(
+    message: string,
+    public readonly failures: Array<{ pool: string; error: string }>
+  ) {
+    super(message);
+    this.name = "ProjectRecordCreationError";
+  }
+}
+
 export const createProjectRecordsRewards = async (
   pools: PoolRewardRecord[],
   chainId: number,
   rewardId: number
-) => {
+): Promise<number> => {
   // As we run process on 2nd
   const isFirstDayOfMonth = new Date().getDate() === 2;
 
@@ -638,34 +648,65 @@ export const createProjectRecordsRewards = async (
     ? {}
     : await getYesterdayEarnings();
 
-  const records = await prisma.projectRecord.createMany({
-    data: pools.map(
-      ({
-        token,
-        dex,
+  const dataToCreate = pools.map(
+    ({
+      token,
+      dex,
+      tvl,
+      incentiveTokenTvl,
+      participatingTokenTvl,
+      reward,
+    }) => {
+      return {
+        projectToken: token,
+        projectChainId: chainId,
+        projectDex: dex,
+        rewardId,
         tvl,
         incentiveTokenTvl,
         participatingTokenTvl,
-        reward,
-      }) => {
-        return {
-          projectToken: token,
-          projectChainId: chainId,
-          projectDex: dex,
-          rewardId,
-          tvl,
-          incentiveTokenTvl,
-          participatingTokenTvl,
-          earnings: reward,
-          currentMonthEarnings:
-            (yesterdayEarnings[`${dex}/${token}`] || 0) + reward,
-          date: getTodayMidnight(),
-        };
+        earnings: reward,
+        currentMonthEarnings:
+          (yesterdayEarnings[`${dex}/${token}`] || 0) + reward,
+        date: getTodayMidnight(),
+      };
+    }
+  );
+
+  let successCount = 0;
+
+  await prisma.$transaction(async (tx) => {
+    const failures: Array<{ pool: string; error: string }> = [];
+
+    for (const data of dataToCreate) {
+      const poolName = `${data.projectDex}/${data.projectToken}`;
+
+      try {
+        await tx.projectRecord.create({ data });
+        successCount++;
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        failures.push({ pool: poolName, error: errorMsg });
       }
-    ),
+    }
+
+    if (failures.length > 0) {
+      const summary = failures
+        .map((f) => `${f.pool} (${f.error})`)
+        .join(", ");
+      console.error(
+        `❌ ${failures.length} failed while creating records (reward: ${rewardId}): ${summary}`
+      );
+      throw new ProjectRecordCreationError(
+        `Failed to create ${failures.length} record(s)`,
+        failures
+      );
+    }
   });
 
-  console.log(`${records.count} records created (reward: ${rewardId}).`);
+  console.log(`${successCount}/${pools.length} records created (reward: ${rewardId}).`);
+
+  return successCount;
 };
 
 export class BusinessLogicError extends Error {

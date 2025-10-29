@@ -164,7 +164,7 @@ export const getDexData = async (
     `https://api.dexscreener.com/token-pairs/v1/${chain}/${glo}`
   );
 
-  return pairs
+  const filtered = pairs
     .filter(
       (pair) =>
         pair.dexId === dex &&
@@ -184,6 +184,15 @@ export const getDexData = async (
         dex,
       };
     });
+
+  // Only log if pools are missing
+  if (filtered.length < poolsWhitelist.length) {
+    const pairAddresses = pairs.map(p => p.pairAddress.toLowerCase());
+    const missingPools = poolsWhitelist.filter(addr => !pairAddresses.includes(addr.toLowerCase()));
+    console.warn(`⚠️  DexScreener missing ${missingPools.length} pool(s): ${missingPools.join(', ')}`);
+  }
+
+  return filtered;
 };
 
 export const getOkuTradeData = async (

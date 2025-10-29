@@ -4,6 +4,7 @@ import { getPoolDataFunc } from "@/lib/mappings/competitions";
 import {
   calcRewards,
   createProjectRecordsRewards,
+  ProjectRecordCreationError,
   getCompetitionRewards,
   getTodayMidnight,
   hasRewardRunToday,
@@ -89,12 +90,50 @@ export default async function handler(
       : pool.participatingTokenTvl || 0,
   }));
 
+  const errors: Array<{
+    rewardId: number;
+    error: string;
+    failures?: Array<{ pool: string; error: string }>;
+  }> = [];
+  let totalRecordsCreated = 0;
+
   for (const reward of competition.rewards) {
-    const result = await calcRewards(pools, reward.value);
-    await createProjectRecordsRewards(result, reward.chainId, reward.id);
+    try {
+      const result = await calcRewards(pools, reward.value);
+      const created = await createProjectRecordsRewards(
+        result,
+        reward.chainId,
+        reward.id
+      );
+      totalRecordsCreated += created;
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      if (error instanceof ProjectRecordCreationError) {
+        errors.push({
+          rewardId: reward.id,
+          error: error.message,
+          failures: error.failures,
+        });
+      } else {
+        errors.push({ rewardId: reward.id, error: errorMsg });
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    return res.status(500).json({
+      error: "Partial failure",
+      message: `${errors.length} reward(s) failed to process`,
+      slug,
+      totalRecordsCreated,
+      failures: errors
+    });
   }
 
   return res
     .status(200)
-    .json({ message: `Competition '${slug}' data collection completed.` });
+    .json({
+      message: `Competition '${slug}' data collection completed.`,
+      recordsCreated: totalRecordsCreated
+    });
 }
