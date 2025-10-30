@@ -88,23 +88,11 @@ export async function getStellarBalance(
   issuer: string = GLO_STELLAR
 ): Promise<number> {
   try {
-    if (!address || !token || !issuer) {
-      console.error(
-        `getStellarBalance: Invalid parameters - address=${!!address}, token=${!!token}, issuer=${!!issuer}`
-      );
+    if (!address || !token || !issuer || !validateStellarAddress(address)) {
       return 0;
     }
 
-    if (!validateStellarAddress(address)) {
-      console.error(
-        `getStellarBalance: Invalid Stellar address format - ${address}`
-      );
-      return 0;
-    }
-
-    console.log(`Fetching ${token} balance for ${address}`);
     const account = await getServer().loadAccount(address);
-
     const tokenBalance = account.balances.find(
       (bal) =>
         (bal.asset_type === "credit_alphanum4" ||
@@ -113,34 +101,9 @@ export async function getStellarBalance(
         bal.asset_issuer === issuer
     );
 
-    if (tokenBalance) {
-      const balance = parseFloat(tokenBalance.balance);
-      console.log(`Found ${token} balance: ${balance}`);
-      return balance;
-    }
-
-    console.log(`No ${token} balance found for ${address}`);
+    return tokenBalance ? parseFloat(tokenBalance.balance) : 0;
+  } catch {
     return 0;
-  } catch (error: unknown) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    if (
-      error &&
-      typeof error === "object" &&
-      "response" in error &&
-      typeof (error as { response?: { status?: number } }).response?.status ===
-        "number" &&
-      (error as { response: { status: number } }).response.status === 404
-    ) {
-      console.warn(
-        `getStellarBalance: Account ${address} not found on Stellar network`
-      );
-      return 0;
-    } else {
-      console.error(
-        `getStellarBalance: Failed to fetch ${token} balance for ${address} - ${errorMsg}`
-      );
-      return 0;
-    }
   }
 }
 
@@ -148,53 +111,14 @@ export async function getStellarNativeBalance(
   address: string
 ): Promise<number> {
   try {
-    if (!address) {
-      console.error("getStellarNativeBalance: Invalid address parameter");
-      return 0;
-    }
+    if (!address || !validateStellarAddress(address)) return 0;
 
-    if (!validateStellarAddress(address)) {
-      console.error(
-        `getStellarNativeBalance: Invalid Stellar address format - ${address}`
-      );
-      return 0;
-    }
-
-    console.log(`Fetching XLM balance for ${address}`);
     const account = await getServer().loadAccount(address);
+    const nativeBalance = account.balances.find((bal) => bal.asset_type === "native");
 
-    const nativeBalance = account.balances.find(
-      (bal) => bal.asset_type === "native"
-    );
-
-    if (nativeBalance) {
-      const balance = parseFloat(nativeBalance.balance);
-      console.log(`Found XLM balance: ${balance}`);
-      return balance;
-    }
-
-    console.log(`No XLM balance found for ${address}`);
+    return nativeBalance ? parseFloat(nativeBalance.balance) : 0;
+  } catch {
     return 0;
-  } catch (error: unknown) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    if (
-      error &&
-      typeof error === "object" &&
-      "response" in error &&
-      typeof (error as { response?: { status?: number } }).response?.status ===
-        "number" &&
-      (error as { response: { status: number } }).response.status === 404
-    ) {
-      console.warn(
-        `getStellarNativeBalance: Account ${address} not found on Stellar network`
-      );
-      return 0;
-    } else {
-      console.error(
-        `getStellarNativeBalance: Failed to fetch XLM balance for ${address} - ${errorMsg}`
-      );
-      return 0;
-    }
   }
 }
 
@@ -212,17 +136,13 @@ export async function getContractData(contract: string): Promise<Dict> {
         },
       });
 
-      if (!res.data?.trustlines) {
-        console.warn(`No trustlines data found for contract ${contract}`);
-        return {};
-      }
+      if (!res.data?.trustlines) return {};
 
       const tokens: Dict = res.data.trustlines.reduce(
         (acc: Dict, cur: { value: number; asset: string }) => {
           if (cur.value && cur.asset) {
             const tokenSymbol = cur.asset.split("-")[0];
             const decimals = getTokenDecimals(tokenSymbol);
-            // Use floating-point division to preserve decimals
             const tokenValue = Number(cur.value) / Math.pow(10, decimals);
             return { ...acc, [tokenSymbol]: tokenValue };
           }
@@ -231,51 +151,13 @@ export async function getContractData(contract: string): Promise<Dict> {
         {}
       );
 
-      console.log(
-        `Successfully fetched contract data for ${contract}: ${Object.keys(tokens).join(", ")}`
-      );
       return tokens;
     } catch (error: unknown) {
       const isLastAttempt = attempt === maxRetries;
-
-      if (
-        error &&
-        typeof error === "object" &&
-        "code" in error &&
-        error.code === "ECONNABORTED"
-      ) {
-        console.error(
-          `Timeout fetching contract data for ${contract} (attempt ${attempt}/${maxRetries})`
-        );
-      } else if (
-        error &&
-        typeof error === "object" &&
-        "response" in error &&
-        typeof (error as { response?: { status?: number } }).response
-          ?.status === "number" &&
-        (error as { response: { status: number } }).response.status >= 400
-      ) {
-        const resp = (
-          error as { response: { status: number; statusText?: string } }
-        ).response;
-        console.error(
-          `HTTP ${resp.status} error for contract ${contract}: ${resp.statusText || "Unknown"}`
-        );
-      } else {
-        console.error(
-          `Network error fetching contract ${contract} (attempt ${attempt}/${maxRetries}):`,
-          error instanceof Error ? error.message : error
-        );
-      }
-
       if (isLastAttempt) {
-        console.error(
-          `Failed to fetch contract data for ${contract} after ${maxRetries} attempts`
-        );
+        console.error(`❌ Stellar pool (blend/USDGLO) fetch failed: ${error instanceof Error ? error.message : String(error)}`);
         return {};
       }
-
-      // Wait before retrying
       await new Promise((resolve) => setTimeout(resolve, retryDelay * attempt));
     }
   }
@@ -302,11 +184,6 @@ export async function send(
 
   // Only treat explicit "native" as XLM; otherwise default to USDGLO
   const isNativeXLM = tokenAddress === "native";
-  const tokenSymbol = isNativeXLM ? "XLM" : "USDGLO";
-
-  console.log(
-    `🚀 Initiating Stellar payout: ${amount} ${tokenSymbol} to ${destinationAddress.slice(0, 4)}...${destinationAddress.slice(-4)}`
-  );
 
   if (!validateStellarAddress(destinationAddress)) {
     throw new Error(
@@ -325,7 +202,6 @@ export async function send(
   const privateKey = process.env.STELLAR_PAYOUT_PRIVATE_KEY!;
   const keypair = Keypair.fromSecret(privateKey);
   const pubKey = keypair.publicKey();
-  console.log(`Using payout address: ${pubKey.slice(0, 4)}...${pubKey.slice(-4)}`);
 
   const networkPassphrase = Networks.PUBLIC;
   let asset: Asset;
@@ -344,7 +220,6 @@ export async function send(
     try {
       // Load account fresh on each attempt to get correct sequence number
       const account = await getServer().loadAccount(pubKey);
-      console.log(`Account sequence: ${account.sequenceNumber()} (attempt ${attempt}/${maxRetries})`);
 
       const transaction = new TransactionBuilder(account, {
         fee: BASE_FEE,
@@ -361,21 +236,13 @@ export async function send(
         .build();
 
       transaction.sign(keypair);
-      console.log(`Transaction signed, submitting to network...`);
 
       const sendTransactionResponse = await getServer().submitTransaction(transaction);
       const { hash, successful } = sendTransactionResponse;
 
       if (successful) {
-        console.log(`✅ Stellar ${tokenSymbol} payout successful!`);
-        console.log(`Transaction hash: ${hash}`);
-        console.log(
-          `Explorer: https://stellar.expert/explorer/public/tx/${hash}`
-        );
         return { success: true, hash };
       } else {
-        // Transaction submitted but failed - don't retry
-        console.error(`❌ Transaction failed:`, sendTransactionResponse);
         return { success: false, error: "Transaction was not successful" };
       }
     } catch (err) {
@@ -391,35 +258,8 @@ export async function send(
         (errorMsg.includes("network"));
 
       if (isRetryable && !isLastAttempt) {
-        console.warn(
-          `⚠️ Retryable error on attempt ${attempt}/${maxRetries}: ${errorMsg}`
-        );
         await new Promise((resolve) => setTimeout(resolve, retryDelay * attempt));
         continue;
-      }
-
-      // Non-retryable error or last attempt - log and return
-      console.error(
-        `❌ Stellar ${tokenSymbol} payout failed (attempt ${attempt}/${maxRetries}): ${errorMsg}`
-      );
-
-      if (err && typeof err === "object") {
-        if ("response" in err) {
-          const responseData = (err as { response?: { data?: unknown } }).response
-            ?.data;
-          if (responseData) {
-            console.error(
-              "Response data:",
-              JSON.stringify(responseData, null, 2)
-            );
-          }
-        }
-        if ("error" in err) {
-          const errorData = (err as { error?: { data?: unknown } }).error?.data;
-          if (errorData) {
-            console.error("Error data:", JSON.stringify(errorData, null, 2));
-          }
-        }
       }
 
       return { success: false, error: errorMsg };
@@ -441,84 +281,41 @@ const getBlendContract = () => {
 const getPoolFromContract = async (
   poolContract: string
 ): Promise<PoolRecord | null> => {
-  try {
-    const data = await getContractData(poolContract);
+  const data = await getContractData(poolContract);
+  if (!data || Object.keys(data).length === 0) return null;
 
-    if (!data || Object.keys(data).length === 0) {
-      console.warn(`No data found for pool contract ${poolContract}`);
-      return null;
-    }
+  const usdgloBalance = data.USDGLO || data.USD;
+  if (!usdgloBalance) return null;
 
-    const usdgloBalance = data.USDGLO || data.USD;
-    if (!usdgloBalance) {
-      console.warn(`No USDGLO found in pool ${poolContract}`);
-      return null;
-    }
-
-    console.log(`Found Blend pool: USDGLO TVL: $${usdgloBalance}`);
-
-    return {
-      token: "USDGLO",
-      tvl: twoDecimals(usdgloBalance),
-      incentiveTokenTvl: twoDecimals(usdgloBalance),
-      participatingTokenTvl: 0,
-      dex: "blend",
-    };
-  } catch (error) {
-    console.error(
-      `Error fetching pool data for ${poolContract}:`,
-      error instanceof Error ? error.message : error
-    );
-    return null;
-  }
+  return {
+    token: "USDGLO",
+    tvl: twoDecimals(usdgloBalance),
+    incentiveTokenTvl: twoDecimals(usdgloBalance),
+    participatingTokenTvl: 0,
+    dex: "blend",
+  };
 };
 
 export const getStellarPools = async (): Promise<PoolRecord[]> => {
-  console.log("🔍 Fetching Blend USDGLO pool data...");
-
-  try {
-    const pool = await getPoolFromContract(getBlendContract());
-
-    if (!pool) {
-      console.warn("No Blend pool data available");
-      return [];
-    }
-
-    console.log(`📊 Blend USDGLO TVL: $${pool.tvl}`);
-    return [pool];
-  } catch (error) {
-    console.error(
-      "Error fetching Blend pool data:",
-      error instanceof Error ? error.message : error
-    );
-    return [];
-  }
+  const pool = await getPoolFromContract(getBlendContract());
+  return pool ? [pool] : [];
 };
 
 export const processStellarPayouts = async (payouts: Payout[]) => {
   let [total, completed] = [payouts.length, 0];
 
-  console.log(`🌟 Processing ${total} Stellar payouts...`);
-
   for (const payout of payouts) {
     if (payout.processed) {
-      console.log(`Payout ${payout.id} already processed.`);
       total -= 1;
       continue;
     }
 
     if (payout.isProcessing) {
-      console.log(`Payout ${payout.id} is being processed.`);
       continue;
     }
 
-    console.log(`Processing Stellar payout ${payout.id}...`);
-
     // Validate payout amount before processing
     if (!payout.value || payout.value <= 0 || isNaN(payout.value)) {
-      console.error(
-        `❌ Payout ${payout.id} has invalid amount: ${payout.value}. Skipping.`
-      );
       total -= 1;
       continue;
     }
@@ -549,17 +346,14 @@ export const processStellarPayouts = async (payouts: Payout[]) => {
           },
         });
 
-        console.log(`✅ Stellar payout ${payout.id} completed: ${result.hash}`);
         completed++;
       } else {
-        console.error(`❌ Stellar payout ${payout.id} failed: ${result.error}`);
         await prisma.payout.update({
           where: { id: payout.id },
           data: { isProcessing: false },
         });
       }
-    } catch (error) {
-      console.error(`❌ Stellar payout ${payout.id} error:`, error);
+    } catch {
       await prisma.payout.update({
         where: { id: payout.id },
         data: { isProcessing: false },
@@ -571,6 +365,5 @@ export const processStellarPayouts = async (payouts: Payout[]) => {
   if (completed !== total) {
     txt += " Issues detected! <!here>";
   }
-  console.log(txt);
   await postSlack(txt);
 };

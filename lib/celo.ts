@@ -129,10 +129,7 @@ export const getUniswapGraphData = async (url: string, chain: Chain) => {
   const details: { [symbol: string]: number } = {};
 
   if (!pools) {
-    console.error(
-      `Could not fetch data from Uniswap subgraph for ${chain.name}`
-    );
-    console.log(error);
+    console.error(`❌ Uniswap pool fetch failed for ${chain.name}: ${error?.message || 'Unknown error'}`);
     return { total: 0, details };
   }
 
@@ -351,8 +348,7 @@ export const getRefiPoolTokens = async (poolAddr: string): Promise<Dict> => {
 
     return zipped;
   } catch (err) {
-    console.log(`Could not fetch getPoolTokens for Refi`);
-    console.error(err);
+    console.error(`❌ Refi pool fetch failed: ${err instanceof Error ? err.message : String(err)}`);
     return {};
   }
 };
@@ -470,11 +466,7 @@ export const getBitSave = async (): Promise<PoolRecord> => {
       dex: "bitsave",
     };
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error fetching BitSave USDGLO data:", error.message);
-    } else {
-      console.error("Error fetching BitSave USDGLO data:", String(error));
-    }
+    console.error(`❌ BitSave pool fetch failed: ${error instanceof Error ? error.message : String(error)}`);
     return {
       token: "USDGLO",
       tvl: 0,
@@ -539,7 +531,7 @@ export const getUniblockPoolData = async (
       dex: "uniswap",
     };
   } catch (err) {
-    console.warn(`Uniblock fetch failed for ${poolAddress}`, err);
+    console.error(`❌ Uniblock pool fetch failed: ${err instanceof Error ? err.message : String(err)}`);
     return null;
   }
 };
