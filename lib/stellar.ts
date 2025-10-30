@@ -5,13 +5,14 @@ import {
   Keypair,
   Networks,
   Operation,
-  TransactionBuilder,
   StrKey,
+  TransactionBuilder,
 } from "@stellar/stellar-sdk";
 import axios from "axios";
 import { twoDecimals, postSlack } from "./utils";
 import { Payout } from "@prisma/client";
 import prisma from "./prisma";
+import { sanitizeError, redactAddress, logger } from "./logger";
 
 export const GLO_STELLAR =
   "GBBS25EGYQPGEZCGCFBKG4OAGFXU6DSOQBGTHELLJT3HZXZJ34HWS6XV";
@@ -36,6 +37,43 @@ function getServer(): Horizon.Server {
     _server = new Horizon.Server(horizonUrl);
   }
   return _server;
+}
+
+
+function resolveStellarAsset(
+  tokenAddress?: string
+): { asset: Asset; symbol: string } {
+  if (!tokenAddress) {
+    return { asset: new Asset("USDGLO", GLO_STELLAR), symbol: "USDGLO" };
+  }
+
+  const normalized = tokenAddress.toUpperCase();
+
+  if (tokenAddress === "native" || normalized === "XLM") {
+    return { asset: Asset.native(), symbol: "XLM" };
+  }
+
+  if (tokenAddress === GLO_STELLAR || normalized === "USDGLO") {
+    return { asset: new Asset("USDGLO", GLO_STELLAR), symbol: "USDGLO" };
+  }
+
+  if (tokenAddress.includes(":")) {
+    const [code, issuer] = tokenAddress.split(":");
+    if (!code || !issuer) {
+      throw new Error(
+        `Invalid Stellar token identifier ${tokenAddress}. Expected CODE:ISSUER.`
+      );
+    }
+    return { asset: new Asset(code, issuer), symbol: code.toUpperCase() };
+  }
+
+  if (tokenAddress.length === 56 && tokenAddress.startsWith("G")) {
+    throw new Error(
+      `Unsupported Stellar issuer ${tokenAddress}. Use CODE:ISSUER format to resolve asset.`
+    );
+  }
+
+  throw new Error(`Unsupported Stellar token identifier: ${tokenAddress}`);
 }
 
 export function validateStellarAddress(address: string): boolean {
@@ -300,19 +338,17 @@ export async function send(
     );
   }
 
-  // Only treat explicit "native" as XLM; otherwise default to USDGLO
-  const isNativeXLM = tokenAddress === "native";
-  const tokenSymbol = isNativeXLM ? "XLM" : "USDGLO";
-
-  console.log(
-    `🚀 Initiating Stellar payout: ${amount} ${tokenSymbol} to ${destinationAddress.slice(0, 4)}...${destinationAddress.slice(-4)}`
-  );
+  const { asset, symbol: tokenSymbol } = resolveStellarAsset(tokenAddress);
 
   if (!validateStellarAddress(destinationAddress)) {
     throw new Error(
-      `Invalid Stellar destination address: ${destinationAddress}`
+      `Invalid Stellar account address: ${destinationAddress}. Must be a valid G... address.`
     );
   }
+
+  console.log(
+    `🚀 Initiating Stellar payout: ${amount} ${tokenSymbol} to ${redactAddress(destinationAddress)}`
+  );
 
   // Validate environment variables
   const envValidation = validateStellarEnvironment();
@@ -325,16 +361,9 @@ export async function send(
   const privateKey = process.env.STELLAR_PAYOUT_PRIVATE_KEY!;
   const keypair = Keypair.fromSecret(privateKey);
   const pubKey = keypair.publicKey();
-  console.log(`Using payout address: ${pubKey.slice(0, 4)}...${pubKey.slice(-4)}`);
+  console.log(`Using payout address: ${redactAddress(pubKey)}`);
 
   const networkPassphrase = Networks.PUBLIC;
-  let asset: Asset;
-  if (isNativeXLM) {
-    asset = Asset.native();
-  } else {
-    // USDGLO token
-    asset = new Asset("USDGLO", GLO_STELLAR);
-  }
 
   // Retry configuration
   const maxRetries = 3;
@@ -386,9 +415,11 @@ export async function send(
       const isRetryable =
         err &&
         typeof err === "object" &&
-        ("code" in err && err.code === "ECONNABORTED") ||
-        (errorMsg.includes("timeout")) ||
-        (errorMsg.includes("network"));
+        (
+          ("code" in err && err.code === "ECONNABORTED") ||
+          errorMsg.includes("timeout") ||
+          errorMsg.includes("network")
+        );
 
       if (isRetryable && !isLastAttempt) {
         console.warn(
@@ -398,29 +429,11 @@ export async function send(
         continue;
       }
 
-      // Non-retryable error or last attempt - log and return
+      // Non-retryable error or last attempt - log sanitized error
       console.error(
-        `❌ Stellar ${tokenSymbol} payout failed (attempt ${attempt}/${maxRetries}): ${errorMsg}`
+        `❌ Stellar ${tokenSymbol} payout failed (attempt ${attempt}/${maxRetries}):`,
+        JSON.stringify(sanitizeError(err))
       );
-
-      if (err && typeof err === "object") {
-        if ("response" in err) {
-          const responseData = (err as { response?: { data?: unknown } }).response
-            ?.data;
-          if (responseData) {
-            console.error(
-              "Response data:",
-              JSON.stringify(responseData, null, 2)
-            );
-          }
-        }
-        if ("error" in err) {
-          const errorData = (err as { error?: { data?: unknown } }).error?.data;
-          if (errorData) {
-            console.error("Error data:", JSON.stringify(errorData, null, 2));
-          }
-        }
-      }
 
       return { success: false, error: errorMsg };
     }
@@ -501,20 +514,14 @@ export const processStellarPayouts = async (payouts: Payout[]) => {
   console.log(`🌟 Processing ${total} Stellar payouts...`);
 
   for (const payout of payouts) {
+    // Skip already processed payouts
     if (payout.processed) {
       console.log(`Payout ${payout.id} already processed.`);
       total -= 1;
       continue;
     }
 
-    if (payout.isProcessing) {
-      console.log(`Payout ${payout.id} is being processed.`);
-      continue;
-    }
-
-    console.log(`Processing Stellar payout ${payout.id}...`);
-
-    // Validate payout amount before processing
+    // Validate ALL payout fields before processing
     if (!payout.value || payout.value <= 0 || isNaN(payout.value)) {
       console.error(
         `❌ Payout ${payout.id} has invalid amount: ${payout.value}. Skipping.`
@@ -523,10 +530,48 @@ export const processStellarPayouts = async (payouts: Payout[]) => {
       continue;
     }
 
-    await prisma.payout.update({
-      where: { id: payout.id },
+    if (!payout.payoutAddress || !validateStellarAddress(payout.payoutAddress)) {
+      console.error(
+        `❌ Payout ${payout.id} has invalid address: ${payout.payoutAddress}. Skipping.`
+      );
+      total -= 1;
+      continue;
+    }
+
+    if (!payout.tokenAddress) {
+      console.error(
+        `❌ Payout ${payout.id} missing token address. Skipping.`
+      );
+      total -= 1;
+      continue;
+    }
+
+    // ATOMIC OPERATION: Check and claim in one database operation
+    // This prevents race conditions where two jobs try to process the same payout
+    const STALE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+    const claimResult = await prisma.payout.updateMany({
+      where: {
+        id: payout.id,
+        processed: false,
+        OR: [
+          { isProcessing: false },
+          // Also claim payouts stuck in processing for >5 minutes (crashed job recovery)
+          {
+            isProcessing: true,
+            updatedAt: { lt: new Date(Date.now() - STALE_TIMEOUT) },
+          },
+        ],
+      },
       data: { isProcessing: true },
     });
+
+    // If count is 0, another process already claimed this payout
+    if (claimResult.count === 0) {
+      console.log(`Payout ${payout.id} already being processed by another job.`);
+      continue;
+    }
+
+    console.log(`Processing Stellar payout ${payout.id}...`);
 
     try {
       // Convert amount to string with proper decimals (Stellar uses 7)
@@ -553,17 +598,26 @@ export const processStellarPayouts = async (payouts: Payout[]) => {
         completed++;
       } else {
         console.error(`❌ Stellar payout ${payout.id} failed: ${result.error}`);
+        // Reset isProcessing flag on failure
         await prisma.payout.update({
           where: { id: payout.id },
           data: { isProcessing: false },
         });
       }
     } catch (error) {
-      console.error(`❌ Stellar payout ${payout.id} error:`, error);
-      await prisma.payout.update({
-        where: { id: payout.id },
-        data: { isProcessing: false },
-      });
+      logger.error(`❌ Stellar payout ${payout.id} error`, error);
+
+      // Always reset isProcessing flag, even if there's an error
+      try {
+        await prisma.payout.update({
+          where: { id: payout.id },
+          data: { isProcessing: false },
+        });
+      } catch (dbError) {
+        // If we can't reset the flag, log but don't throw
+        // The stale timeout will eventually recover this
+        logger.error(`Failed to reset isProcessing for payout ${payout.id}`, dbError);
+      }
     }
   }
 

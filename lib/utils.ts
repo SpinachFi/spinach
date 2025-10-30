@@ -738,12 +738,8 @@ export const createOrFetchPayouts = async (
     // Chain-specific address validation
     let isValid = false;
     if (chainId === 999) {
-      // Stellar address validation
-      isValid =
-        !!payoutAddr &&
-        payoutAddr.length === 56 &&
-        payoutAddr.startsWith("G") &&
-        StrKey.isValidEd25519PublicKey(payoutAddr);
+      // Stellar account validation (G... addresses only)
+      isValid = !!payoutAddr && StrKey.isValidEd25519PublicKey(payoutAddr);
     } else {
       // EVM address validation
       isValid = !!payoutAddr && isAddress(payoutAddr);
