@@ -35,6 +35,14 @@ export const AVAILABLE_CHAINS: ChainName[] = Object.keys(
 ) as ChainName[];
 export const DEFAULT_CHAIN = AVAILABLE_CHAINS[0];
 
+export const ACTIVE_CAMPAIGNS = {
+  CELO_USDGLO: "usdglo6",
+  CELO_REGEN: "regen4",
+  CELO_GOODDOLLAR: "gooddollar2",
+  ARBITRUM: "arbitrum",
+  STELLAR: "stellar",
+} as const;
+
 export const TALLY = {
   CELO: "w4OBx5",
   CREATE_COMPETITION: "w7EbWa",
@@ -47,9 +55,9 @@ export const TALLY = {
 };
 
 export const TALLY_MAP: SDict = {
-  usdglo5: "celo-usdglo",
-  regen4: "regen",
-  stellar: "stellar",
-  gooddollar2: "gooddollar",
-  arbitrum: "arbitrum",
+  [ACTIVE_CAMPAIGNS.CELO_USDGLO]: "celo-usdglo",
+  [ACTIVE_CAMPAIGNS.CELO_REGEN]: "regen",
+  [ACTIVE_CAMPAIGNS.STELLAR]: "stellar",
+  [ACTIVE_CAMPAIGNS.CELO_GOODDOLLAR]: "gooddollar",
+  [ACTIVE_CAMPAIGNS.ARBITRUM]: "arbitrum",
 };

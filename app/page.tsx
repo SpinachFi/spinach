@@ -4,6 +4,7 @@ import GlobalStats from "@/components/GlobalStats";
 import { getRecords } from "@/lib/dashboard";
 import { getTodayMidnight } from "@/lib/utils";
 import { buildChainData } from "@/lib/chain-data";
+import { ACTIVE_CAMPAIGNS } from "@/consts";
 
 export const revalidate = 300; // invalidate every 5m
 
@@ -11,11 +12,11 @@ export default async function Home() {
   const date = getTodayMidnight();
 
   const [usdglo, regen, gooddollar, arbitrum, stellar] = await Promise.all([
-    getRecords("usdglo5", date),
-    getRecords("regen4", date),
-    getRecords("gooddollar2", date),
-    getRecords("arbitrum", date),
-    getRecords("stellar", date),
+    getRecords(ACTIVE_CAMPAIGNS.CELO_USDGLO, date),
+    getRecords(ACTIVE_CAMPAIGNS.CELO_REGEN, date),
+    getRecords(ACTIVE_CAMPAIGNS.CELO_GOODDOLLAR, date),
+    getRecords(ACTIVE_CAMPAIGNS.ARBITRUM, date),
+    getRecords(ACTIVE_CAMPAIGNS.STELLAR, date),
   ]);
 
   const chainData = [

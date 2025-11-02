@@ -6,11 +6,11 @@
   },
   "crons": [
     {
-      "path": "/api/collect/competition?slug=usdglo5",
+      "path": "/api/collect/competition?slug=usdglo6",
       "schedule": "00 00 * * *"
     },
     {
-      "path": "/api/payout/process?slug=usdglo5&reward=USDGLO",
+      "path": "/api/payout/process?slug=usdglo6&reward=USDGLO",
       "schedule": "0 01 * * *"
     },
     {

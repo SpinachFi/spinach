@@ -8,6 +8,7 @@ export default async function Home() {
   const julyDate = getMidnightOn(2025, 6, 31);
   const augDate = getMidnightOn(2025, 7, 31);
   const septDate = getMidnightOn(2025, 8, 31);
+  const octDate = getMidnightOn(2025, 9, 31);
 
   const juneUsdglo = await getRecords("usdglo", juneDate);
   const julyUsdglo = await getRecords("usdglo2", julyDate);
@@ -17,6 +18,7 @@ export default async function Home() {
   const septUsdglo = await getRecords("usdglo4", septDate);
   const septRegen = await getRecords("regen3", septDate);
   const septGooddollar = await getRecords("gooddollar", septDate);
+  const octUsdglo = await getRecords("usdglo5", octDate);
 
   return (
     <Layout>
@@ -39,6 +41,7 @@ export default async function Home() {
           septUsdglo,
           septRegen,
           septGooddollar,
+          octUsdglo,
         ]}
         date={juneDate}
         hideCreateCompetition={true}

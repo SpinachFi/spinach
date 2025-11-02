@@ -403,6 +403,7 @@ export function Dashboard({
                     {competition.meta.slug === "usdglo2" && "July 2025"}
                     {competition.meta.slug === "usdglo3" && "August 2025"}
                     {competition.meta.slug === "usdglo4" && "September 2025"}
+                    {competition.meta.slug === "usdglo5" && "October 2025"}
                     {competition.meta.slug === "regen" && "July 2025"}
                     {competition.meta.slug === "regen2" && "August 2025"}
                     {competition.meta.slug === "regen3" && "September 2025"}
@@ -412,6 +413,7 @@ export function Dashboard({
                       "usdglo2",
                       "usdglo3",
                       "usdglo4",
+                      "usdglo5",
                       "regen",
                       "regen2",
                       "regen3",
