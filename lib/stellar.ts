@@ -255,8 +255,8 @@ export async function send(
       // Extract detailed Horizon error if available
       let detailedError = errorMsg;
       if (err && typeof err === "object" && "response" in err) {
-        const response = (err as any).response;
-        if (response?.data) {
+        const response = (err as Record<string, unknown>).response;
+        if (response && typeof response === "object" && "data" in response) {
           detailedError = JSON.stringify(response.data, null, 2);
           console.error(`Stellar transaction error (attempt ${attempt}/${maxRetries}):`, detailedError);
         }
