@@ -237,17 +237,32 @@ export async function send(
 
       transaction.sign(keypair);
 
+      console.log("Submitting Stellar transaction...");
       const sendTransactionResponse = await getServer().submitTransaction(transaction);
       const { hash, successful } = sendTransactionResponse;
 
       if (successful) {
+        console.log(`Stellar transaction confirmed: ${hash}`);
         return { success: true, hash };
       } else {
+        console.error("Stellar transaction was not successful");
         return { success: false, error: "Transaction was not successful" };
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
       const isLastAttempt = attempt === maxRetries;
+
+      // Extract detailed Horizon error if available
+      let detailedError = errorMsg;
+      if (err && typeof err === "object" && "response" in err) {
+        const response = (err as any).response;
+        if (response?.data) {
+          detailedError = JSON.stringify(response.data, null, 2);
+          console.error(`Stellar transaction error (attempt ${attempt}/${maxRetries}):`, detailedError);
+        }
+      } else {
+        console.error(`Stellar transaction error (attempt ${attempt}/${maxRetries}):`, errorMsg);
+      }
 
       // Determine if error is retryable (network issues vs transaction errors)
       const isRetryable =
@@ -258,11 +273,12 @@ export async function send(
         (errorMsg.includes("network"));
 
       if (isRetryable && !isLastAttempt) {
+        console.log(`Retrying Stellar transaction in ${retryDelay * attempt}ms...`);
         await new Promise((resolve) => setTimeout(resolve, retryDelay * attempt));
         continue;
       }
 
-      return { success: false, error: errorMsg };
+      return { success: false, error: detailedError };
     }
   }
 
@@ -306,19 +322,24 @@ export const processStellarPayouts = async (payouts: Payout[]) => {
 
   for (const payout of payouts) {
     if (payout.processed) {
+      console.log(`Payout ${payout.id} already processed.`);
       total -= 1;
       continue;
     }
 
     if (payout.isProcessing) {
+      console.log(`Payout ${payout.id} is being processed.`);
       continue;
     }
 
     // Validate payout amount before processing
     if (!payout.value || payout.value <= 0 || isNaN(payout.value)) {
+      console.error(`Payout ${payout.id} has invalid amount: ${payout.value}`);
       total -= 1;
       continue;
     }
+
+    console.log(`Processing payout ${payout.id}...`);
 
     await prisma.payout.update({
       where: { id: payout.id },
@@ -336,6 +357,7 @@ export const processStellarPayouts = async (payouts: Payout[]) => {
       );
 
       if (result.success && result.hash) {
+        console.log(`Payout ${payout.id} completed.`);
         await prisma.payout.update({
           where: { id: payout.id },
           data: {
@@ -348,12 +370,14 @@ export const processStellarPayouts = async (payouts: Payout[]) => {
 
         completed++;
       } else {
+        console.error(`Failed to process payout ${payout.id}:`, result.error);
         await prisma.payout.update({
           where: { id: payout.id },
           data: { isProcessing: false },
         });
       }
-    } catch {
+    } catch (err) {
+      console.error(`Payout ${payout.id} exception:`, err);
       await prisma.payout.update({
         where: { id: payout.id },
         data: { isProcessing: false },
