@@ -379,12 +379,16 @@ export function Dashboard({
   return (
     <>
       <div className="w-full">
-        <div className="flex">
+        <div className={clsx(
+          "flex",
+          pathname === "/history" ? "flex-wrap gap-3" : ""
+        )}>
           {competitions.map((competition, index) => (
             <Button
               key={`${competition.meta.token}-${competition.meta.startDate}-${index}`}
               className={clsx(
-                "flex flex-col h-[96px] cursor-pointer border-1 flex-1 mr-3",
+                "flex flex-col h-[96px] cursor-pointer border-1",
+                pathname === "/history" ? "min-w-[140px]" : "flex-1 mr-3",
                 competition === selectedCompetiton
                   ? "border-spi-green"
                   : "shadow-sm"
@@ -404,20 +408,24 @@ export function Dashboard({
                     {competition.meta.slug === "usdglo3" && "August 2025"}
                     {competition.meta.slug === "usdglo4" && "September 2025"}
                     {competition.meta.slug === "usdglo5" && "October 2025"}
+                    {competition.meta.slug === "usdglo6" && "November 2025"}
                     {competition.meta.slug === "regen" && "July 2025"}
                     {competition.meta.slug === "regen2" && "August 2025"}
                     {competition.meta.slug === "regen3" && "September 2025"}
                     {competition.meta.slug === "gooddollar" && "September 2025"}
+                    {competition.meta.slug === "stellar" && "Oct-Nov 2025"}
                     {![
                       "usdglo",
                       "usdglo2",
                       "usdglo3",
                       "usdglo4",
                       "usdglo5",
+                      "usdglo6",
                       "regen",
                       "regen2",
                       "regen3",
                       "gooddollar",
+                      "stellar",
                     ].includes(competition.meta.slug) &&
                       new Date(competition.meta.startDate).toLocaleDateString(
                         "en-US",
@@ -452,7 +460,10 @@ export function Dashboard({
           ))}
           {!hideCreateCompetition && (
             <Button
-              className="h-[96px] cursor-pointer border-1 border-spi-gray flex-1"
+              className={clsx(
+                "h-[96px] cursor-pointer border-1 border-spi-gray",
+                pathname === "/history" ? "min-w-[140px]" : "flex-1"
+              )}
               variant={"ghost"}
             >
               <Link

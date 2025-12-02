@@ -16,10 +16,6 @@
     {
       "path": "/api/collect/competition?slug=stellar2",
       "schedule": "10 01 * * *"
-    },
-    {
-      "path": "/api/payout/stellar?slug=stellar2&reward=USDGLO",
-      "schedule": "20 01 * * *"
     }
   ]
 }
