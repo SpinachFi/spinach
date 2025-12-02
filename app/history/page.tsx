@@ -1,5 +1,5 @@
-import { Dashboard } from "@/components/Dashboard";
 import Layout from "@/components/Layout";
+import { HistoryDashboard } from "@/components/HistoryDashboard";
 import { getRecords } from "@/lib/dashboard";
 import { getMidnightOn } from "@/lib/utils";
 
@@ -9,6 +9,8 @@ export default async function Home() {
   const augDate = getMidnightOn(2025, 7, 31);
   const septDate = getMidnightOn(2025, 8, 31);
   const octDate = getMidnightOn(2025, 9, 31);
+  const novDate = getMidnightOn(2025, 10, 30);
+  const stellarDate = getMidnightOn(2025, 10, 27);
 
   const juneUsdglo = await getRecords("usdglo", juneDate);
   const julyUsdglo = await getRecords("usdglo2", julyDate);
@@ -19,6 +21,8 @@ export default async function Home() {
   const septRegen = await getRecords("regen3", septDate);
   const septGooddollar = await getRecords("gooddollar", septDate);
   const octUsdglo = await getRecords("usdglo5", octDate);
+  const novUsdglo = await getRecords("usdglo6", novDate);
+  const stellar = await getRecords("stellar", stellarDate);
 
   return (
     <Layout>
@@ -30,9 +34,8 @@ export default async function Home() {
           Historical performance data from past liquidity incentive competitions
         </p>
       </div>
-      <Dashboard
-        chain="celo"
-        competitions={[
+      <HistoryDashboard
+        celoCompetitions={[
           juneUsdglo,
           julyUsdglo,
           julyRegen,
@@ -42,9 +45,11 @@ export default async function Home() {
           septRegen,
           septGooddollar,
           octUsdglo,
+          novUsdglo,
         ]}
-        date={juneDate}
-        hideCreateCompetition={true}
+        stellarCompetitions={[stellar]}
+        celoDate={juneDate}
+        stellarDate={stellarDate}
       />
     </Layout>
   );
