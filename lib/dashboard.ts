@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
 
+export type Competition = Awaited<ReturnType<typeof getRecords>>;
+
 export const getRecords = async (slug: string, date: Date) => {
   try {
     const competition = await prisma.competition.findUniqueOrThrow({

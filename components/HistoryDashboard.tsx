@@ -1,13 +1,14 @@
 "use client";
 
 import { Dashboard } from "@/components/Dashboard";
+import { Competition } from "@/lib/dashboard";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import clsx from "clsx";
 
 type HistoryDashboardProps = {
-  celoCompetitions: any[];
-  stellarCompetitions: any[];
+  celoCompetitions: Competition[];
+  stellarCompetitions: Competition[];
   celoDate: Date;
   stellarDate: Date;
 };
