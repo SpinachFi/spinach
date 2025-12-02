@@ -489,7 +489,7 @@ export const getUniblockPoolData = async (
     const { data } = await axios.get<UniblockPoolResponse>(
       `https://api.uniblock.dev/direct/v1/CoinGecko/onchain/networks/${chain}/pools/${poolAddress}`,
       {
-        headers: { Authorization: `Bearer ${apiKey}` },
+        headers: { 'X-API-Key': apiKey },
         params: { include: "base_token,quote_token,dex" },
       }
     );
