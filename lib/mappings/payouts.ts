@@ -7,6 +7,7 @@ export const getPayoutsWallet = (slug: string) => {
     [ACTIVE_CAMPAIGNS.CELO_GOODDOLLAR]: "GOODDOLLAR",
     [ACTIVE_CAMPAIGNS.ARBITRUM]: "ARBITRUM",
     [ACTIVE_CAMPAIGNS.STELLAR]: "STELLAR",
+    [ACTIVE_CAMPAIGNS.SUPERCHAIN]: "SUPERCHAIN",
   };
 
   return dataMap[slug];

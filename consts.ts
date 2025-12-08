@@ -1,4 +1,4 @@
-import { arbitrum, celo, Chain, optimism } from "viem/chains";
+import { arbitrum, base, celo, Chain, mainnet, optimism } from "viem/chains";
 
 const stellarChain: Chain = {
   id: 999,
@@ -13,11 +13,27 @@ const stellarChain: Chain = {
   },
 } as const;
 
+const superchainChain: Chain = {
+  id: 99999,
+  name: "Superchain",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://mainnet.optimism.io"] },
+    public: { http: ["https://mainnet.optimism.io"] },
+  },
+  blockExplorers: {
+    default: { name: "Optimism Explorer", url: "https://optimistic.etherscan.io" },
+  },
+} as const;
+
 export const CHAIN_MAP: { [name in ChainName]: Chain } = {
   celo: celo,
   optimism: optimism,
   stellar: stellarChain,
   arbitrum: arbitrum,
+  superchain: superchainChain,
+  base: base,
+  mainnet: mainnet,
 };
 
 export const getChainNameById = (chainId: number): ChainName => {
@@ -41,6 +57,7 @@ export const ACTIVE_CAMPAIGNS = {
   CELO_GOODDOLLAR: "gooddollar2",
   ARBITRUM: "arbitrum",
   STELLAR: "stellar2",
+  SUPERCHAIN: "superchain",
 } as const;
 
 export const TALLY = {

@@ -11,12 +11,13 @@ export const revalidate = 300; // invalidate every 5m
 export default async function Home() {
   const date = getTodayMidnight();
 
-  const [usdglo, regen, gooddollar, arbitrum, stellar] = await Promise.all([
+  const [usdglo, regen, gooddollar, arbitrum, stellar, superchain] = await Promise.all([
     getRecords(ACTIVE_CAMPAIGNS.CELO_USDGLO, date),
     getRecords(ACTIVE_CAMPAIGNS.CELO_REGEN, date),
     getRecords(ACTIVE_CAMPAIGNS.CELO_GOODDOLLAR, date),
     getRecords(ACTIVE_CAMPAIGNS.ARBITRUM, date),
     getRecords(ACTIVE_CAMPAIGNS.STELLAR, date),
+    getRecords(ACTIVE_CAMPAIGNS.SUPERCHAIN, date),
   ]);
 
   const chainData = [
@@ -46,6 +47,15 @@ export default async function Home() {
       href: "/stellar",
       description: "Global payments and financial access",
       competitions: [stellar],
+    }),
+    buildChainData({
+      name: "Superchain",
+      icon: "/superchain.svg",
+      color: "bg-red-100 border-red-300",
+      textColor: "text-red-800",
+      href: "/superchain",
+      description: "Unified liquidity across Ethereum, Optimism, and Base",
+      competitions: [superchain],
     }),
   ];
 

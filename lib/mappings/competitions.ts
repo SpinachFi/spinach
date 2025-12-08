@@ -15,7 +15,7 @@ import {
 } from "@/lib/celo";
 import { getStellarPools } from "@/lib/stellar";
 import { getGloContractAddress } from "@/lib/config";
-import { arbitrum, celo } from "viem/chains";
+import { arbitrum, base, celo, mainnet, optimism } from "viem/chains";
 
 export const getPoolDataFunc = (slug: string) => {
   const dataMap: { [key: string]: () => Promise<PoolRecord[]> } = {
@@ -35,6 +35,7 @@ export const getPoolDataFunc = (slug: string) => {
     arbitrum: getArbitrum,
     stellar: getStellarPools,
     stellar2: getStellarPools,
+    superchain: getSuperchain,
   };
 
   return dataMap[slug];
@@ -325,6 +326,46 @@ const getArbitrum = async () => {
     const poolData = await getUniblockPoolData("arbitrum", poolAddress, gloAddress);
     if (poolData) {
       results.push(poolData);
+    }
+  }
+
+  return results;
+};
+
+const getSuperchain = async () => {
+  const POOLS: Array<{ chain: string; address: string }> = [
+    {
+      chain: "optimism",
+      address: "0x98c3648a2087df2a1c2a5b695de908bf95fa4f39",
+    },
+    {
+      chain: "base",
+      address: "0x6db8d9d795c053ad0fd24723320e47b2a21c3dc1",
+    },
+  ];
+
+  const results: PoolRecord[] = [];
+
+  for (const pool of POOLS) {
+    const chainObj =
+      pool.chain === "base"
+        ? base
+        : pool.chain === "optimism"
+        ? optimism
+        : mainnet;
+    const gloAddress = getGloContractAddress(chainObj);
+
+    const poolData = await getUniblockPoolData(
+      pool.chain,
+      pool.address,
+      gloAddress
+    );
+
+    if (poolData) {
+      results.push({
+        ...poolData,
+        chainId: chainObj.id,
+      });
     }
   }
 

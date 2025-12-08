@@ -56,7 +56,7 @@ export default async function handler(
   if (hasRun) {
     return res
       .status(400)
-      .json({ message: `Data already connected for competition '${slug}'.` });
+      .json({ message: `Data already collected for competition '${slug}'.` });
   }
 
   const getPoolData = getPoolDataFunc(slug);
@@ -76,11 +76,11 @@ export default async function handler(
     });
   }
 
-  const chainId = competition.rewards[0]?.chainId || celo.id;
+  const defaultChainId = competition.rewards[0]?.chainId || celo.id;
 
   const pools = rawPools.map((pool) => ({
     ...pool,
-    chainId: chainId,
+    chainId: pool.chainId || defaultChainId,
     tvl: isNaN(pool.tvl) ? 0 : pool.tvl,
     incentiveTokenTvl: isNaN(pool.incentiveTokenTvl || 0)
       ? 0

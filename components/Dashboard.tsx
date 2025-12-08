@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CHAIN_MAP, TALLY_MAP } from "@/consts";
+import { CHAIN_MAP, TALLY_MAP, getChainNameById } from "@/consts";
 import {
   firstOfThisMonth,
   toNiceDate,
@@ -16,7 +16,6 @@ import {
   toNiceToken,
 } from "@/lib/utils";
 import { calculateTVL } from "@/lib/competition-stats";
-import { useSpiStore } from "@/store";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -59,6 +58,15 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         logo={row.original.project.logo}
         message={row.original.project.message}
       />
+    ),
+  },
+  {
+    id: "projectChainId",
+    accessorFn: (row) => row.projectChainId,
+    header: "Chain",
+    filterFn: "equals",
+    cell: ({ getValue }) => (
+      <span className="capitalize">{getChainNameById(getValue<number>())}</span>
     ),
   },
   {
@@ -296,10 +304,6 @@ export const columns: ColumnDef<ProjectRecord>[] = [
       );
     },
   },
-  {
-    accessorFn: (row) => row.projectChainId.toString(),
-    header: "projectChainId",
-  },
 ];
 
 export function Dashboard({
@@ -313,36 +317,25 @@ export function Dashboard({
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "tvl", desc: true },
   ]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([
-    {
-      id: "projectChainId",
-      value: CHAIN_MAP[chain].id,
-    },
-  ]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    chain === "superchain"
+      ? []
+      : [
+          {
+            id: "projectChainId",
+            value: CHAIN_MAP[chain].id,
+          },
+        ]
+  );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
-      projectChainId: false,
+      projectChainId: chain === "superchain",
     });
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const [selectedCompetiton, setSelectedCompetiton] = React.useState(
     competitions[0]
   );
-
-  const { selectedChain, setSelectedChain } = useSpiStore();
-
-  React.useEffect(() => {
-    setColumnFilters([
-      {
-        id: "projectChainId",
-        value: CHAIN_MAP[selectedChain].id,
-      },
-    ]);
-  }, [selectedChain]);
-
-  React.useEffect(() => {
-    setSelectedChain(chain);
-  }, [chain, setSelectedChain]);
 
   const table = useReactTable({
     data: selectedCompetiton.records,
