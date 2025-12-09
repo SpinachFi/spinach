@@ -24,6 +24,7 @@ export const CHAIN_RPC_URLS: { [chainId: number]: string } = {
   [arbitrum.id]: process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL!,
   [optimism.id]: process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL!,
   [base.id]: process.env.NEXT_PUBLIC_BASE_RPC_URL!,
+  99999: process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL!, // Superchain uses Optimism for payouts
 };
 
 export const getChainRPCUrl = (chain: Chain): string => {
