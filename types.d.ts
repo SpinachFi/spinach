@@ -21,13 +21,14 @@ type PoolRecord = {
   incentiveTokenTvl?: number;
   participatingTokenTvl?: number;
   dex: DexName;
+  chainId?: number;
 };
 
 type PoolRewardRecord = PoolRecord & {
   reward: number;
 };
 
-type ChainName = "celo" | "optimism" | "stellar" | "arbitrum";
+type ChainName = "celo" | "optimism" | "stellar" | "arbitrum" | "superchain" | "base" | "mainnet";
 type DexName = "uniswap" | "ubeswap" | "garden" | "bitsave" | "carbondefi" | "blend" | CustomGarden;
 type CustomGarden = "Network Initiatives" | "Node Kickstarter";
 

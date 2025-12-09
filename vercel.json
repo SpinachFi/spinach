@@ -16,6 +16,14 @@
     {
       "path": "/api/collect/competition?slug=stellar2",
       "schedule": "10 01 * * *"
+    },
+    {
+      "path": "/api/collect/competition?slug=superchain",
+      "schedule": "30 01 * * *"
+    },
+    {
+      "path": "/api/payout/process?slug=superchain&reward=USDGLO",
+      "schedule": "40 01 * * *"
     }
   ]
 }

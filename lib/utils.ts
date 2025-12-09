@@ -656,10 +656,11 @@ export const createProjectRecordsRewards = async (
       incentiveTokenTvl,
       participatingTokenTvl,
       reward,
+      chainId: poolChainId,
     }) => {
       return {
         projectToken: token,
-        projectChainId: chainId,
+        projectChainId: poolChainId || chainId,
         projectDex: dex,
         rewardId,
         tvl,
