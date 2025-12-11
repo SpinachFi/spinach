@@ -96,6 +96,10 @@ const getUsdglo = async () => {
     "CMCSG",
     "0xa6a408914dc6e1ac9a8db8ce472923374b1b6beb"
   );
+  const deSciAsia = await getGarden(
+    "DeSciAsia",
+    "0xabbdc98302a55dfad457843b2c0f2e9306854267"
+  );
 
   const regfi = await getRegenerativeFi({
     poolAddr:
@@ -164,6 +168,7 @@ const getUsdglo = async () => {
     refidao,
     refidao2,
     cmcsg,
+    deSciAsia,
     bitsave,
     ...carbondefi,
   ];
