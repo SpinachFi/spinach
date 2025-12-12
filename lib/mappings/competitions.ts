@@ -5,7 +5,6 @@ import {
   getBitSave,
   getBlockScoutData,
   getCeloPrice,
-  getDexData,
   getGarden,
   getRefi,
   getRegenerativeFi,
@@ -44,24 +43,31 @@ export const getPoolDataFunc = (slug: string) => {
 const getUsdglo = async () => {
   const tokenPrices = await fetchTokenPrices();
 
-  const DEXSCREENER_POOLS = [
-    "0x4eb0685f69f0b87da744e159576556b709a74c09", // NATURE
-    "0xeaaeabc83df22075d87bff0ae62f9496ffc808f3", // Axlregen
-  ];
-  const dexPools = await getDexData("celo", DEXSCREENER_POOLS);
-
-  // Use Uniblock for G$ pool 
   const gloAddress = getGloContractAddress(celo);
-  const goodDollarPool = await getUniblockPoolData(
-    "celo",
-    "0x0dbb0769b00d01d241ba4f7b2891fb5c2a975d51",
-    gloAddress
+
+  const poolConfigs = [
+    { address: "0x4eb0685f69f0b87da744e159576556b709a74c09", name: "NATURE" },
+    { address: "0xeaaeabc83df22075d87bff0ae62f9496ffc808f3", name: "Axlregen" },
+    { address: "0x0dbb0769b00d01d241ba4f7b2891fb5c2a975d51", name: "G$" },
+  ];
+
+  const poolResults = await Promise.allSettled(
+    poolConfigs.map(({ address }) =>
+      getUniblockPoolData("celo", address, gloAddress)
+    )
   );
 
-  const uniswapPools = [
-    ...dexPools,
-    ...(goodDollarPool ? [goodDollarPool] : []),
-  ];
+  const uniswapPools = poolResults.flatMap((result, index) => {
+    if (result.status === 'rejected') {
+      console.warn(`Failed to fetch ${poolConfigs[index].name} pool:`, result.reason);
+      return [];
+    }
+    if (!result.value) {
+      console.warn(`${poolConfigs[index].name} pool returned null/empty data`);
+      return [];
+    }
+    return [result.value];
+  });
   const ubeGoodDollar = await getBlockScoutData(
     "0x3d9e27c04076288ebfdc4815b4f6d81b0ed1b341",
     [getGloContractAddress(celo), "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"]
