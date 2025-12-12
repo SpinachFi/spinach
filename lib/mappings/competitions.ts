@@ -5,7 +5,6 @@ import {
   getBitSave,
   getBlockScoutData,
   getCeloPrice,
-  getDexData,
   getGarden,
   getRefi,
   getRegenerativeFi,
