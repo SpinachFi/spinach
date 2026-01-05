@@ -136,9 +136,9 @@ export async function getContractData(contract: string): Promise<Dict> {
         },
       });
 
-      if (!res.data?.trustlines) return {};
+      if (!res.data?.balances) return {};
 
-      const tokens: Dict = res.data.trustlines.reduce(
+      const tokens: Dict = res.data.balances.reduce(
         (acc: Dict, cur: { value: number; asset: string }) => {
           if (cur.value && cur.asset) {
             const tokenSymbol = cur.asset.split("-")[0];
