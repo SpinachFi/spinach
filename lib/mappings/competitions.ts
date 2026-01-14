@@ -51,7 +51,7 @@ const getUsdglo = async () => {
   const poolConfigs = [
     { address: "0x4eb0685f69f0b87da744e159576556b709a74c09", name: "NATURE" },
     { address: "0xeaaeabc83df22075d87bff0ae62f9496ffc808f3", name: "Axlregen" },
-    { address: "0x0dbb0769b00d01d241ba4f7b2891fb5c2a975d51", name: "G$" },
+    { address: "0x991f1aa7e0901f9ab3d583846bf5be0ebace1d7f", name: "G$" },
   ];
 
   const poolResults = await Promise.allSettled(
