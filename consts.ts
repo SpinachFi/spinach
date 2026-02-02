@@ -52,7 +52,7 @@ export const AVAILABLE_CHAINS: ChainName[] = Object.keys(
 export const DEFAULT_CHAIN = AVAILABLE_CHAINS[0];
 
 export const ACTIVE_CAMPAIGNS = {
-  CELO_USDGLO: "usdglo8",
+  CELO_USDGLO: "usdglo9",
   CELO_REGEN: "regen4",
   CELO_GOODDOLLAR: "gooddollar2",
   ARBITRUM: "arbitrum",

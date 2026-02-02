@@ -26,6 +26,7 @@ export const getPoolDataFunc = (slug: string) => {
     usdglo6: getUsdglo,
     usdglo7: getUsdglo,
     usdglo8: getUsdglo,
+    usdglo9: getUsdglo,
     regen: getRegen,
     regen2: getRegen,
     regen3: getRegen,
