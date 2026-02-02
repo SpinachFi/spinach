@@ -56,8 +56,8 @@ export const ACTIVE_CAMPAIGNS = {
   CELO_REGEN: "regen4",
   CELO_GOODDOLLAR: "gooddollar2",
   ARBITRUM: "arbitrum",
-  STELLAR: "stellar3",
-  SUPERCHAIN: "superchain2",
+  STELLAR: "stellar4",
+  SUPERCHAIN: "superchain3",
 } as const;
 
 export const TALLY = {

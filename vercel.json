@@ -14,11 +14,11 @@
       "schedule": "0 01 * * *"
     },
     {
-      "path": "/api/collect/competition?slug=stellar3",
+      "path": "/api/collect/competition?slug=stellar4",
       "schedule": "10 01 * * *"
     },
     {
-      "path": "/api/collect/competition?slug=superchain2",
+      "path": "/api/collect/competition?slug=superchain3",
       "schedule": "30 01 * * *"
     }
   ]
