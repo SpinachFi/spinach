@@ -116,6 +116,10 @@ const getUsdglo = async () => {
     "GreenpillNYC",
     "0x8a8e6ac00d93ac766a25b7d6bbf0ca2e873f7725"
   );
+  const greenpillTO = await getGarden(
+    "GreenpillTO",
+    "0x33080d27f98747f092021bdee4a006eda42ff2f7"
+  );
 
   const regfi = await getRegenerativeFi({
     poolAddr:
@@ -196,6 +200,7 @@ const getUsdglo = async () => {
     cmcsg,
     deSciAsia,
     greenpillNYC,
+    greenpillTO,
     bitsave,
     ...carbondefi,
   ];
