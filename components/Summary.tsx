@@ -49,7 +49,8 @@ export default function Summary({
   endDate,
   rewards,
 }: Props) {
-  const [token, reward] = Object.entries(rewards)[0];
+  const entries = Object.entries(rewards);
+  const [token, reward] = entries.length > 0 ? entries[0] : ["", 0];
   const apr = liquidity ? (reward * 365 * 100) / liquidity : 0;
 
   const Sep = () => (
