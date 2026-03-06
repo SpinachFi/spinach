@@ -4,6 +4,7 @@ import {
   fetchTokenPrices,
   getBitSave,
   getBlockScoutData,
+  getCarbonDeFiData,
   getCeloPrice,
   getGarden,
   getRefi,
@@ -165,26 +166,8 @@ const getUsdglo = async () => {
     incentiveToken: { addr: getGloContractAddress(celo) },
   });
 
-  const getCarbonDeFi = async (): Promise<PoolRecord[]> => {
-    const carbonData = await getBlockScoutData(
-      "0x6619871118D144c1c28eC3b23036FC1f0829ed3a",
-      [
-        getGloContractAddress(celo),
-        "0x471ece3750da237f93b8e339c536989b8978a438",
-      ]
-    );
-
-    return carbonData.map((pool) => ({
-      token: "Carbon DeFi",
-      tvl: pool.incentiveTokenTvl ?? 0,
-      incentiveTokenTvl: pool.incentiveTokenTvl ?? 0,
-      participatingTokenTvl: 0,
-      dex: "carbondefi",
-    }));
-  };
-
   const bitsave = await getBitSave();
-  const carbondefi = await getCarbonDeFi();
+  const carbondefi = await getCarbonDeFiData();
 
   const aggregated: PoolRecord[] = [
     ...uniswapPools,
@@ -205,7 +188,7 @@ const getUsdglo = async () => {
     greenpillNYC,
     greenpillTO,
     bitsave,
-    ...carbondefi,
+    carbondefi,
   ];
 
   return aggregated;

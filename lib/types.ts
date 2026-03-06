@@ -67,6 +67,28 @@ export type BitSaveTransaction = {
   created_at: string;
 };
 
+// Carbon DeFi API Types
+export type CarbonTicker = {
+  ticker_id: string;
+  base_currency: string;
+  target_currency: string;
+  liquidity_in_usd: number;
+};
+
+export type CarbonWalletPairBalance = {
+  data: Record<
+    string,
+    {
+      token0Address: string;
+      token1Address: string;
+      wallets: Record<
+        string,
+        { token0Balance: string; token1Balance: string }
+      >;
+    }
+  >;
+};
+
 // Uniblock API Types
 export type UniblockToken = {
   symbol?: string;

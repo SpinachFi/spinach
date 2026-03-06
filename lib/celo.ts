@@ -11,6 +11,8 @@ import {
   BlockScoutData,
   BitSaveTransaction,
   UniblockPoolResponse,
+  CarbonTicker,
+  CarbonWalletPairBalance,
 } from "./types";
 import { getBalance, twoDecimals } from "./utils";
 
@@ -534,5 +536,68 @@ export const getUniblockPoolData = async (
   } catch (err) {
     console.error(`❌ Uniblock pool fetch failed: ${err instanceof Error ? err.message : String(err)}`);
     return null;
+  }
+};
+
+export const getCarbonDeFiData = async (): Promise<PoolRecord> => {
+  try {
+    const gloAddress = getGloContractAddress(celo).toLowerCase();
+
+    const [{ data: tickers }, { data: balances }] = await Promise.all([
+      axios.get<CarbonTicker[]>(
+        "https://api.carbondefi.xyz/v1/celo/coingecko/tickers"
+      ),
+      axios.get<CarbonWalletPairBalance>(
+        "https://api.carbondefi.xyz/v1/celo/wallet-pair-balance"
+      ),
+    ]);
+
+    let totalLiquidity = 0;
+    const seen = new Set<string>();
+    for (const ticker of tickers) {
+      if (seen.has(ticker.ticker_id)) continue;
+      if (
+        ticker.base_currency.toLowerCase() === gloAddress ||
+        ticker.target_currency.toLowerCase() === gloAddress
+      ) {
+        seen.add(ticker.ticker_id);
+        totalLiquidity += ticker.liquidity_in_usd;
+      }
+    }
+
+    let totalGlo = 0;
+    for (const pair of Object.values(balances.data)) {
+      const t0 = pair.token0Address.toLowerCase();
+      const t1 = pair.token1Address.toLowerCase();
+      if (t0 !== gloAddress && t1 !== gloAddress) continue;
+
+      const isGloToken0 = t0 === gloAddress;
+      for (const wallet of Object.values(pair.wallets)) {
+        totalGlo += parseFloat(
+          isGloToken0 ? wallet.token0Balance : wallet.token1Balance
+        ) || 0;
+      }
+    }
+
+    const tvl = twoDecimals(totalLiquidity);
+    const incentiveTokenTvl = twoDecimals(totalGlo);
+    const participatingTokenTvl = twoDecimals(totalLiquidity - totalGlo);
+
+    return {
+      token: "Carbon DeFi",
+      tvl,
+      incentiveTokenTvl,
+      participatingTokenTvl,
+      dex: "carbondefi",
+    };
+  } catch (err) {
+    console.error("Carbon DeFi fetch failed:", err instanceof Error ? err.message : String(err));
+    return {
+      token: "Carbon DeFi",
+      tvl: 0,
+      incentiveTokenTvl: 0,
+      participatingTokenTvl: 0,
+      dex: "carbondefi",
+    };
   }
 };
