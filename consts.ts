@@ -52,12 +52,12 @@ export const AVAILABLE_CHAINS: ChainName[] = Object.keys(
 export const DEFAULT_CHAIN = AVAILABLE_CHAINS[0];
 
 export const ACTIVE_CAMPAIGNS = {
-  CELO_USDGLO: "usdglo10",
+  CELO_USDGLO: "usdglo11",
   CELO_REGEN: "regen4",
   CELO_GOODDOLLAR: "gooddollar2",
   ARBITRUM: "arbitrum",
-  STELLAR: "stellar5",
-  SUPERCHAIN: "superchain4",
+  STELLAR: "stellar6",
+  SUPERCHAIN: "superchain5",
 } as const;
 
 export const TALLY = {
