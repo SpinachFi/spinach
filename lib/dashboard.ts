@@ -1,6 +1,49 @@
 import prisma from "@/lib/prisma";
+import { ACTIVE_CAMPAIGNS } from "@/consts";
 
 export type Competition = Awaited<ReturnType<typeof getRecords>>;
+
+const CHAIN_SLUG_PREFIXES = {
+  celo: ["usdglo", "regen", "gooddollar"],
+  stellar: ["stellar"],
+  superchain: ["superchain"],
+} as const;
+
+export const getCompletedCompetitions = async (
+  chain: keyof typeof CHAIN_SLUG_PREFIXES
+): Promise<Competition[]> => {
+  const activeSlugs = new Set<string>(Object.values(ACTIVE_CAMPAIGNS));
+  const prefixes = CHAIN_SLUG_PREFIXES[chain];
+
+  const competitions = await prisma.competition.findMany({
+    where: {
+      endDate: { lt: new Date() },
+      OR: prefixes.map((p) => ({ slug: { startsWith: p } })),
+      slug: { notIn: Array.from(activeSlugs) },
+    },
+    select: {
+      slug: true,
+      rewards: {
+        select: {
+          records: {
+            select: { date: true },
+            orderBy: { date: "desc" },
+            take: 1,
+          },
+        },
+      },
+    },
+    orderBy: { startDate: "asc" },
+  });
+
+  return Promise.all(
+    competitions.map(({ slug, rewards }) => {
+      const latestDate =
+        rewards.flatMap((r) => r.records).map((r) => r.date).sort((a, b) => b.getTime() - a.getTime())[0] ?? new Date(0);
+      return getRecords(slug, latestDate);
+    })
+  );
+};
 
 export const getRecords = async (slug: string, date: Date) => {
   try {
