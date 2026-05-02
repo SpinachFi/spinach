@@ -6,19 +6,19 @@
   },
   "crons": [
     {
-      "path": "/api/collect/competition?slug=usdglo11",
+      "path": "/api/collect/competition?slug=usdglo12",
       "schedule": "00 00 * * *"
     },
     {
-      "path": "/api/payout/process?slug=usdglo11&reward=USDGLO",
+      "path": "/api/payout/process?slug=usdglo12&reward=USDGLO",
       "schedule": "0 01 * * *"
     },
     {
-      "path": "/api/collect/competition?slug=stellar6",
+      "path": "/api/collect/competition?slug=stellar7",
       "schedule": "10 01 * * *"
     },
     {
-      "path": "/api/collect/competition?slug=superchain5",
+      "path": "/api/collect/competition?slug=superchain6",
       "schedule": "30 01 * * *"
     }
   ]
