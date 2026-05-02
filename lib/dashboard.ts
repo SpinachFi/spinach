@@ -15,6 +15,10 @@ export const getCompletedCompetitions = async (
   const activeSlugs = new Set<string>(Object.values(ACTIVE_CAMPAIGNS));
   const prefixes = CHAIN_SLUG_PREFIXES[chain];
 
+  // Single query per chain: pull every completed competition with all
+  // nested data needed to render. We then collapse records to the latest
+  // date per competition in JS — avoids the N+1 round-trips that were
+  // exhausting the Postgres pool in production.
   const competitions = await prisma.competition.findMany({
     where: {
       endDate: { lt: new Date() },
@@ -23,12 +27,39 @@ export const getCompletedCompetitions = async (
     },
     select: {
       slug: true,
+      startDate: true,
+      endDate: true,
+      description: true,
       rewards: {
         select: {
+          name: true,
+          value: true,
           records: {
-            select: { date: true },
-            orderBy: { date: "desc" },
-            take: 1,
+            select: {
+              date: true,
+              projectToken: true,
+              project: {
+                select: {
+                  name: true,
+                  displayToken: true,
+                  addLiquidity: true,
+                  website: true,
+                  message: true,
+                  liquiditySource: true,
+                  logo: true,
+                  createdAt: true,
+                },
+              },
+              projectChainId: true,
+              projectDex: true,
+              currentMonthEarnings: true,
+              earnings: true,
+              tvl: true,
+              incentiveTokenTvl: true,
+              participatingTokenTvl: true,
+              rewardId: true,
+              reward: { select: { name: true } },
+            },
           },
         },
       },
@@ -36,13 +67,37 @@ export const getCompletedCompetitions = async (
     orderBy: { startDate: "asc" },
   });
 
-  return Promise.all(
-    competitions.map(({ slug, rewards }) => {
-      const latestDate =
-        rewards.flatMap((r) => r.records).map((r) => r.date).sort((a, b) => b.getTime() - a.getTime())[0] ?? new Date(0);
-      return getRecords(slug, latestDate);
-    })
-  );
+  return competitions.map((competition) => {
+    // Find latest record date across all rewards for this competition.
+    const latestTime = competition.rewards
+      .flatMap((r) => r.records)
+      .reduce((max, r) => Math.max(max, r.date.getTime()), 0);
+
+    // Filter each reward's records to only the latest date.
+    const rewardsAtLatest = competition.rewards.map((reward) => ({
+      ...reward,
+      records: latestTime
+        ? reward.records.filter((r) => r.date.getTime() === latestTime)
+        : [],
+    }));
+
+    const records = rewardsAtLatest.flatMap((reward) => reward.records);
+
+    return {
+      meta: {
+        slug: competition.slug,
+        startDate: competition.startDate,
+        endDate: competition.endDate,
+        description: competition.description,
+        token: rewardsAtLatest[0]?.name || "",
+        rewards: rewardsAtLatest.reduce(
+          (acc, { name, value }) => ({ ...acc, [name]: value }),
+          {} as Dict
+        ),
+      },
+      records: groupAndSum(records),
+    };
+  });
 };
 
 export const getRecords = async (slug: string, date: Date) => {
