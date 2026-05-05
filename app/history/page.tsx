@@ -2,8 +2,6 @@ import Layout from "@/components/Layout";
 import { HistoryDashboard } from "@/components/HistoryDashboard";
 import { getCompletedCompetitions } from "@/lib/dashboard";
 
-export const revalidate = 300; // invalidate every 5m
-
 export default async function Home() {
   const [celoCompetitions, stellarCompetitions, superchainCompetitions] =
     await Promise.all([
