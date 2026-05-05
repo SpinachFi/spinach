@@ -142,12 +142,14 @@ export const createProjectRecords = async (
         projectToken: token,
         projectChainId: chainId,
         projectDex: dex,
-        tvl,
-        incentiveTokenTvl,
-        participatingTokenTvl,
-        earnings: reward,
-        currentMonthEarnings:
-          (yesterdayEarnings[`${dex}/${token}`] || 0) + reward,
+        tvl: Math.max(0, tvl),
+        incentiveTokenTvl: Math.max(0, incentiveTokenTvl ?? 0),
+        participatingTokenTvl: Math.max(0, participatingTokenTvl ?? 0),
+        earnings: Math.max(0, reward),
+        currentMonthEarnings: Math.max(
+          0,
+          (yesterdayEarnings[`${dex}/${token}`] || 0) + reward
+        ),
         date: getTodayMidnight(),
       })
     ),
@@ -663,12 +665,14 @@ export const createProjectRecordsRewards = async (
         projectChainId: poolChainId || chainId,
         projectDex: dex,
         rewardId,
-        tvl,
-        incentiveTokenTvl,
-        participatingTokenTvl,
-        earnings: reward,
-        currentMonthEarnings:
-          (yesterdayEarnings[`${dex}/${token}`] || 0) + reward,
+        tvl: Math.max(0, tvl),
+        incentiveTokenTvl: Math.max(0, incentiveTokenTvl ?? 0),
+        participatingTokenTvl: Math.max(0, participatingTokenTvl ?? 0),
+        earnings: Math.max(0, reward),
+        currentMonthEarnings: Math.max(
+          0,
+          (yesterdayEarnings[`${dex}/${token}`] || 0) + reward
+        ),
         date: getTodayMidnight(),
       };
     }
