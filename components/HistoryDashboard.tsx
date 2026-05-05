@@ -9,17 +9,21 @@ import clsx from "clsx";
 type HistoryDashboardProps = {
   celoCompetitions: Competition[];
   stellarCompetitions: Competition[];
+  superchainCompetitions: Competition[];
   celoDate: Date;
   stellarDate: Date;
+  superchainDate: Date;
 };
 
 export function HistoryDashboard({
   celoCompetitions,
   stellarCompetitions,
+  superchainCompetitions,
   celoDate,
   stellarDate,
+  superchainDate,
 }: HistoryDashboardProps) {
-  const [selectedChain, setSelectedChain] = useState<"celo" | "stellar">("celo");
+  const [selectedChain, setSelectedChain] = useState<"celo" | "stellar" | "superchain">("celo");
 
   return (
     <>
@@ -48,9 +52,21 @@ export function HistoryDashboard({
         >
           Stellar
         </Button>
+        <Button
+          onClick={() => setSelectedChain("superchain")}
+          className={clsx(
+            "flex-1",
+            selectedChain === "superchain"
+              ? "bg-spi-dark-green text-white"
+              : "bg-white text-spi-dark-green border-spi-gray"
+          )}
+          variant={selectedChain === "superchain" ? "default" : "outline"}
+        >
+          Superchain
+        </Button>
       </div>
 
-      {selectedChain === "celo" ? (
+      {selectedChain === "celo" && (
         <Dashboard
           key="celo-history"
           chain="celo"
@@ -58,12 +74,22 @@ export function HistoryDashboard({
           date={celoDate}
           hideCreateCompetition={true}
         />
-      ) : (
+      )}
+      {selectedChain === "stellar" && (
         <Dashboard
           key="stellar-history"
           chain="stellar"
           competitions={stellarCompetitions}
           date={stellarDate}
+          hideCreateCompetition={true}
+        />
+      )}
+      {selectedChain === "superchain" && (
+        <Dashboard
+          key="superchain-history"
+          chain="superchain"
+          competitions={superchainCompetitions}
+          date={superchainDate}
           hideCreateCompetition={true}
         />
       )}

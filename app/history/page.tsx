@@ -1,28 +1,17 @@
 import Layout from "@/components/Layout";
 import { HistoryDashboard } from "@/components/HistoryDashboard";
-import { getRecords } from "@/lib/dashboard";
-import { getMidnightOn } from "@/lib/utils";
+import { getCompletedCompetitions } from "@/lib/dashboard";
 
 export default async function Home() {
-  const juneDate = getMidnightOn(2025, 5, 30);
-  const julyDate = getMidnightOn(2025, 6, 31);
-  const augDate = getMidnightOn(2025, 7, 31);
-  const septDate = getMidnightOn(2025, 8, 31);
-  const octDate = getMidnightOn(2025, 9, 31);
-  const novDate = getMidnightOn(2025, 10, 30);
-  const stellarDate = getMidnightOn(2025, 10, 27);
+  const [celoCompetitions, stellarCompetitions, superchainCompetitions] =
+    await Promise.all([
+      getCompletedCompetitions("celo"),
+      getCompletedCompetitions("stellar"),
+      getCompletedCompetitions("superchain"),
+    ]);
 
-  const juneUsdglo = await getRecords("usdglo", juneDate);
-  const julyUsdglo = await getRecords("usdglo2", julyDate);
-  const julyRegen = await getRecords("regen", julyDate);
-  const augUsdglo = await getRecords("usdglo3", augDate);
-  const augRegen = await getRecords("regen2", augDate);
-  const septUsdglo = await getRecords("usdglo4", septDate);
-  const septRegen = await getRecords("regen3", septDate);
-  const septGooddollar = await getRecords("gooddollar", septDate);
-  const octUsdglo = await getRecords("usdglo5", octDate);
-  const novUsdglo = await getRecords("usdglo6", novDate);
-  const stellar = await getRecords("stellar", stellarDate);
+  const firstStartDate = (cs: { meta: { startDate: Date } }[]) =>
+    cs[0]?.meta.startDate ?? new Date();
 
   return (
     <Layout>
@@ -35,21 +24,12 @@ export default async function Home() {
         </p>
       </div>
       <HistoryDashboard
-        celoCompetitions={[
-          juneUsdglo,
-          julyUsdglo,
-          julyRegen,
-          augUsdglo,
-          augRegen,
-          septUsdglo,
-          septRegen,
-          septGooddollar,
-          octUsdglo,
-          novUsdglo,
-        ]}
-        stellarCompetitions={[stellar]}
-        celoDate={juneDate}
-        stellarDate={stellarDate}
+        celoCompetitions={celoCompetitions}
+        stellarCompetitions={stellarCompetitions}
+        superchainCompetitions={superchainCompetitions}
+        celoDate={firstStartDate(celoCompetitions)}
+        stellarDate={firstStartDate(stellarCompetitions)}
+        superchainDate={firstStartDate(superchainCompetitions)}
       />
     </Layout>
   );
