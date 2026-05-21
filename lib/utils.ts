@@ -681,30 +681,25 @@ export const createProjectRecordsRewards = async (
   let successCount = 0;
 
   await prisma.$transaction(async (tx) => {
-    const failures: Array<{ pool: string; error: string }> = [];
-
-    for (const data of dataToCreate) {
-      const poolName = `${data.projectDex}/${data.projectToken}`;
-
-      try {
-        await tx.projectRecord.create({ data });
-        successCount++;
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : String(error);
-        failures.push({ pool: poolName, error: errorMsg });
-      }
-    }
-
-    if (failures.length > 0) {
-      const summary = failures
-        .map((f) => `${f.pool} (${f.error})`)
+    try {
+      const result = await tx.projectRecord.createMany({
+        data: dataToCreate,
+      });
+      successCount = result.count;
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      const poolNames = dataToCreate
+        .map((d) => `${d.projectDex}/${d.projectToken}`)
         .join(", ");
       console.error(
-        `❌ ${failures.length} failed while creating records (reward: ${rewardId}): ${summary}`
+        `❌ Batch create failed (reward: ${rewardId}): ${errorMsg} [pools: ${poolNames}]`
       );
       throw new ProjectRecordCreationError(
-        `Failed to create ${failures.length} record(s)`,
-        failures
+        `Failed to create ${dataToCreate.length} record(s): ${errorMsg}`,
+        dataToCreate.map((d) => ({
+          pool: `${d.projectDex}/${d.projectToken}`,
+          error: errorMsg,
+        }))
       );
     }
   });
