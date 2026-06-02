@@ -31,6 +31,7 @@ export const getPoolDataFunc = (slug: string) => {
     usdglo10: getUsdglo,
     usdglo11: getUsdglo,
     usdglo12: getUsdglo,
+    usdglo13: getUsdglo,
     regen: getRegen,
     regen2: getRegen,
     regen3: getRegen,
@@ -45,12 +46,14 @@ export const getPoolDataFunc = (slug: string) => {
     stellar5: getStellarPools,
     stellar6: getStellarPools,
     stellar7: getStellarPools,
+    stellar8: getStellarPools,
     superchain: getSuperchain,
     superchain2: getSuperchain,
     superchain3: getSuperchain,
     superchain4: getSuperchain,
     superchain5: getSuperchain,
     superchain6: getSuperchain,
+    superchain7: getSuperchain,
   };
 
   return dataMap[slug];
