@@ -32,6 +32,7 @@ export const getPoolDataFunc = (slug: string) => {
     usdglo11: getUsdglo,
     usdglo12: getUsdglo,
     usdglo13: getUsdglo,
+    usdglo14: getUsdglo,
     regen: getRegen,
     regen2: getRegen,
     regen3: getRegen,
@@ -47,6 +48,7 @@ export const getPoolDataFunc = (slug: string) => {
     stellar6: getStellarPools,
     stellar7: getStellarPools,
     stellar8: getStellarPools,
+    stellar9: getStellarPools,
     superchain: getSuperchain,
     superchain2: getSuperchain,
     superchain3: getSuperchain,
@@ -54,6 +56,7 @@ export const getPoolDataFunc = (slug: string) => {
     superchain5: getSuperchain,
     superchain6: getSuperchain,
     superchain7: getSuperchain,
+    superchain8: getSuperchain,
   };
 
   return dataMap[slug];
@@ -92,7 +95,13 @@ const getUsdglo = async () => {
     [getGloContractAddress(celo), "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"]
   );
 
-  const ube = await getUbeswap();
+  let ube: PoolRecord | null = null;
+  try {
+    ube = await getUbeswap();
+  } catch (error) {
+    console.warn("Failed to fetch Ubeswap pool:", error);
+  }
+
   const refi = await getRefi();
   const kokonut = await getGarden(
     "Kokonut",
@@ -181,7 +190,7 @@ const getUsdglo = async () => {
   const aggregated: PoolRecord[] = [
     ...uniswapPools,
     ...ubeGoodDollar,
-    ube,
+    ...(ube ? [ube] : []),
     refi,
     kokonut,
     agroforest,
