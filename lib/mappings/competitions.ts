@@ -95,13 +95,7 @@ const getUsdglo = async () => {
     [getGloContractAddress(celo), "0x62B8B11039FcfE5aB0C56E502b1C372A3d2a9c7A"]
   );
 
-  let ube: PoolRecord | null = null;
-  try {
-    ube = await getUbeswap();
-  } catch (error) {
-    console.warn("Failed to fetch Ubeswap pool:", error);
-  }
-
+  const ube = await getUbeswap();
   const refi = await getRefi();
   const kokonut = await getGarden(
     "Kokonut",
@@ -190,7 +184,7 @@ const getUsdglo = async () => {
   const aggregated: PoolRecord[] = [
     ...uniswapPools,
     ...ubeGoodDollar,
-    ...(ube ? [ube] : []),
+    ube,
     refi,
     kokonut,
     agroforest,
