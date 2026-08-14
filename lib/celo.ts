@@ -16,6 +16,10 @@ import {
 } from "./types";
 import { getBalance, twoDecimals } from "./utils";
 
+const AXLREGEN_ADDRESS = "0x2e6c05f1f7d1f4eb9a088bf12257f1647682b754";
+const AXLREGEN_GECKOTERMINAL_POOL =
+  "https://api.geckoterminal.com/api/v2/networks/celo/pools/0xc9083503727495569de1973c5d44eb546d31474a";
+
 export const getRefi = async (): Promise<PoolRecord> => {
   const contractAdr = "0x505E65f7D854d4a564b5486d59c91E1DfE627579";
   const balance = await getBalance(contractAdr, celo);
@@ -377,11 +381,16 @@ export const getRegenerativeFi = async (config: {
   const tokensMap = await getRefiPoolTokens(poolAddr);
 
   const main = twoDecimals(
-    tokensMap[incentiveToken.addr.toLowerCase()] * (incentiveToken.price || 1)
+    valueTokenAmount(
+      tokensMap[incentiveToken.addr.toLowerCase()],
+      incentiveToken.price
+    )
   );
   const other = twoDecimals(
-    tokensMap[participatingToken.addr.toLowerCase()] *
-      (participatingToken.price || 1)
+    valueTokenAmount(
+      tokensMap[participatingToken.addr.toLowerCase()],
+      participatingToken.price
+    )
   );
 
   return {
@@ -391,6 +400,22 @@ export const getRegenerativeFi = async (config: {
     participatingTokenTvl: other,
     dex: "garden",
   };
+};
+
+export const valueTokenAmount = (amount?: number, price?: number) =>
+  (amount ?? 0) * (price ?? 1);
+
+const fetchAxlRegenPrice = async () => {
+  const res = await axios.get<{
+    data?: {
+      attributes?: {
+        base_token_price_usd?: string | number;
+      };
+    };
+  }>(AXLREGEN_GECKOTERMINAL_POOL);
+  const price = Number(res.data?.data?.attributes?.base_token_price_usd);
+
+  return Number.isFinite(price) && price > 0 ? price : null;
 };
 
 export const fetchTokenPrices = async () => {
@@ -415,6 +440,21 @@ export const fetchTokenPrices = async () => {
     },
     {} as Record<string, number>
   );
+
+  if (!prices[AXLREGEN_ADDRESS]) {
+    try {
+      const axlRegenPrice = await fetchAxlRegenPrice();
+      if (axlRegenPrice) {
+        prices[AXLREGEN_ADDRESS] = axlRegenPrice;
+      }
+    } catch (err) {
+      console.error(
+        `❌ axlREGEN price fallback failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
+    }
+  }
 
   return prices;
 };
