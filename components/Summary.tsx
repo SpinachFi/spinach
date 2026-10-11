@@ -1,7 +1,6 @@
 import { toNiceDate } from "@/lib/utils";
 import { ReactNode } from "react";
 import SpiTooltip from "./SpiTooltip";
-import { Separator } from "./ui/separator";
 
 type Props = {
   liquidity: number;
@@ -9,6 +8,7 @@ type Props = {
   startDate: Date;
   endDate: Date;
   rewards: Dict;
+  showDates?: boolean;
 };
 
 type CardProps = {
@@ -21,21 +21,21 @@ type CardProps = {
 
 const Card = ({ title, numbers, subtitle, footer, tooltip }: CardProps) => {
   const element = (
-    <div className="flex flex-col items-center">
+    <div className="flex min-w-0 flex-col items-center text-center">
       <div className="text-spi-gray text-sm">{title}</div>
-      <div>
+      <div className="break-words">
         <span className="font-medium text-spi-dark-green text-xl">
           {numbers}
         </span>
         {subtitle}
       </div>
-      <span className="text-xs text-spi-gray">{footer || <wbr />}</span>
+      {footer && <span className="text-xs text-spi-gray">{footer}</span>}
     </div>
   );
 
   return (
-    <div className="flex items-center justify-center flex-1">
-      <div className="flex flex-col items-center">
+    <div className="flex min-w-0 items-center justify-center px-4 py-5">
+      <div className="flex min-w-0 flex-col items-center text-center">
         {tooltip ? <SpiTooltip content={tooltip} trigger={element} /> : element}
       </div>
     </div>
@@ -48,30 +48,29 @@ export default function Summary({
   startDate,
   endDate,
   rewards,
+  showDates = false,
 }: Props) {
   const entries = Object.entries(rewards);
   const [token, reward] = entries.length > 0 ? entries[0] : ["", 0];
   const apr = liquidity ? (reward * 365 * 100) / liquidity : 0;
 
-  const Sep = () => (
-    <div className="py-5">
-      <Separator orientation="vertical" />
-    </div>
-  );
   return (
-    <div className="flex h-[96px] my-3 justify-between border-1 rounded-sm shadow-sm">
+    <div className="grid grid-cols-1 my-3 divide-y sm:grid-cols-3 sm:divide-y-0 sm:divide-x border rounded-md shadow-sm">
       <Card
         title="Daily rewards"
         numbers={Object.entries(rewards)
           .map(
             ([token, value]) =>
-              `${token.includes("USD") ? "$" : ""}${value} ${token}`
+              `${token.includes("USD") ? "$" : ""}${value} ${token}`,
           )
           .join(" + ")}
-        footer={`From ${toNiceDate(startDate)} - ${toNiceDate(endDate)}`}
+        footer={
+          showDates
+            ? `From ${toNiceDate(startDate)} - ${toNiceDate(endDate)}`
+            : undefined
+        }
         tooltip={`${token} 75% $OTHER 25%`}
       />
-      <Sep />
       <Card
         title="Liquidity provided"
         subtitle={
@@ -81,7 +80,6 @@ export default function Summary({
         }
         numbers={`$${Math.round(liquidity).toLocaleString()}`}
       />
-      <Sep />
       <Card title="Projects competing" numbers={projects.toString()} />
     </div>
   );

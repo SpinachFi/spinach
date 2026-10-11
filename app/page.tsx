@@ -61,18 +61,18 @@ export default async function Home() {
 
   return (
     <Layout>
-      <div className="w-full max-w-6xl mx-auto space-y-8">
-        <div className="text-center py-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+      <div className="w-full min-w-0 max-w-6xl mx-auto space-y-6 sm:space-y-8">
+        <div className="text-center py-4 sm:py-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
             Liquidity Competitions
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto">
             Projects earn daily rewards for integrating and growing liquidity
             for incentivized tokens.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {chainData.map((chain) => (
             <ChainCard key={chain.href} chain={chain} />
           ))}
