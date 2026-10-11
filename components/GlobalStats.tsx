@@ -20,22 +20,22 @@ export default function GlobalStats({ chainData }: GlobalStatsProps) {
   const totalTVL = chainData.reduce((sum, chain) => sum + chain.totalTVL, 0);
 
   return (
-    <div className="bg-gray-50 rounded-xl p-6 mt-8">
-      <div className="grid md:grid-cols-3 gap-6 text-center">
+    <div className="bg-gray-50 rounded-xl p-4 sm:p-6 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
         <div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="break-words text-3xl font-bold text-gray-900 mb-2">
             {totalCompetitions}
           </div>
           <div className="text-gray-600">Active Competitions</div>
         </div>
         <div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="break-words text-3xl font-bold text-gray-900 mb-2">
             {totalProjects}
           </div>
           <div className="text-gray-600">Projects Competing</div>
         </div>
         <div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="break-words text-3xl font-bold text-gray-900 mb-2">
             {toNiceDollar(totalTVL, 0)}
           </div>
           <div className="text-gray-600">Total Value Locked</div>

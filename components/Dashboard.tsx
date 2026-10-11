@@ -9,12 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CHAIN_MAP, TALLY_MAP, getChainNameById } from "@/consts";
-import {
-  firstOfThisMonth,
-  toNiceDate,
-  toNiceDollar,
-  toNiceToken,
-} from "@/lib/utils";
+import { toNiceDollar, toNiceToken } from "@/lib/utils";
 import { calculateTVL } from "@/lib/competition-stats";
 import {
   ChevronDownIcon,
@@ -167,10 +162,9 @@ export const columns: ColumnDef<ProjectRecord>[] = [
       <SpiTooltip
         content={
           <p className="text-center">
-            Earnings so far since competition start on{" "}
-            {toNiceDate(firstOfThisMonth())}
+            Rewards earned this calendar month.
             <br />
-            (and earnings yesterday)
+            Yesterday’s rewards are shown in each total’s tooltip.
           </p>
         }
         trigger={
@@ -203,7 +197,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
         Object.keys(dataMap || {}).reduce(
           (acc, cur, index) =>
             `${acc}${index > 0 ? " + " : ""}${toNiceToken(dataMap[cur], cur)}`,
-          ""
+          "",
         );
 
       return (
@@ -212,7 +206,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
             <El
               earnings={buildTag(row.original.earningsMap!)}
               currentMonthEarnings={buildTag(
-                row.original.currentMonthEarningsMap!
+                row.original.currentMonthEarningsMap!,
               )}
             />
           </div>
@@ -222,7 +216,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
                 key={subrecord.projectDex}
                 earnings={buildTag(subrecord.earningsMap!)}
                 currentMonthEarnings={buildTag(
-                  subrecord.currentMonthEarningsMap!
+                  subrecord.currentMonthEarningsMap!,
                 )}
               />
             ))}
@@ -271,7 +265,7 @@ export const columns: ColumnDef<ProjectRecord>[] = [
             target="_blank"
             className={clsx(
               "px-2 font-medium text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 float-right",
-              small ? "h-[20px] mt-1 text-xs" : "text-xs py-1 "
+              small ? "h-[20px] mt-1 text-xs" : "text-xs py-1 ",
             )}
           >
             Add liquidity
@@ -325,7 +319,7 @@ export function Dashboard({
             id: "projectChainId",
             value: CHAIN_MAP[chain].id,
           },
-        ]
+        ],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
@@ -334,7 +328,7 @@ export function Dashboard({
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
   const [selectedCompetiton, setSelectedCompetiton] = React.useState(
-    competitions[0]
+    competitions[0],
   );
 
   const table = useReactTable({
@@ -362,7 +356,7 @@ export function Dashboard({
 
   const projects = table.getRowCount();
   const liquidity = calculateTVL(
-    table.getRowModel().flatRows.map((row) => row.original)
+    table.getRowModel().flatRows.map((row) => row.original),
   );
 
   const joinLink =
@@ -371,26 +365,23 @@ export function Dashboard({
 
   return (
     <>
-      <div className="w-full">
-        <div className={clsx(
-          "flex",
-          pathname === "/history" ? "flex-wrap gap-3" : ""
-        )}>
+      <div className="w-full min-w-0">
+        <div className={clsx("grid grid-cols-2 gap-3 lg:grid-cols-4")}>
           {competitions.map((competition, index) => (
             <Button
               key={`${competition.meta.token}-${competition.meta.startDate}-${index}`}
               className={clsx(
                 "flex flex-col h-[96px] cursor-pointer border-1",
-                pathname === "/history" ? "min-w-[140px]" : "flex-1 mr-3",
+                "min-w-0 whitespace-normal",
                 competition === selectedCompetiton
                   ? "border-spi-green"
-                  : "shadow-sm"
+                  : "shadow-sm",
               )}
               variant={"ghost"}
               onClick={() => setSelectedCompetiton(competition)}
             >
               <div className="flex flex-col">
-                <div className="flex">
+                <div className="flex flex-wrap justify-center">
                   <span>{competition.meta.token} on&nbsp;</span>
                   <span className="first-letter:uppercase">{chain}</span>
                 </div>
@@ -422,7 +413,7 @@ export function Dashboard({
                     ].includes(competition.meta.slug) &&
                       new Date(competition.meta.startDate).toLocaleDateString(
                         "en-US",
-                        { month: "long", year: "numeric" }
+                        { month: "long", year: "numeric" },
                       )}
                   </div>
                 )}
@@ -455,16 +446,17 @@ export function Dashboard({
             <Button
               className={clsx(
                 "h-[96px] cursor-pointer border-1 border-spi-gray",
-                pathname === "/history" ? "min-w-[140px]" : "flex-1"
+                "min-w-0 whitespace-normal",
               )}
               variant={"ghost"}
+              asChild
             >
               <Link
                 href="/new-competition"
                 className="flex flex-col items-center justify-center w-full h-full"
               >
                 <PlusIcon className="size-6 mb-1" />
-                <div className="flex items-center">
+                <div className="flex items-center gap-1">
                   <Sprout size={24} color="green" />
                   <span>Create Competition</span>
                 </div>
@@ -473,6 +465,7 @@ export function Dashboard({
           )}
         </div>
         <Summary
+          showDates={pathname === "/history"}
           rewards={selectedCompetiton.meta.rewards}
           startDate={selectedCompetiton.meta.startDate}
           endDate={selectedCompetiton.meta.endDate}
@@ -480,18 +473,17 @@ export function Dashboard({
           projects={projects}
         />
         <div className="rounded-md border mt-2">
-          <div className="ml-2 mt-5 mb-2">
-            <div>
+          <div className="px-3 mt-4 mb-3">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="font-semibold mr-2">Projects competing</span>
               {joinLink && (
-                <Link href={joinLink}>
-                  <Button
-                    className="text-xs h-[24px] text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 w-[145px] cursor-pointer"
-                    variant={"ghost"}
-                  >
-                    + join competition
-                  </Button>
-                </Link>
+                <Button
+                  asChild
+                  className="text-xs min-h-11 text-spi-dark-green bg-spi-lgreen border-1 rounded-sm border-spi-green-gradient-2 cursor-pointer"
+                  variant={"ghost"}
+                >
+                  <Link href={joinLink}>+ join competition</Link>
+                </Button>
               )}
             </div>
             <span className="text-xs text-spi-green-gradient-2">
@@ -512,7 +504,7 @@ export function Dashboard({
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     );
@@ -531,7 +523,7 @@ export function Dashboard({
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -552,7 +544,7 @@ export function Dashboard({
           <div></div>
         </div>
         {pathname !== "/history" && (
-          <span className="float-right text-xs mt-1 text-spi-gray">
+          <span className="block text-right text-xs mt-2 text-spi-gray">
             As of {date.toUTCString()}
           </span>
         )}

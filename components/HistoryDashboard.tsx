@@ -23,18 +23,20 @@ export function HistoryDashboard({
   stellarDate,
   superchainDate,
 }: HistoryDashboardProps) {
-  const [selectedChain, setSelectedChain] = useState<"celo" | "stellar" | "superchain">("celo");
+  const [selectedChain, setSelectedChain] = useState<
+    "celo" | "stellar" | "superchain"
+  >("celo");
 
   return (
     <>
-      <div className="flex gap-2 mb-4">
+      <div className="flex w-full flex-wrap gap-2 mb-4">
         <Button
           onClick={() => setSelectedChain("celo")}
           className={clsx(
-            "flex-1",
+            "min-h-11 flex-1",
             selectedChain === "celo"
               ? "bg-spi-dark-green text-white"
-              : "bg-white text-spi-dark-green border-spi-gray"
+              : "bg-white text-spi-dark-green border-spi-gray",
           )}
           variant={selectedChain === "celo" ? "default" : "outline"}
         >
@@ -43,10 +45,10 @@ export function HistoryDashboard({
         <Button
           onClick={() => setSelectedChain("stellar")}
           className={clsx(
-            "flex-1",
+            "min-h-11 flex-1",
             selectedChain === "stellar"
               ? "bg-spi-dark-green text-white"
-              : "bg-white text-spi-dark-green border-spi-gray"
+              : "bg-white text-spi-dark-green border-spi-gray",
           )}
           variant={selectedChain === "stellar" ? "default" : "outline"}
         >
@@ -55,10 +57,10 @@ export function HistoryDashboard({
         <Button
           onClick={() => setSelectedChain("superchain")}
           className={clsx(
-            "flex-1",
+            "min-h-11 flex-1",
             selectedChain === "superchain"
               ? "bg-spi-dark-green text-white"
-              : "bg-white text-spi-dark-green border-spi-gray"
+              : "bg-white text-spi-dark-green border-spi-gray",
           )}
           variant={selectedChain === "superchain" ? "default" : "outline"}
         >

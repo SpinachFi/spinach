@@ -10,6 +10,7 @@ export default function ChainCard({ chain }: ChainCardProps) {
   return (
     <Link
       href={chain.href}
+      className="block min-w-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-spi-dark-green"
       aria-label={`View ${chain.name} competitions - ${
         chain.isActive
           ? `${chain.activeCompetitions} active competitions`
@@ -17,7 +18,7 @@ export default function ChainCard({ chain }: ChainCardProps) {
       }`}
     >
       <div
-        className={`${chain.color} rounded-xl p-6 border-2 hover:shadow-lg transition-all cursor-pointer h-full`}
+        className={`${chain.color} rounded-xl p-4 sm:p-6 border-2 hover:shadow-lg transition-all cursor-pointer h-full`}
       >
         <div className="flex items-center mb-4">
           <Image
@@ -25,9 +26,9 @@ export default function ChainCard({ chain }: ChainCardProps) {
             alt={`${chain.name} blockchain logo`}
             width={32}
             height={32}
-            className="mr-3"
+            className="mr-3 shrink-0"
           />
-          <h3 className={`text-xl font-bold ${chain.textColor}`}>
+          <h3 className={`min-w-0 break-words text-xl font-bold ${chain.textColor}`}>
             {chain.name}
           </h3>
         </div>

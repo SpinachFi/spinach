@@ -11,9 +11,9 @@ export default function Layout(props: ChildrenProps & LayoutProps) {
   const { children, actionsDisabled } = props;
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-poppins)] ">
-      <main className="flex flex-col gap-8 row-start-2 items-center w-[1240px]">
-        <Header actionsDisabled={actionsDisabled} />
+    <div className="min-h-screen font-[family-name:var(--font-poppins)]">
+      <Header actionsDisabled={actionsDisabled} />
+      <main className="mx-auto flex w-full min-w-0 max-w-7xl flex-col items-center gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         {children}
       </main>
     </div>
